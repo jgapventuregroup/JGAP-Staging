@@ -26,6 +26,8 @@ const elements=new Map();
 function element(id){if(!elements.has(id))elements.set(id,{value:String(fields[id]??''),textContent:'',onclick:null,onchange:null,classList:{add(){},remove(){},toggle(){}},replaceChildren(){},append(){},focus(){},scrollIntoView(){}});return elements.get(id);}
 const context={document:{getElementById:element},window:{},console};
 vm.runInNewContext(scripts[0],context,{filename:'staging/index.html'});
+assert.equal(element('ask').value,'','Analyzer should begin blank for privacy');
+for(const [id,value] of Object.entries(fields))element(id).value=String(value);
 element('calculate').onclick();
 assert.match(element('results').textContent,/Monthly payment: \$958\.04/);
 assert.match(element('results').textContent,/Annual NOI: \$13,320\.00/);
