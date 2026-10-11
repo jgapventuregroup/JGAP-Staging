@@ -33,6 +33,7 @@ assert.equal(element('analyze-feedback').textContent,'Analysis complete','Analyz
 assert.match(element('results').textContent,/Monthly payment: \$958\.04/);
 assert.match(element('results').textContent,/Annual NOI: \$13,320\.00/);
 assert.match(element('results').textContent,/Monthly cash flow: \$151\.96/);
+assert.match(element('deal-assessment').textContent,/BELOW INVESTMENT TARGET/,'Offer below $300 monthly target must be flagged');
 element('rate').value='101';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Error: Check these fields: Annual interest/);assert.equal(element('rate')['aria-invalid'],'true','Invalid rate should be highlighted');
