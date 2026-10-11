@@ -29,3 +29,7 @@ Status: **design only**. Public signup, card collection, Stripe checkout, fraud 
 
 ## Original-app migration standard
 Only migrate an old JGAP module when it has demonstrable investing value, works with company isolation, passes automated checks and mobile usability review, and is maintainable. Toolbox entries are roadmap labels, not functioning tools.
+
+## First staging Edge Function
+- `signup-eligibility-status` deployed to staging with `verify_jwt=true` (version 1). Authenticated GET only; validates the bearer token via Supabase Auth and requires `email_confirmed_at` before reading private `free_membership_eligibility` using a server-side service key. Returns only `email_verified`, `eligibility`, and `has_workspace`; never returns service keys or private review notes.
+- Deployment and function retrieval confirmed. **Not yet integration-tested with a real signed-in session or wired into UI.** No registration or approval action is exposed.
