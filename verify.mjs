@@ -37,7 +37,7 @@ assert.match(element('deal-assessment').textContent,/BELOW INVESTMENT TARGET/,'O
 element('rate').value='101';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Error: Check these fields: Annual interest/);assert.equal(element('rate')['aria-invalid'],'true','Invalid rate should be highlighted');
-element('rate').value='7';
+element('rate').value='7';element('rent').value='0';element('other').value='0';element('calculate').onclick();assert.match(element('warning').textContent,/No rental or other income entered/,'Zero-income deals must be flagged');element('rent').value='1800';element('expenses').value='2000';element('calculate').onclick();assert.match(element('warning').textContent,/Operating expenses exceed gross monthly income/,'Expenses above income must be flagged');element('expenses').value='600';element('rent').value='1000000000001';element('calculate').onclick();assert.match(element('results').textContent,/Check these fields: Monthly rent/,'Extreme values must be rejected');element('rent').value='1800';
 element('down').value='100';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Monthly payment: \$0\.00/);
