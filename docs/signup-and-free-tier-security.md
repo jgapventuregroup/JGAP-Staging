@@ -38,3 +38,8 @@ Only migrate an old JGAP module when it has demonstrable investing value, works 
 - `request-free-eligibility` Edge Function version 1 deployed to staging, `verify_jwt=true`, authenticated POST only, with allowlisted browser CORS preflight handling. Validates verified Supabase Auth identity and company membership; creates only `pending_review`. Existing eligibility rows return conflict, never overwrite approvals or restrictions. No payment or approval action.
 - Dashboard request button deployed and staging checks passed. A rollback-only database test confirmed the user primary key prevents duplicate eligibility records.
 - **A real authenticated browser POST has not yet been tested.** The request function currently has no dedicated request-rate-limit infrastructure; public registration must remain closed.
+
+## Eligibility review audit (staging)
+- Applied migration `audit_free_eligibility_review_decisions`: private RLS-enabled `free_eligibility_review_audit` with authenticated/anonymous privileges revoked. A database trigger logs initial eligibility requests and subsequent status transitions, including old/new status, user/company and database actor identity where available.
+- Rollback-only transaction verified a `pending_review` to `restricted` transition writes the audit record; the test did not alter the existing pending request.
+- Audit logging is not an approval workflow, and the actor field may be null for privileged service operations. A dedicated trusted administrative review workflow and strong staff authorization are still required before public signup.
