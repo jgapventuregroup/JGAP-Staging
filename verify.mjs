@@ -38,3 +38,6 @@ element('down').value='100';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Monthly payment: \$0\.00/);
 console.log('PASS: real application calculation handlers, invalid input, all-cash scenario');
+
+assert.match(html,/if\(val==null\)\{missing.push\(key\);\$\(key\)\.value='';continue;\}/,'Missing deal values must clear previous estimates');
+console.log('PASS: missing deal fields do not reuse stale analyzer values');
