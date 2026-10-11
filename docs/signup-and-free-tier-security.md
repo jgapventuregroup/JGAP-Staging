@@ -23,6 +23,7 @@ Status: **design only**. Public signup, card collection, Stripe checkout, fraud 
 - `company_subscriptions`: authenticated company members have read-only membership access; customers cannot grant themselves a paid plan. A staging database trigger now initializes each new company to Free / not_connected; a rollback-only insertion test passed.
 - `enforce_company_deal_limit` trigger: caps non-active-paid workspaces at 15 deals, serializing writes by company lock.
 - `signup_abuse_reviews`: private review table with no anon/authenticated grants. **Not populated automatically.**
+- `subscription_change_audit`: private append-only subscription plan/billing-status change history, populated by a database trigger. A rollback-only change test passed. This is auditability, not payment verification.
 - Current database tests confirmed deal 16 blocked for Free, Pro without active billing, and past-due Investor; active Investor was allowed. Tests rolled back.
 
 ## Original-app migration standard
