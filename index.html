@@ -16,8 +16,8 @@ const money=n=>n.toLocaleString('en-US',{style:'currency',currency:'USD'});
 const status=s=>$('status').textContent=s;
 async function rpc(name,args){const {data,error}=await client.rpc(name,args);if(error)throw error;return data;}
 function calculate(){const ids=['ask','offer','rent','other','vacancy','expenses','down','rate','years','costs'];const n={};for(const id of ids){const v=$(id).value.trim();if(!v||!Number.isFinite(+v)||+v<0)throw Error('Enter valid nonnegative numbers in every field');n[id]=+v;}if(n.vacancy>100||n.down>100||n.rate>100||n.years<=0||n.years>50)throw Error('Invalid percentage or loan term');
-const warning=[];if(n.expenses===0)warning.push('Operating expenses are zero');if(n.vacancy===0)warning.push('Vacancy is zero');if(n.rate===0&&n.down<100)warning.push('Interest rate is zero');
-$('warning').classList.toggle('hidden',!warning.length);$('warning').textContent=warning.length?'Verify assumptions: '+warning.join('; '):'';
+const warning=[];if(n.expenses===0)warning.push('Operating expenses are zero');if(n.vacancy===0)warning.push('Vacancy is zero');if(n.rate===0&&n.down<100)warning.push('Interest rate is zero — loan payment assumes 0% financing');if(n.down===0&&n.rate===0)warning.push('No down payment and no interest: confirm financing terms');
+$('warning').classList.toggle('hidden',!warning.length);$('warning').textContent=warning.length?'PRELIMINARY ESTIMATE — NOT VERIFIED. Verify assumptions: '+warning.join('; '):'';
 const loan=n.offer*(1-n.down/100),months=n.years*12,r=n.rate/1200;
 const payment=loan===0?0:r===0?loan/months:loan*r/(1-Math.pow(1+r,-months));
 const noi=((n.rent+n.other)*(1-n.vacancy/100)-n.expenses)*12;
