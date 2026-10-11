@@ -24,7 +24,7 @@ console.log('PASS: staging HTML, syntax, RPC references, credential scan, calcul
 const fields={ask:200000,offer:180000,rent:1800,other:0,vacancy:5,expenses:600,down:20,rate:7,years:30,costs:5000};
 const elements=new Map();
 function element(id){if(!elements.has(id))elements.set(id,{value:String(fields[id]??''),textContent:'',onclick:null,onchange:null,setAttribute(k,v){this[k]=v},classList:{add(){},remove(){},toggle(){}},replaceChildren(){},append(){},focus(){},scrollIntoView(){}});return elements.get(id);}
-const documentElement={dataset:{}};const saved=new Map();const context={document:{documentElement,getElementById:element,querySelectorAll:()=>[]},window:{},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)},matchMedia:()=>({matches:false}),console};
+const documentElement={dataset:{}};const saved=new Map();const context={document:{documentElement,getElementById:element,querySelectorAll:()=>[],createElement:()=>({textContent:'',className:'',append(){}})},window:{},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)},matchMedia:()=>({matches:false}),console};
 vm.runInNewContext(scripts[0],context,{filename:'staging/index.html'});
 assert.equal(documentElement.dataset.theme,'light','Default theme should be light');assert.equal(typeof element('theme-toggle').onclick,'function','Theme toggle must be clickable');element('theme-toggle').onclick();assert.equal(documentElement.dataset.theme,'dark','Theme button must switch to dark');assert.equal(saved.get('jgap-theme'),'dark','Theme choice must persist');element('theme-toggle').onclick();assert.equal(documentElement.dataset.theme,'light','Theme button must switch back to light');assert.equal(element('ask').value,'','Analyzer should begin blank for privacy');
 for(const [id,value] of Object.entries(fields))element(id).value=String(value);
@@ -33,7 +33,7 @@ assert.equal(element('analyze-feedback').textContent,'Analysis complete','Analyz
 assert.match(element('results').textContent,/Monthly payment: \$958\.04/);
 assert.match(element('results').textContent,/Annual NOI: \$13,320\.00/);
 assert.match(element('results').textContent,/Monthly cash flow: \$151\.96/);
-assert.match(element('deal-assessment').textContent,/BELOW INVESTMENT TARGET/,'Offer below $300 monthly target must be flagged');
+assert.match(element('deal-assessment').textContent,/BELOW INVESTMENT TARGET/,'Offer below $300 monthly target must be flagged');assert.equal(element('deal-explanation').textContent,'','Assessment uses structured cards, not a single paragraph');
 element('rate').value='101';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Error: Check these fields: Annual interest/);assert.equal(element('rate')['aria-invalid'],'true','Invalid rate should be highlighted');
