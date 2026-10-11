@@ -41,3 +41,8 @@ console.log('PASS: real application calculation handlers, invalid input, all-cas
 
 assert.match(html,/if\(val==null\)\{missing.push\(key\);\$\(key\)\.value='';continue;\}/,'Missing deal values must clear previous estimates');
 console.log('PASS: missing deal fields do not reuse stale analyzer values');
+
+assert.match(html,/\$\('selected'\)\.textContent='Manual calculation — not saved'/,'Sign out must clear selected deal');
+assert.match(html,/\$\('results'\)\.textContent=''/,'Sign out must clear prior financial results');
+assert.match(html,/\$\('deals'\)\.replaceChildren\(\)/,'Sign out must clear property list');
+console.log('PASS: sign out removes previous customer property and financial details');
