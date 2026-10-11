@@ -95,3 +95,5 @@ assert.match(html,/const paidActive=\(plan==='investor'\|\|plan==='pro'\)\&\&bil
 
 
 assert.doesNotMatch(html,/id="retry-eligibility"|id="request-eligibility"|id="signup-eligibility-status"/,'Development-only eligibility controls must not appear on customer dashboard');console.log('PASS: customer dashboard excludes development-only eligibility controls');
+
+assert.match(html,/client\.rpc\('create_my_company',\{p_company_name:'My Investment Company'\}\)/,'New verified users should receive an automatically provisioned workspace');assert.match(html,/if\(!rows\?\.length\)/,'Provisioning must only run when no company exists');assert.match(html,/if\(!data\.user\?\.email_confirmed_at\)/,'Email must be verified before automatic provisioning');console.log('PASS: verified new account automatic workspace onboarding');
