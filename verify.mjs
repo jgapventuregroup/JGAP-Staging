@@ -28,7 +28,7 @@ const documentElement={dataset:{}};const saved=new Map();const context={document
 vm.runInNewContext(scripts[0],context,{filename:'staging/index.html'});
 assert.equal(documentElement.dataset.theme,'light','Default theme should be light');assert.equal(typeof element('theme-toggle').onclick,'function','Theme toggle must be clickable');element('theme-toggle').onclick();assert.equal(documentElement.dataset.theme,'dark','Theme button must switch to dark');assert.equal(saved.get('jgap-theme'),'dark','Theme choice must persist');element('theme-toggle').onclick();assert.equal(documentElement.dataset.theme,'light','Theme button must switch back to light');assert.equal(element('ask').value,'','Analyzer should begin blank for privacy');
 for(const [id,value] of Object.entries(fields))element(id).value=String(value);
-element('calculate').onclick();
+element('target-flow').value='300';element('target-coc').value='8';element('reserve-cash').value='5000';element('calculate').onclick();
 assert.equal(element('analyze-feedback').textContent,'Analysis complete','Analyze button must confirm click');
 assert.match(element('results').textContent,/Monthly payment: \$958\.04/);
 assert.match(element('results').textContent,/Annual NOI: \$13,320\.00/);
