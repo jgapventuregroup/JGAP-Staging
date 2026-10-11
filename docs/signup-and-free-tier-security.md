@@ -24,7 +24,7 @@ Status: **design only**. Public signup, card collection, Stripe checkout, fraud 
 - `enforce_company_deal_limit` trigger: caps non-active-paid workspaces at 15 deals, serializing writes by company lock.
 - `signup_abuse_reviews`: private review table with no anon/authenticated grants. **Not populated automatically.**
 - `subscription_change_audit`: private append-only subscription plan/billing-status change history, populated by a database trigger. A rollback-only change test passed. This is auditability, not payment verification.
-- `free_membership_eligibility`: private server-managed user-to-Free-workspace eligibility record. Approval requires an email-verification timestamp; a rollback-only test confirmed unverified approval fails and verified approval succeeds. This is **not wired to signup** and does **not** identify repeat individuals using different emails.
+- `free_membership_eligibility`: private server-managed user-to-Free-workspace eligibility record. Approval requires a verified email in Supabase Auth; a database trigger reads `auth.users.email_confirmed_at` and overwrites any supplied timestamp. A rollback-only test confirmed a false supplied timestamp is replaced by the actual verified timestamp. This is **not wired to signup** and does **not** identify repeat individuals using different emails.
 - Current database tests confirmed deal 16 blocked for Free, Pro without active billing, and past-due Investor; active Investor was allowed. Tests rolled back.
 
 ## Original-app migration standard
