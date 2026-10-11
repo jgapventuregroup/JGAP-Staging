@@ -40,6 +40,23 @@ element('down').value='100';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Monthly payment: \$0\.00/);
 console.log('PASS: real application calculation handlers, invalid input, all-cash scenario');
+function offerTest(values,targets){for(const [id,value] of Object.entries({...fields,...values}))element(id).value=String(value);for(const [id,value] of Object.entries({'target-flow':300,'target-coc':8,'reserve-cash':5000,...targets}))element(id).value=String(value);element('solve-offer').onclick();return element('offer-guidance').textContent;}
+const standard=offerTest({down:20,rate:7,years:30,rent:1800,expenses:600,vacancy:5,costs:5000},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
+assert.match(standard,/Maximum offer meeting both targets:/);
+const standardPrice=Number(standard.match(/Maximum offer meeting both targets: \\$([\\d,]+\\.\\d{2})/)[1].replaceAll(',',''));
+const monthlyNoi=1800*.95-600,interest=7/1200,factor=interest/(1-Math.pow(1+interest,-360));
+const debtFactor=.8*factor;
+const cashLimit=(monthlyNoi-300)/debtFactor;
+const returnLimit=(12*monthlyNoi-.08*10000)/(12*debtFactor+.08*.2);
+assert.ok(Math.abs(standardPrice-Math.min(cashLimit,returnLimit))<.02,'Offer must satisfy stricter constraint');
+assert.match(standard,/Estimated cash needed including reserves:/);
+const cash=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
+assert.match(cash,/Maximum offer meeting both targets:/,'All-cash deal with positive return target must be supported');
+const impossible=offerTest({rent:100,expenses:600},{'target-flow':300,'target-coc':8});
+assert.match(impossible,/Error: Targets cannot be met/);
+const noFinite=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':0});
+assert.match(noFinite,/Error: These targets do not produce a finite maximum offer/);
+console.log('PASS: real maximum-offer button, stricter constraint, cash reserves, all-cash, impossible and unbounded cases');
 
 assert.match(html,/if\(val==null\)\{missing.push\(key\);\$\(key\)\.value='';continue;\}/,'Missing deal values must clear previous estimates');
 console.log('PASS: missing deal fields do not reuse stale analyzer values');
