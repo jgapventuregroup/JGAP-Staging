@@ -34,11 +34,12 @@ assert.match(element('results').textContent,/Annual NOI: \$13,320\.00/);
 assert.match(element('results').textContent,/Monthly cash flow: \$151\.96/);
 element('rate').value='101';
 element('calculate').onclick();
-assert.match(element('results').textContent,/Error: Invalid percentage or loan term/);
+assert.match(element('results').textContent,/Error: Check vacancy, down payment, interest rate and loan years/);
 element('rate').value='7';
 element('down').value='100';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Monthly payment: \$0\.00/);
+element('offer').value='';element('calculate').onclick();assert.match(element('results').textContent,/Check these fields: Your offer/,'Missing offer should be named');element('offer').value='180000';element('other').value='';element('solve-offer').onclick();assert.match(element('offer-guidance').textContent,/Check these fields: Other monthly income/,'Maximum offer should identify missing income field');element('other').value='0';
 console.log('PASS: real application calculation handlers, invalid input, all-cash scenario');
 function offerTest(values,targets){for(const [id,value] of Object.entries({...fields,...values}))element(id).value=String(value);for(const [id,value] of Object.entries({'target-flow':300,'target-coc':8,'reserve-cash':5000,...targets}))element(id).value=String(value);element('solve-offer').onclick();return element('offer-guidance').textContent;}
 const standard=offerTest({down:20,rate:7,years:30,rent:1800,expenses:600,vacancy:5,costs:5000},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
