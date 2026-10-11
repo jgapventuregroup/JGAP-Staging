@@ -23,8 +23,8 @@ console.log('PASS: staging HTML, syntax, RPC references, credential scan, calcul
 
 const fields={ask:200000,offer:180000,rent:1800,other:0,vacancy:5,expenses:600,down:20,rate:7,years:30,costs:5000};
 const elements=new Map();
-function element(id){if(!elements.has(id))elements.set(id,{value:String(fields[id]??''),textContent:'',onclick:null,onchange:null,setAttribute(k,v){this[k]=v},classList:{add(){},remove(){},toggle(){}},replaceChildren(){},append(){},focus(){},scrollIntoView(){}});return elements.get(id);}
-const documentElement={dataset:{}};const saved=new Map();const context={document:{documentElement,getElementById:element,querySelectorAll:()=>[],createElement:()=>({textContent:'',className:'',append(){}})},window:{},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)},matchMedia:()=>({matches:false}),console};
+function element(id){if(!elements.has(id))elements.set(id,{value:String(fields[id]??''),textContent:'',onclick:null,onchange:null,setAttribute(k,v){this[k]=v},classList:{add(){},remove(){},toggle(){}},children:[],replaceChildren(...items){this.children=items},append(...items){this.children.push(...items)},removeAttribute(k){delete this[k]},focus(){},scrollIntoView(){}});return elements.get(id);}
+const documentElement={dataset:{}};const saved=new Map();const context={document:{documentElement,getElementById:element,querySelectorAll:()=>[],createElement:()=>({textContent:'',className:'',children:[],append(...items){this.children.push(...items)}})},window:{},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)},matchMedia:()=>({matches:false}),console};
 vm.runInNewContext(scripts[0],context,{filename:'staging/index.html'});
 assert.equal(documentElement.dataset.theme,'light','Default theme should be light');assert.equal(typeof element('theme-toggle').onclick,'function','Theme toggle must be clickable');element('theme-toggle').onclick();assert.equal(documentElement.dataset.theme,'dark','Theme button must switch to dark');assert.equal(saved.get('jgap-theme'),'dark','Theme choice must persist');element('theme-toggle').onclick();assert.equal(documentElement.dataset.theme,'light','Theme button must switch back to light');assert.equal(element('ask').value,'','Analyzer should begin blank for privacy');
 for(const [id,value] of Object.entries(fields))element(id).value=String(value);
@@ -33,7 +33,7 @@ assert.equal(element('analyze-feedback').textContent,'Analysis complete','Analyz
 assert.match(element('results').textContent,/Monthly payment: \$958\.04/);
 assert.match(element('results').textContent,/Annual NOI: \$13,320\.00/);
 assert.match(element('results').textContent,/Monthly cash flow: \$151\.96/);
-assert.match(element('deal-assessment').textContent,/BELOW INVESTMENT TARGET/,'Offer below $300 monthly target must be flagged');assert.equal(element('deal-explanation').textContent,'','Assessment uses structured cards, not a single paragraph');
+assert.match(element('deal-assessment').textContent,/BELOW INVESTMENT TARGET/,'Offer below $300 monthly target must be flagged');assert.equal(element('deal-explanation').children.length,5,'Assessment must render five cards');assert.match(element('deal-explanation').children[0].children[0].textContent,/Deal verdict/);
 element('rate').value='101';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Error: Check these fields: Annual interest/);assert.equal(element('rate')['aria-invalid'],'true','Invalid rate should be highlighted');
@@ -45,7 +45,7 @@ element('offer').value='';element('calculate').onclick();assert.match(element('r
 console.log('PASS: real application calculation handlers, invalid input, all-cash scenario');
 function offerTest(values,targets){for(const [id,value] of Object.entries({...fields,...values}))element(id).value=String(value);for(const [id,value] of Object.entries({'target-flow':300,'target-coc':8,'reserve-cash':5000,...targets}))element(id).value=String(value);element('solve-offer').onclick();return element('offer-guidance').textContent;}
 const standard=offerTest({down:20,rate:7,years:30,rent:1800,expenses:600,vacancy:5,costs:5000},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
-assert.match(standard,/Maximum offer meeting both targets:/);assert.ok(standard.includes('\nLimiting requirement:'),'Maximum offer must render real line breaks');assert.ok(!standard.includes('\\\\n'),'Maximum offer must not display literal backslash-n');assert.equal(element('maximum-feedback').textContent,'Maximum offer calculated','Maximum offer button must confirm click');
+assert.match(standard,/Maximum offer meeting both targets:/);assert.ok(standard.includes('\nLimiting requirement:'),'Maximum offer must render real line breaks');assert.ok(!standard.includes('\\\\n'),'Maximum offer must not display literal backslash-n');assert.equal(element('maximum-feedback').textContent,'Maximum offer calculated','Maximum offer button must confirm click');assert.equal(element('price-comparison').children.length,4,'Comparison must show three prices and offer guidance');assert.match(element('price-comparison').children[0].children[1].textContent,/\$200,000/,'Asking price must match current input');assert.match(element('price-comparison').children[1].children[1].textContent,/\$180,000/,'Proposed offer must match current input');
 const standardPrice=Number(standard.match(/Maximum offer meeting both targets: \$([\d,]+\.\d{2})/)[1].replaceAll(',',''));
 const monthlyNoi=1800*.95-600,interest=7/1200,factor=interest/(1-Math.pow(1+interest,-360));
 const debtFactor=.8*factor;
@@ -53,7 +53,7 @@ const cashLimit=(monthlyNoi-300)/debtFactor;
 const returnLimit=(12*monthlyNoi-.08*10000)/(12*debtFactor+.08*.2);
 assert.ok(Math.abs(standardPrice-Math.min(cashLimit,returnLimit))<.02,'Offer must satisfy stricter constraint');
 assert.match(standard,/Estimated cash needed including reserves:/);
-const cash=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
+const revised=offerTest({ask:225000,offer:150000,down:20,rate:7},{'target-flow':300,'target-coc':8});assert.match(revised,/Maximum offer meeting both targets/);assert.equal(element('price-comparison').children.length,4,'New deal comparison must replace old cards');assert.match(element('price-comparison').children[0].children[1].textContent,/\$225,000/,'Comparison must use new seller asking price');assert.match(element('price-comparison').children[1].children[1].textContent,/\$150,000/,'Comparison must use new offer');const cash=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
 assert.match(cash,/Maximum offer meeting both targets:/,'All-cash deal with positive return target must be supported');
 const impossible=offerTest({rent:100,expenses:600},{'target-flow':300,'target-coc':8});
 assert.match(impossible,/Error: Targets cannot be met/);
@@ -68,3 +68,5 @@ assert.match(html,/\$\('selected'\)\.textContent='Manual calculation — not sav
 assert.match(html,/\$\('results'\)\.textContent=''/,'Sign out must clear prior financial results');
 assert.match(html,/\$\('deals'\)\.replaceChildren\(\)/,'Sign out must clear property list');
 console.log('PASS: sign out removes previous customer property and financial details');
+
+assert.match(html,/clearAnalysisResults\(\);const mapping=\{ask:d\.asking_price/,'Selecting a new property must clear previous analysis before filling fields');assert.match(html,/const resetAnalyzer=\(\)=>\{\$\('price-comparison'\)\.replaceChildren\(\)/,'Signing out must clear price comparison');console.log('PASS: assessment cards, price comparison changes, and property switch clearing');
