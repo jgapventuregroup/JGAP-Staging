@@ -44,7 +44,7 @@ console.log('PASS: real application calculation handlers, invalid input, all-cas
 function offerTest(values,targets){for(const [id,value] of Object.entries({...fields,...values}))element(id).value=String(value);for(const [id,value] of Object.entries({'target-flow':300,'target-coc':8,'reserve-cash':5000,...targets}))element(id).value=String(value);element('solve-offer').onclick();return element('offer-guidance').textContent;}
 const standard=offerTest({down:20,rate:7,years:30,rent:1800,expenses:600,vacancy:5,costs:5000},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
 assert.match(standard,/Maximum offer meeting both targets:/);
-const standardPrice=Number(standard.match(/Maximum offer meeting both targets: \\$([\\d,]+\\.\\d{2})/)[1].replaceAll(',',''));
+const standardPrice=Number(standard.match(/Maximum offer meeting both targets: \$([\d,]+\.\d{2})/)[1].replaceAll(',',''));
 const monthlyNoi=1800*.95-600,interest=7/1200,factor=interest/(1-Math.pow(1+interest,-360));
 const debtFactor=.8*factor;
 const cashLimit=(monthlyNoi-300)/debtFactor;
