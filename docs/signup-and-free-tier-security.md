@@ -33,3 +33,8 @@ Only migrate an old JGAP module when it has demonstrable investing value, works 
 ## First staging Edge Function
 - `signup-eligibility-status` deployed to staging with `verify_jwt=true` (version 1). Authenticated GET only; validates the bearer token via Supabase Auth and requires `email_confirmed_at` before reading private `free_membership_eligibility` using a server-side service key. Returns only `email_verified`, `eligibility`, and `has_workspace`; never returns service keys or private review notes.
 - Deployment and function retrieval confirmed. **Not yet integration-tested with a real signed-in session or wired into UI.** No registration or approval action is exposed.
+
+## Manual Free eligibility review request
+- `request-free-eligibility` Edge Function version 1 deployed to staging, `verify_jwt=true`, authenticated POST only, with allowlisted browser CORS preflight handling. Validates verified Supabase Auth identity and company membership; creates only `pending_review`. Existing eligibility rows return conflict, never overwrite approvals or restrictions. No payment or approval action.
+- Dashboard request button deployed and staging checks passed. A rollback-only database test confirmed the user primary key prevents duplicate eligibility records.
+- **A real authenticated browser POST has not yet been tested.** The request function currently has no dedicated request-rate-limit infrastructure; public registration must remain closed.
