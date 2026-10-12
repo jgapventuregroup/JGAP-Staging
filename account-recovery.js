@@ -40,14 +40,15 @@
     updating = true; el('save-new-password').disabled = true;
     try {
       const { error } = await recoveryClient.auth.updateUser({ password });
-      clearFields();
       if (error) throw error;
+      clearFields();
       verifiedRecovery = false;
       await recoveryClient.auth.signOut({ scope: 'global' }).catch(() => {});
       recoveryClient = null;
       el('recovery-status').textContent = 'Password updated. Return to sign in with your new password.';
-    } catch {
-      clearFields(); el('recovery-status').textContent = 'The password could not be updated. The link may have expired. Return to sign in and request a new reset link.';
+    } catch (error) {
+      const code = String(error?.code || 'unknown_error').replace(/[^a-z0-9_]/gi, '').slice(0, 60);
+      el('recovery-status').textContent = 'Password update failed (' + code + '). Your password was not changed. If this is a password-policy error, choose a different password. If the link expired, request a new reset link.';
     } finally { updating = false; el('save-new-password').disabled = !verifiedRecovery; }
   };
   el('back-to-signin').onclick = async () => {
