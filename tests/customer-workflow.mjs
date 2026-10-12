@@ -67,6 +67,7 @@ assert.match(el('celoc-results').textContent, /Inputs changed/);
 
 // A writable account must persist offer changes through the company-scoped API.
 companies[0].member_role='owner';
+await el('login').onclick(); // Refresh the app's membership snapshot; fixture mutation alone does not change cached permissions.
 el('company').value='a';await el('company').onchange();
 const editable=el('deals').children[0].children.find(x=>x.tagName==='button');
 await editable.onclick();
