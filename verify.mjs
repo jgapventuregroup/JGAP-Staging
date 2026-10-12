@@ -58,7 +58,7 @@ assert.match(cash,/Maximum offer meeting both targets:/,'All-cash deal with posi
 const impossible=offerTest({rent:100,expenses:600},{'target-flow':300,'target-coc':8});
 assert.match(impossible,/Error: Targets cannot be met/);assert.equal(element('price-comparison').children.length,0,'Impossible deal must not retain old price cards');
 const noFinite=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':0});
-assert.match(noFinite,/Error: These targets do not produce a finite maximum offer/);
+assert.match(noFinite,/Error: No finite maximum offer: an all-cash purchase/);
 console.log('PASS: real maximum-offer button, stricter constraint, cash reserves, all-cash, impossible and unbounded cases');
 
 assert.match(html,/if\(val==null\)\{missing.push\(key\);\$\(key\)\.value='';continue;\}/,'Missing deal values must clear previous estimates');
