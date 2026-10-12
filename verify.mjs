@@ -119,3 +119,5 @@ assert.match(html,/selectedRehabCosts=Number\(d\.rehab_cost\|\|0\)/,'Opening pro
 assert.match(html,/id="celoc-amount"/,'Original CELOC tool must be integrated');assert.match(html,/id="celoc-calculate"/,'CELOC tool must have working calculation control');assert.match(html,/const monthly=amount\*rate\/1200/,'CELOC must calculate interest-only carrying cost');console.log('PASS: original JGAP CELOC funding integration');
 
 assert.match(html,/Estimated monthly cash flow after mortgage and CELOC interest/,'CELOC analysis must show combined financing cash flow');assert.match(html,/operating-mortgage-monthly/,'Combined cash flow must subtract both loan payments');console.log('PASS: mortgage and CELOC combined cash-flow estimate');
+
+assert.match(html,/id="export-properties"/,'Property export button must exist');assert.match(html,/rows\.some\(d=>d\.company_id!==companyId\)/,'Export data must pass company isolation validation');assert.match(html,/if\(client!==activeClient\|\|companyId!==activeCompany\)return;const columns=/,'Export must refuse stale company sessions');console.log('PASS: company-scoped property summary export');
