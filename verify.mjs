@@ -116,8 +116,10 @@ assert.match(html,/No finite maximum offer: an all-cash purchase with a 0% cash-
 
 assert.match(html,/selectedRehabCosts=Number\(d\.rehab_cost\|\|0\)/,'Opening property must retain repair allocation');assert.match(html,/rehab_cost:n\.costs-selectedRehabCosts>=0\?selectedRehabCosts:0/,'Saving must preserve repair allocation when combined costs permit');console.log('PASS: saved rehab costs survive property analysis edits');
 
-assert.match(html,/id="celoc-amount"/,'Original CELOC tool must be integrated');assert.match(html,/id="celoc-calculate"/,'CELOC tool must have working calculation control');assert.match(html,/const monthly=amount\*rate\/1200/,'CELOC must calculate interest-only carrying cost');console.log('PASS: original JGAP CELOC funding integration');
+assert.match(html,/id="celoc-amount"/,'Optional additional financing tool must be integrated');assert.match(html,/id="celoc-calculate"/,'CELOC tool must have working calculation control');assert.match(html,/const monthly=amount\*rate\/1200/,'CELOC must calculate interest-only carrying cost');console.log('PASS: original JGAP CELOC funding integration');
 
-assert.match(html,/Estimated monthly cash flow after mortgage and CELOC interest/,'CELOC analysis must show combined financing cash flow');assert.match(html,/operating-mortgage-monthly/,'Combined cash flow must subtract both loan payments');console.log('PASS: mortgage and CELOC combined cash-flow estimate');
+assert.match(html,/Estimated monthly cash flow after mortgage and additional loan interest/,'CELOC analysis must show combined financing cash flow');assert.match(html,/operating-mortgage-monthly/,'Combined cash flow must subtract both loan payments');console.log('PASS: mortgage and CELOC combined cash-flow estimate');
 
 assert.match(html,/id="export-properties"/,'Property export button must exist');assert.match(html,/rows\.some\(d=>d\.company_id!==companyId\)/,'Export data must pass company isolation validation');assert.match(html,/if\(client!==activeClient\|\|companyId!==activeCompany\)return;const columns=/,'Export must refuse stale company sessions');console.log('PASS: company-scoped property summary export');
+
+assert.match(html,/<details class="offer-helper" id="secondary-financing">/,'Secondary financing must be optional and collapsed by default');assert.match(html,/Optional second loan or line of credit/,'Secondary financing must not be CELOC-specific');console.log('PASS: financing optional for investors using their own cash');
