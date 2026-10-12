@@ -134,3 +134,13 @@ for(const id of ['export-status','new-deal-status','membership-title','celoc-res
 assert.equal(element('celoc-amount').value,'');assert.equal(element('export-properties').disabled,true);assert.equal(element('export-properties').onclick,null);assert.equal(element('new-deal-form').hidden,true);
 assert.match(element('status').textContent,/Unable to load company/);
 console.log('PASS: failed company switch clears prior properties, export, membership and financing data');
+
+// Regression: the authenticated screenshot showed green approval beside zero-cost warnings.
+for(const [id,value] of Object.entries({...fields,ask:180000,offer:180000,expenses:0,vacancy:0,down:0,rate:0,costs:0}))element(id).value=String(value);
+element('target-flow').value='300';element('target-coc').value='8';element('reserve-cash').value='5000';element('calculate').onclick();
+assert.match(element('deal-assessment').textContent,/PRELIMINARY — VERIFY ASSUMPTIONS/);
+assert.match(element('deal-explanation').children[0].children[1].textContent,/Verify assumptions before judging/);
+assert.ok(element('deal-explanation').children.every(card=>card.className.includes('assessment-attention')),'Unverified assumptions must not render green approval cards');
+for(const [id,value] of Object.entries({...fields,rent:3000}))element(id).value=String(value);
+element('calculate').onclick();assert.match(element('deal-assessment').textContent,/MEETS BOTH TARGETS/);assert.ok(element('deal-explanation').children[0].className.includes('assessment-pass'));
+console.log('PASS: preliminary assumptions prevent green approval; complete passing inputs still compare targets');
