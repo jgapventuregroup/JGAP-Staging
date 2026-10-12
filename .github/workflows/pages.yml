@@ -27,7 +27,7 @@ jobs:
       - name: Package public frontend only
         run: |
           mkdir -p dist
-          cp index.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js dist/
+          cp index.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js dist/
       - uses: actions/configure-pages@v5
         with:
           enablement: true

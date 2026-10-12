@@ -32,7 +32,7 @@ const fakeClient = {
     if (name === 'create_company_deal_from_listing') return { data: {id:'imported-property',saved:true}, error: null };
     return { data: null, error: null };
   },
-  from(table) { const query = { select() { return query; }, eq() { return query; }, maybeSingle: async () => ({ data: { plan: 'free', billing_status: 'not_connected' }, error: null }) }; return query; },
+  from(table) { let fields={},operation=null;const predicates={}; const query = { select() { return query; }, eq(key,value) { predicates[key]=value;return query; },order(){return query;},insert(value){fields=value;operation='insert';return query;},update(value){fields=value;operation='update';return query;},single:async()=>{calls.push({name:'table-write',table,operation,fields,predicates});return {data:{id:'lender-fixture',company_id:fields.company_id||predicates.company_id,...fields},error:null};},then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject);}, maybeSingle: async () => ({ data: { plan: 'free', billing_status: 'not_connected' }, error: null }) }; return query; },
 };
 const context = { document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: () => [], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
 vm.runInNewContext(script, context);
@@ -57,6 +57,7 @@ const writesBefore = calls.filter(x => x.name === 'update_company_deal').length;
 await el('save-analysis').onclick();
 assert.equal(calls.filter(x => x.name === 'update_company_deal').length, writesBefore);
 await assert.rejects(context.window.JGAPIntelligenceContext.save({}, 'a'), /not authorized/, 'Viewer cannot bypass import controls');
+await assert.rejects(context.window.JGAPLenderContext.save({institution_name:'Test lender'},null,'a'), /not authorized/);
 el('celoc-results').textContent = 'Old cash flow'; el('rent').listeners.input();
 assert.match(el('celoc-results').textContent, /Inputs changed/);
 
@@ -75,6 +76,11 @@ await context.window.JGAPIntelligenceContext.save(imported,'b');
 const write=calls.find(x=>x.name==='create_company_deal_from_listing');assert.equal(write.args.p_company_id,'b');assert.equal(write.args.p_asking_price,200000);assert.equal(write.args.p_offer_price,150000);
 await assert.rejects(context.window.JGAPIntelligenceContext.save({...imported,expenses_monthly:null},'b'), /Verify asking price/);
 
+await assert.rejects(context.window.JGAPLenderContext.load('a'), /not authorized/);
+await assert.rejects(context.window.JGAPLenderContext.save({institution_name:'Test lender',company_id:'a'},null,'b'), /fields are invalid/);
+await context.window.JGAPLenderContext.save({institution_name:'Test lender'},null,'b');
+const lenderWrite=calls.filter(x=>x.name==='table-write').at(-1);assert.equal(lenderWrite.fields.company_id,'b');assert.equal(lenderWrite.operation,'insert');
+await context.window.JGAPLenderContext.archive('lender-fixture',true,'b');const archiveWrite=calls.filter(x=>x.name==='table-write').at(-1);assert.equal(archiveWrite.predicates.company_id,'b');assert.equal(archiveWrite.predicates.id,'lender-fixture');assert.equal(archiveWrite.fields.archived,true);
 await el('logout').onclick();
 assert.equal(el('deals').children.length, 0);
 assert.equal(el('workspace').classList.contains('hidden'), true);

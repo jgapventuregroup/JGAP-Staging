@@ -29,6 +29,7 @@ Verified October 12, 2026. This replaces the earlier 15-active-deal design notes
 - Browser redirects and `checkout.session.completed` do not grant paid access. Duplicate delivery, older events, mismatched subscriptions, cancellation, resubscription and paid/failed renewal invoices are tested.
 - Handlers are **test-mode only**, require explicit server enablement/configuration, and return unavailable while disconnected. They do not implement Free card setup or one-Free-person verification.
 - The migrated Deal Intelligence importer saves asking price, explicit user offer, unit count and property type in one company-scoped transaction. Repeated addresses return the existing property without consuming another Free slot.
+- Financing & Lenders now preserves the original directory fields, leaves unknown terms blank, keeps entered zeros, and supports reversible archive/restore. Company-level read/write restrictions and immutable company ownership passed database rollback tests.
 - Private billing event records have RLS and no customer access. Customers cannot execute the billing update RPC.
 
 ## Public-launch blockers
