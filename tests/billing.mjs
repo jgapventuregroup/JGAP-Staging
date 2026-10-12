@@ -62,3 +62,16 @@ assert.equal(eventArgs, null, 'Checkout redirects or completed sessions must not
 const mismatchDeps = { ...deps, stripe: { ...deps.stripe, subscriptions: { retrieve: async () => ({ ...subscription, customer: 'cus_other' }) } } };
 assert.equal((await createBillingWebhookHandler(mismatchDeps, config)(webhookRequest('valid'))).status, 500);
 console.log('PASS: billing events — signature failures, current provider state, paid invoice requirement, unknown prices, cancellation, test-only events, customer matching, no redirect-based activation');
+
+for (const type of ['invoice.paid', 'invoice.payment_failed']) {
+  eventArgs = null;
+  const invoiceDeps = { ...deps, verifyEvent: async () => ({ id: 'evt_invoicefixture', created: 101, livemode: false, type, data: { object: { object: 'invoice', id: 'in_fixture', customer: 'cus_fixture', parent: { subscription_details: { subscription: 'sub_fixture' } } } } }) };
+  assert.equal((await createBillingWebhookHandler(invoiceDeps, config)(webhookRequest('valid'))).status, 200);
+  assert.equal(eventArgs.subscription_id, 'sub_fixture', 'Renewal invoice events must refresh the current subscription');
+  assert.equal(eventArgs.billing_status, 'active', 'Current paid provider state overrides a stale invoice snapshot');
+}
+eventArgs = null;
+const unrelatedInvoiceDeps = { ...deps, verifyEvent: async () => ({ id: 'evt_invoicefixture', created: 101, livemode: false, type: 'invoice.paid', data: { object: { object: 'invoice', id: 'in_fixture', customer: 'cus_fixture' } } }) };
+assert.equal((await createBillingWebhookHandler(unrelatedInvoiceDeps, config)(webhookRequest('valid'))).status, 200);
+assert.equal(eventArgs, null, 'One-off invoices cannot activate a subscription');
+console.log('PASS: subscription renewal — paid/failed invoices refresh current state; unrelated invoices cannot grant access');

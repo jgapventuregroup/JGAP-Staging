@@ -26,8 +26,9 @@ Verified October 12, 2026. This replaces the earlier 15-active-deal design notes
 
 - `billing-session`: validates every bearer token with Auth, requires verified email and company owner/admin role, permits only fixed Investor/Pro monthly USD prices, and creates hosted checkout/portal sessions.
 - `billing-webhook`: validates the raw body with the Stripe SDK, retrieves current subscription state, matches the stored customer, verifies the price and paid invoice, and calls the service-only transactional update.
-- Browser redirects and `checkout.session.completed` do not grant paid access. Duplicate delivery, older events, mismatched subscriptions, cancellation and resubscription are tested.
+- Browser redirects and `checkout.session.completed` do not grant paid access. Duplicate delivery, older events, mismatched subscriptions, cancellation, resubscription and paid/failed renewal invoices are tested.
 - Handlers are **test-mode only**, require explicit server enablement/configuration, and return unavailable while disconnected. They do not implement Free card setup or one-Free-person verification.
+- The migrated Deal Intelligence importer saves asking price, explicit user offer, unit count and property type in one company-scoped transaction. Repeated addresses return the existing property without consuming another Free slot.
 - Private billing event records have RLS and no customer access. Customers cannot execute the billing update RPC.
 
 ## Public-launch blockers

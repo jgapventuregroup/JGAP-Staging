@@ -93,15 +93,29 @@ export function createBillingWebhookHandler(deps, config) {
     try { event = await deps.verifyEvent(raw, request.headers.get('stripe-signature'), config.webhookSecret); }
     catch { return json({ error: 'Invalid signature.' }, 400); }
     if (event.livemode !== false) return json({ error: 'Staging accepts test events only.' }, 400);
-    if (!['customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted'].includes(event.type)) return json({ received: true, ignored: true });
+    const subscriptionEvent = ['customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted'].includes(event.type);
+    const invoiceEvent = ['invoice.paid', 'invoice.payment_failed'].includes(event.type);
+    if (!subscriptionEvent && !invoiceEvent) return json({ received: true, ignored: true });
     const source = event.data?.object;
-    if (source?.object !== 'subscription' || !/^sub_[A-Za-z0-9]+$/.test(source.id || '') || !/^evt_[A-Za-z0-9]+$/.test(event.id || '') || !Number.isSafeInteger(event.created) || event.created < 0) return json({ error: 'Invalid event.' }, 400);
+    if (!/^evt_[A-Za-z0-9]+$/.test(event.id || '') || !Number.isSafeInteger(event.created) || event.created < 0) return json({ error: 'Invalid event.' }, 400);
+    let subscriptionId;
+    if (subscriptionEvent) {
+      if (source?.object !== 'subscription') return json({ error: 'Invalid subscription event.' }, 400);
+      subscriptionId = source.id;
+    } else {
+      if (source?.object !== 'invoice' || !/^in_[A-Za-z0-9]+$/.test(source.id || '')) return json({ error: 'Invalid invoice event.' }, 400);
+      // Current Stripe API uses parent.subscription_details. Accept legacy
+      // snapshot events during endpoint upgrades without trusting metadata.
+      subscriptionId = identifier(source.parent?.subscription_details?.subscription || source.subscription);
+      if (!subscriptionId) return json({ received: true, ignored: true });
+    }
+    if (!/^sub_[A-Za-z0-9]+$/.test(subscriptionId || '')) return json({ error: 'Invalid subscription.' }, 400);
     try {
       // Fetch current Stripe state instead of trusting an out-of-order event snapshot
       // or browser/user-controlled metadata. The database maps the customer to a company.
-      const subscription = await deps.stripe.subscriptions.retrieve(source.id, { expand: ['items.data.price', 'latest_invoice'] });
+      const subscription = await deps.stripe.subscriptions.retrieve(subscriptionId, { expand: ['items.data.price', 'latest_invoice'] });
       const customer = identifier(subscription.customer);
-      if (subscription.id !== source.id || !/^cus_[A-Za-z0-9]+$/.test(customer || '') || identifier(source.customer) !== customer) throw new Error('Subscription mismatch');
+      if (subscription.id !== subscriptionId || !/^cus_[A-Za-z0-9]+$/.test(customer || '') || identifier(source.customer) !== customer) throw new Error('Subscription mismatch');
       const result = await deps.applyEvent({ event_id: event.id, event_created: event.created, customer_id: customer, subscription_id: subscription.id, ...subscriptionState(subscription, config) });
       return json({ received: true, result });
     } catch { deps.report('billing-webhook-failed'); return json({ error: 'Unable to apply verified billing event. Retry required.' }, 500); }

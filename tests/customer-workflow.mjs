@@ -29,6 +29,7 @@ const fakeClient = {
     if (name === 'list_company_deals') return failCompanyB && args.p_company_id === 'b' ? { data: null, error: Error('Network unavailable') } : { data: args.p_company_id === 'a' ? [deal] : [], error: null };
     if (name === 'get_my_lifetime_deal_usage') return { data: 1, error: null };
     if (name === 'get_company_deal') return { data: [deal], error: null };
+    if (name === 'create_company_deal_from_listing') return { data: {id:'imported-property',saved:true}, error: null };
     return { data: null, error: null };
   },
   from(table) { const query = { select() { return query; }, eq() { return query; }, maybeSingle: async () => ({ data: { plan: 'free', billing_status: 'not_connected' }, error: null }) }; return query; },
@@ -55,6 +56,7 @@ assert.equal(el('save-analysis').disabled, true, 'Viewers can analyze but not sa
 const writesBefore = calls.filter(x => x.name === 'update_company_deal').length;
 await el('save-analysis').onclick();
 assert.equal(calls.filter(x => x.name === 'update_company_deal').length, writesBefore);
+await assert.rejects(context.window.JGAPIntelligenceContext.save({}, 'a'), /not authorized/, 'Viewer cannot bypass import controls');
 el('celoc-results').textContent = 'Old cash flow'; el('rent').listeners.input();
 assert.match(el('celoc-results').textContent, /Inputs changed/);
 
@@ -67,6 +69,12 @@ assert.match(el('workspace-status').textContent, /Unable to load company: Networ
 failCompanyB = false; await el('company').onchange();
 assert.equal(el('new-deal-form').hidden, false, 'Owner with available Free slots can add a property');
 assert.equal(el('metric-count').textContent, '0');
+await assert.rejects(context.window.JGAPIntelligenceContext.save({}, 'a'), /not authorized/, 'Import cannot write to a previous company');
+const imported={address:'123 Test Street',asking_price:200000,planned_offer:150000,rent_monthly:1800,expenses_monthly:600,source_name:'Synthetic export',external_id:'test-import'};
+await context.window.JGAPIntelligenceContext.save(imported,'b');
+const write=calls.find(x=>x.name==='create_company_deal_from_listing');assert.equal(write.args.p_company_id,'b');assert.equal(write.args.p_asking_price,200000);assert.equal(write.args.p_offer_price,150000);
+await assert.rejects(context.window.JGAPIntelligenceContext.save({...imported,expenses_monthly:null},'b'), /Verify asking price/);
+
 await el('logout').onclick();
 assert.equal(el('deals').children.length, 0);
 assert.equal(el('workspace').classList.contains('hidden'), true);

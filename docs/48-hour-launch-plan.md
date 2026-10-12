@@ -22,7 +22,7 @@ Agreed plans: Free with five lifetime properties, Investor $19/month, Pro $39/mo
 | Free limits | Five lifetime creations and identity lock | Triggers inspected; missing-billing sixth-property refusal tested with rollback |
 | Additional financing | Optional second-loan interest and combined cash flow | Integrated; invalidated by changes to primary assumptions |
 | Payments | Server code and tests added | Stripe unconnected; real checkout/portal/event tests outstanding; no live charging |
-| Original tools | Original repo retained; toolbox migration roadmap | Inactive roadmap labels are not functioning staging tools |
+| Original tools | Listing review migrated from the original Deal Intelligence adapter | Missing values, unit counts, source links, company scoping, explicit offers and Free-limit imports tested; other roadmap groups remain pending |
 | Original app/data | Unchanged by this work | Production transfer remains a reviewed release |
 
 ## Definition of a finished first release
@@ -44,11 +44,12 @@ Windows are targets, not fabricated completion dates. Provider connection/mercha
 
 ## Next actions
 
-1. Deploy the October 12 workflow fixes, billing handlers and tests; verify deployment results.
+1. Workflow fixes and disabled billing handlers deployed; recovery published; Deal Intelligence is being published and verified.
 2. Connect the Stripe integration already suggested October 11. Keep keys/signing secrets in server storage; never paste into chat or commit.
-3. Configure test recurring prices at exactly $19 and $39/month; register subscription created/updated/deleted snapshot events against the webhook.
-4. Configure/test the portal and provider events, then enable the staging billing UI.
-5. Finish Free card/eligibility, verify real recovery-email delivery and complete authenticated browser acceptance.
+3. Next original module after Deal Intelligence: Financing & Lenders. Preserve the approved redesigned layout and migrate only useful, isolated, tested parts.
+4. Configure test recurring prices at exactly $19 and $39/month; register subscription created/updated/deleted and invoice.paid/invoice.payment_failed snapshot events against the webhook.
+5. Configure/test the portal and provider events, then enable the staging billing UI.
+6. Finish Free card/eligibility, verify real recovery-email delivery and complete authenticated browser acceptance.
 
 ## Limits
 
@@ -61,3 +62,5 @@ Windows are targets, not fabricated completion dates. Provider connection/mercha
 ## Commands
 
 `npm ci`, `npm test`, `npm run check:edge`. Pin dependencies and commit lockfiles. Pages artifacts include public frontend files only; exclude server sources, tests and node_modules.
+
+Automatic approval review rejected a proposed pause of new workspace creation because it would change availability without sufficiently specific approval. No signup closure was applied. Obtain explicit approval before changing that behavior.
