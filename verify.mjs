@@ -123,3 +123,14 @@ assert.match(html,/Estimated monthly cash flow after mortgage and additional loa
 assert.match(html,/id="export-properties"/,'Property export button must exist');assert.match(html,/rows\.some\(d=>d\.company_id!==companyId\)/,'Export data must pass company isolation validation');assert.match(html,/if\(client!==activeClient\|\|companyId!==activeCompany\)return;const columns=/,'Export must refuse stale company sessions');console.log('PASS: company-scoped property summary export');
 
 assert.match(html,/<details class="offer-helper" id="secondary-financing">/,'Secondary financing must be optional and collapsed by default');assert.match(html,/Optional second loan or line of credit/,'Secondary financing must not be CELOC-specific');console.log('PASS: financing optional for investors using their own cash');
+
+// Exercise clearing immediately, including a failed company refresh.
+for(const id of ['deals','pipeline-deals','dashboard-followups'])element(id).children=[{textContent:'Previous company'}];
+for(const id of ['export-status','new-deal-status','membership-title','celoc-results'])element(id).textContent='Previous company';
+element('celoc-amount').value='40000';element('export-properties').onclick=()=>{};element('company').value='unavailable-company';
+await element('company').onchange();
+for(const id of ['deals','pipeline-deals','dashboard-followups'])assert.equal(element(id).children.length,0,'Company change must clear '+id+' before fetching');
+for(const id of ['export-status','new-deal-status','membership-title','celoc-results'])assert.equal(element(id).textContent,'','Company change must clear '+id);
+assert.equal(element('celoc-amount').value,'');assert.equal(element('export-properties').disabled,true);assert.equal(element('export-properties').onclick,null);assert.equal(element('new-deal-form').hidden,true);
+assert.match(element('status').textContent,/Unable to load company/);
+console.log('PASS: failed company switch clears prior properties, export, membership and financing data');
