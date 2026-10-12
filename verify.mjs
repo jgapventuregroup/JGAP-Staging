@@ -81,7 +81,7 @@ assert.match(html,/<h2>Proposed feature comparison<\/h2>/,'Tier feature comparis
 
 assert.match(html,/<th scope="row">Saved deals<\/th><td>15 total<\/td><td>Unlimited<\/td><td>Unlimited<\/td>/,'Free tier should propose 15 saved deals');assert.match(html,/<th scope="row">Advertising<\/th><td>Planned<\/td><td>Planned<\/td><td>Ad-free<\/td>/,'Only Pro should be ad-free');assert.match(html,/No advertising network or paid checkout is active today/,'Plans must disclose checkout not active');console.log('PASS: saved-deal limit and advertising tier proposal');
 
-assert.match(html,/id="free-deal-progress" max="15" value="0"/,'Free usage progress must have 15-deal limit');assert.match(html,/const freeUsed=rows\.length/,'Free preview must use authenticated company deal list');assert.match(html,/freeUsed>=15\?'Free limit reached/,'Deal 16 must explain upgrade requirement');assert.match(html,/No payment collection or automatic upgrades are enabled/,'Dashboard must disclose no automatic billing');console.log('PASS: company-scoped free usage preview and explicit upgrade consent');
+assert.match(html,/id="free-deal-progress" max="5" value="0"/,'Free usage progress must have five-property limit');assert.match(html,/get_my_lifetime_deal_usage/,'Free usage must come from database lifetime counter');assert.match(html,/lifetimeUsed>=5/,'Free limit must explain upgrade');console.log('PASS: company-scoped free usage preview and explicit upgrade consent');
 
 assert.match(html,/<section id="free-deal-preview" class="membership-card"/,'Membership allowance should be a dedicated card');assert.match(html,/class="membership-action">Compare membership plans/,'Membership card should link to plan comparison');assert.match(html,/\.membership-card\{margin:18px 0/,'Membership card must have independent styling');console.log('PASS: membership preview card and plan navigation');
 
@@ -89,7 +89,7 @@ assert.match(html,/from\('company_subscriptions'\)\.select\('plan,billing_status
 
 assert.match(html,/<button data-page="toolbox">JGAP Toolbox<\/button>/,'Toolbox navigation must exist');assert.match(html,/<section id="toolbox" class="page"/,'Toolbox section must exist');for(const tool of ['Lead Generation &amp; Alerts','Deal Intelligence','Financing &amp; Lenders','Laundromat Investing','Property Passport','Market Map &amp; Vendors','Finance &amp; Reports','JGAP Learning Center'])assert.ok(html.includes(tool),'Missing original-tool roadmap: '+tool);assert.match(html,/They are not yet active in staging/,'Roadmap must not claim migrated tools work');console.log('PASS: original JGAP Toolbox roadmap navigation');
 
-assert.match(html,/const paidActive=\(plan==='investor'\|\|plan==='pro'\)\&\&billingStatus==='active'/,'Unlimited entitlement requires active billing');assert.match(html,/paidActive\?'Unlimited saved deals':'15 saved deals'/,'Inactive paid plans must not display unlimited entitlement');assert.match(html,/Until paid billing is active, the 15-deal safety limit applies/,'Explain inactive paid status');console.log('PASS: paid entitlement display matches database enforcement');
+assert.match(html,/const paidActive=\(plan==='investor'\|\|plan==='pro'\)\&\&billingStatus==='active'/,'Unlimited entitlement requires active billing');assert.match(html,/paidActive\?'Unlimited saved properties':'5 lifetime property slots'/,'Inactive paid plans must not show unlimited entitlement');console.log('PASS: paid entitlement display matches database enforcement');
 
 
 
