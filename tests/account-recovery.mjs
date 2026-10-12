@@ -3,10 +3,10 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const script = fs.readFileSync(new URL('../account-recovery.js', import.meta.url), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
-function fixture(hash = '', invalid = false, mismatch = false) {
+function fixture(hash = '', invalid = false, mismatch = false, failures = {}) {
   const elements = new Map(), calls = [], timers = [];
   const el = id => { if (!elements.has(id)) elements.set(id, { value: '', textContent: '', disabled: false, classList: { add() {}, remove() {} }, focus() {} }); return elements.get(id); };
-  const auth = { resetPasswordForEmail: async (email, options) => { calls.push({ action: 'request', email, options }); return { error: null }; }, getSession: async () => ({ data: { session: invalid ? null : { user: { id: 'verified-user' } } }, error: null }), getUser: async () => ({ data: { user: { id: mismatch ? 'different-user' : 'verified-user' } }, error: null }), updateUser: async body => { calls.push({ action: 'update', body }); return { error: null }; }, signOut: async options => { calls.push({ action: 'signout', options }); return { error: null }; } };
+  const auth = { resetPasswordForEmail: async (email, options) => { calls.push({ action: 'request', email, options }); return { error: failures.reset || null }; }, getSession: async () => ({ data: { session: invalid ? null : { user: { id: 'verified-user' } } }, error: null }), getUser: async () => ({ data: { user: { id: mismatch ? 'different-user' : 'verified-user' } }, error: null }), updateUser: async body => { calls.push({ action: 'update', body }); return { error: failures.update || null }; }, signOut: async options => { calls.push({ action: 'signout', options }); return { error: null }; } };
   const context = { document: { getElementById: el }, URLSearchParams, setTimeout: (fn, ms) => timers.push({ fn, ms }), window: { location: { hash, pathname: '/JGAP-Staging/', search: '' }, history: { replaceState: (state, title, url) => calls.push({ action: 'clear-url', url }) }, JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_fixture', supabase: { createClient: (url, key, options) => { calls.push({ action: 'client', options }); return { auth }; } } } };
   vm.runInNewContext(script, context);
   return { el, calls, timers };
@@ -52,6 +52,19 @@ failed.el('new-password').value = 'a-different-long-password';
 failed.el('confirm-password').value = 'a-different-long-password';
 // A rejected password must never be mistaken for a successful reset.
 assert.equal(failed.el('save-new-password').disabled, false);
+const throttled = fixture('', false, false, { reset: { status: 429, code: 'over_email_send_rate_limit' } });
+throttled.el('email').value = 'person@example.com';
+await throttled.el('forgot-password').onclick();
+assert.match(throttled.el('status').textContent, /rate-limited/);
+assert.match(throttled.el('status').textContent, /over_email_send_rate_limit/);
+const rejected = fixture('#type=recovery', false, false, { update: { code: 'weak_password' } }); await flush();
+rejected.el('new-password').value = 'a-long-rejected-password';
+rejected.el('confirm-password').value = 'a-long-rejected-password';
+await rejected.el('save-new-password').onclick();
+assert.match(rejected.el('recovery-status').textContent, /weak_password/);
+assert.equal(rejected.el('new-password').value, 'a-long-rejected-password');
+assert.equal(rejected.el('save-new-password').disabled, false);
+assert.equal(rejected.calls.some(x => x.action === 'signout'), false);
 const expired = fixture('#error=access_denied&error_description=expired');
 assert.match(expired.el('status').textContent, /expired/);
 assert.equal(expired.calls.filter(x => x.action === 'client').length, 0);
