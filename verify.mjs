@@ -111,3 +111,5 @@ assert.match(html,/id="new-deal-limit-notice"/,'Limit notice must be visible bef
 assert.match(html,/id="signup"/,'Staging signup action must exist');assert.match(html,/auth\.signUp\(\{email,password,options:\{emailRedirectTo:/,'Signup must use hosted Supabase Auth');assert.match(html,/password\.length<12/,'Signup must require a minimum password length');assert.match(html,/New accounts must verify their email before a workspace is created/,'Signup must explain verification');console.log('PASS: hosted email signup and verification staging flow');
 
 assert.match(html,/const noi=\(n\.rent\*\(1-n\.vacancy\/100\)\+n\.other-n\.expenses\)\*12/,'NOI must apply rental vacancy to rent only');assert.match(html,/const monthlyNOI=n\.rent\*\(1-n\.vacancy\/100\)\+n\.other-n\.expenses/,'Maximum offer must use consistent vacancy treatment');console.log('PASS: other income is not incorrectly reduced by rental vacancy');
+
+assert.match(html,/No finite maximum offer: an all-cash purchase with a 0% cash-on-cash target/,'Unbounded all-cash scenarios must not claim a maximum offer');console.log('PASS: unbounded all-cash maximum offer guidance');
