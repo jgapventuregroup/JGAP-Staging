@@ -20,9 +20,9 @@ const elements = new Map();
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
 const companies = [{ company_id: 'a', company_name: 'Company A', member_role: 'viewer' }, { company_id: 'b', company_name: 'Company B', member_role: 'owner' }];
 const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
-const calls = []; let options; let failCompanyB = false;
+const calls = []; let options; let failCompanyB = false; let loginError = null;
 const fakeClient = {
-  auth: { signInWithPassword: async ({ email }) => ({ data: { user: { email, email_confirmed_at: '2026-01-01' } }, error: null }), signOut: async () => ({ error: null }) },
+  auth: { signInWithPassword: async ({ email }) => ({ data: { user: { email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
   rpc: async (name, args) => {
     calls.push({ name, args });
     if (name === 'list_my_companies') return { data: companies, error: null };
@@ -37,6 +37,16 @@ const fakeClient = {
 };
 const context = { document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: () => [], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
 vm.runInNewContext(script, context);
+el('email').value = 'fictional@example.com';
+el('password').value = 'synthetic-password';
+loginError = { code: 'email_not_confirmed', message: 'Email not confirmed' };
+await el('login').onclick();
+assert.match(el('status').textContent, /Email not verified yet/);
+assert.equal(el('workspace').classList.contains('hidden'), true);
+loginError = { code: 'invalid_credentials', message: 'Invalid login credentials' };
+await el('login').onclick();
+assert.match(el('status').textContent, /Email or password not recognized/);
+loginError = null;
 el('email').value = 'fictional@example.com'; el('password').value = 'temporary test input';
 await el('login').onclick();
 assert.equal(options.auth.autoRefreshToken, true, 'Sessions must refresh during use');
