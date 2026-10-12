@@ -113,3 +113,5 @@ assert.match(html,/id="signup"/,'Staging signup action must exist');assert.match
 assert.match(html,/const noi=\(n\.rent\*\(1-n\.vacancy\/100\)\+n\.other-n\.expenses\)\*12/,'NOI must apply rental vacancy to rent only');assert.match(html,/const monthlyNOI=n\.rent\*\(1-n\.vacancy\/100\)\+n\.other-n\.expenses/,'Maximum offer must use consistent vacancy treatment');console.log('PASS: other income is not incorrectly reduced by rental vacancy');
 
 assert.match(html,/No finite maximum offer: an all-cash purchase with a 0% cash-on-cash target/,'Unbounded all-cash scenarios must not claim a maximum offer');console.log('PASS: unbounded all-cash maximum offer guidance');
+
+assert.match(html,/selectedRehabCosts=Number\(d\.rehab_cost\|\|0\)/,'Opening property must retain repair allocation');assert.match(html,/rehab_cost:n\.costs-selectedRehabCosts>=0\?selectedRehabCosts:0/,'Saving must preserve repair allocation when combined costs permit');console.log('PASS: saved rehab costs survive property analysis edits');
