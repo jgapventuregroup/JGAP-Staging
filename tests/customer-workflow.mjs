@@ -29,6 +29,7 @@ const fakeClient = {
     if (name === 'list_company_deals') return failCompanyB && args.p_company_id === 'b' ? { data: null, error: Error('Network unavailable') } : { data: args.p_company_id === 'a' ? [deal] : [], error: null };
     if (name === 'get_my_lifetime_deal_usage') return { data: 1, error: null };
     if (name === 'get_company_deal') return { data: [deal], error: null };
+    if (name === 'update_company_deal') { if (args.p_company_id !== 'a' || args.p_deal_id !== deal.id) return { data:null,error:Error('Wrong company') }; Object.assign(deal,args.p_patch); return {data:deal,error:null}; }
     if (name === 'create_company_deal_from_listing') return { data: {id:'imported-property',saved:true}, error: null };
     return { data: null, error: null };
   },
@@ -56,10 +57,31 @@ assert.equal(el('save-analysis').disabled, true, 'Viewers can analyze but not sa
 const writesBefore = calls.filter(x => x.name === 'update_company_deal').length;
 await el('save-analysis').onclick();
 assert.equal(calls.filter(x => x.name === 'update_company_deal').length, writesBefore);
+const viewerDeal=deal.target_offer_price;
+assert.equal(viewerDeal,180000,'Viewer attempt must not modify offer');
+
 await assert.rejects(context.window.JGAPIntelligenceContext.save({}, 'a'), /not authorized/, 'Viewer cannot bypass import controls');
 await assert.rejects(context.window.JGAPLenderContext.save({institution_name:'Test lender'},null,'a'), /not authorized/);
 el('celoc-results').textContent = 'Old cash flow'; el('rent').listeners.input();
 assert.match(el('celoc-results').textContent, /Inputs changed/);
+
+// A writable account must persist offer changes through the company-scoped API.
+companies[0].member_role='owner';
+el('company').value='a';await el('company').onchange();
+const editable=el('deals').children[0].children.find(x=>x.tagName==='button');
+await editable.onclick();
+el('offer').value='165000';
+await el('save-analysis').onclick();
+assert.equal(deal.target_offer_price,165000,'Changed offer must persist');
+assert.equal(deal.purchase_price,165000,'Underwriting purchase price must match saved offer');
+const savedCall=calls.filter(x=>x.name==='update_company_deal').at(-1);
+assert.equal(savedCall.args.p_company_id,'a');
+assert.equal(savedCall.args.p_deal_id,'deal-a');
+assert.equal(el('save-analysis-status').textContent,'Saved to this property.');
+await editable.onclick();
+assert.equal(Number(el('offer').value),165000,'Reopening must load saved offer');
+companies[0].member_role='viewer';
+console.log('PASS: owner changes offer, saves company-scoped record, and reopens persisted price');
 
 failCompanyB = true; el('company').value = 'b'; await el('company').onchange();
 assert.equal(el('deals').children.length, 0);
