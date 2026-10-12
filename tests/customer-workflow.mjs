@@ -106,6 +106,11 @@ assert.match(el('workspace-status').textContent, /Unable to load company: Networ
 failCompanyB = false; await el('company').onchange();
 assert.equal(el('new-deal-form').hidden, false, 'Owner with available Free slots can add a property');
 assert.equal(el('metric-count').textContent, '0');
+assert.equal(el('deals').children.length, 0, 'Company B properties exclude Company A');
+assert.equal(el('pipeline-deals').children.length, 0, 'Company B pipeline excludes Company A');
+assert.equal(el('export-properties').disabled, true, 'Company B cannot export Company A properties');
+assert.equal(calls.filter(x => x.name === 'list_company_deals').at(-1).args.p_company_id, 'b', 'Company B query must be scoped');
+console.log('PASS: successful company switch excludes previous company data');
 await assert.rejects(context.window.JGAPIntelligenceContext.save({}, 'a'), /not authorized/, 'Import cannot write to a previous company');
 const imported={address:'123 Test Street',asking_price:200000,planned_offer:150000,rent_monthly:1800,expenses_monthly:600,source_name:'Synthetic export',external_id:'test-import'};
 await context.window.JGAPIntelligenceContext.save(imported,'b');
