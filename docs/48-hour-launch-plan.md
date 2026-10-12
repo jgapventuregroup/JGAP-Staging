@@ -17,6 +17,7 @@ Agreed plans: Free with five lifetime properties, Investor $19/month, Pro $39/mo
 | Customer separation | Company-scoped reads/writes | Earlier chat reports 26/26 checks; nine additional October 12 rollback checks passed for A/B reads, own edits, foreign-edit refusal, identity locks and viewers |
 | Analyzer | Asking/offer, mortgage, NOI, cash flow, cap rate, cash-on-cash, DSCR, maximum offer | Regression suite passes; input changes invalidate old outputs |
 | Properties | Create, edit financials, CSV export | Company-scoped operations; viewer controls read-only |
+| Recovery | Reset link request and verified password update | Automated invalid-link, identity, matching-password, cooldown and cleanup tests pass; real email test pending |
 | Pipeline | Search, stages, follow-up dates | Writes exist; newest interface's browser persistence checks needed |
 | Free limits | Five lifetime creations and identity lock | Triggers inspected; missing-billing sixth-property refusal tested with rollback |
 | Additional financing | Optional second-loan interest and combined cash flow | Integrated; invalidated by changes to primary assumptions |
@@ -47,7 +48,7 @@ Windows are targets, not fabricated completion dates. Provider connection/mercha
 2. Connect the Stripe integration already suggested October 11. Keep keys/signing secrets in server storage; never paste into chat or commit.
 3. Configure test recurring prices at exactly $19 and $39/month; register subscription created/updated/deleted snapshot events against the webhook.
 4. Configure/test the portal and provider events, then enable the staging billing UI.
-5. Finish Free card/eligibility, account recovery and authenticated browser acceptance.
+5. Finish Free card/eligibility, verify real recovery-email delivery and complete authenticated browser acceptance.
 
 ## Limits
 

@@ -19,6 +19,7 @@ Verified October 12, 2026. This replaces the earlier 15-active-deal design notes
 - Customer records are company-scoped, with read-only viewers and owner/admin/editor property writes.
 - Lifetime counters and identity rules are database-enforced. Missing billing records now fail closed at the five-property limit.
 - Customers can read their own membership status but cannot change plan or billing status.
+- Password recovery now has reset-link requests, server-verified recovery sessions, password confirmation, token/field clearing and sign-out. Automated tests pass; real reset-email delivery still needs testing.
 - No advertising network, production Stripe checkout, or paid feature-tier paywall is active.
 
 ## Billing implementation added October 12
@@ -33,7 +34,7 @@ Verified October 12, 2026. This replaces the earlier 15-active-deal design notes
 
 1. Connect Stripe, configure test products/prices, webhook signing secret and portal. Run real provider checkout, failure, cancellation and replay tests.
 2. Implement/test requested $0 Free card setup, eligibility checks, rate limits and bot protection before marketing registration.
-3. Finish password recovery/account management; verify email delivery and redirects.
+3. Verify the implemented password recovery flow with real email delivery and redirect settings; finish remaining account management.
 4. Add approved support contact, terms, privacy disclosures and billing/cancellation information.
 5. Complete real browser tests for new signup and both fictional customers, including narrow screens and switching.
 6. Prepare production migration and obtain the explicit production approval required by the existing release process.
