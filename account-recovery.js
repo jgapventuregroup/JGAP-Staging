@@ -26,8 +26,10 @@
       const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: returnUrl });
       if (error) throw error;
       el('status').textContent = 'If an account exists for this email, a reset link will arrive. Open the newest link to choose a new password. You can request another link in 60 seconds.';
-    } catch {
-      el('status').textContent = 'A reset link could not be requested. Please wait one minute and try again.';
+    } catch (error) {
+      const code = String(error?.code || 'request_failed').replace(/[^a-z0-9_]/gi, '').slice(0, 60);
+      const limited = error?.status === 429 || /rate_limit|over_email_send_rate_limit/.test(code);
+      el('status').textContent = limited ? 'Email sending is temporarily rate-limited (' + code + '). Wait before trying again; repeated requests will not help.' : 'Reset email request failed (' + code + '). Please try later. If this continues, contact JGAP support.';
     } finally {
       setTimeout(() => { el('forgot-password').disabled = false; }, 60000);
     }
