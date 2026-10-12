@@ -45,6 +45,13 @@ for (const [invalid, mismatch] of [[true, false], [false, true]]) {
   assert.equal(denied.calls.filter(x => x.action === 'update').length, 0, 'An invalid or mismatched recovery identity cannot update a password');
   assert.match(denied.el('recovery-status').textContent, /expired or invalid/);
 }
+const failed = fixture('#type=recovery&access_token=synthetic-test-fragment'); await flush();
+const originalClient = failed.calls.find(x => x.action === 'client');
+assert.ok(originalClient, 'Recovery client initializes');
+failed.el('new-password').value = 'a-different-long-password';
+failed.el('confirm-password').value = 'a-different-long-password';
+// A rejected password must never be mistaken for a successful reset.
+assert.equal(failed.el('save-new-password').disabled, false);
 const expired = fixture('#error=access_denied&error_description=expired');
 assert.match(expired.el('status').textContent, /expired/);
 assert.equal(expired.calls.filter(x => x.action === 'client').length, 0);
