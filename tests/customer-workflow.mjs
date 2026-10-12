@@ -20,12 +20,13 @@ const elements = new Map();
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
 const companies = [{ company_id: 'a', company_name: 'Company A', member_role: 'viewer' }, { company_id: 'b', company_name: 'Company B', member_role: 'owner' }];
 const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
-const calls = []; let options; let failCompanyB = false; let loginError = null;
+const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false;
 const fakeClient = {
   auth: { signInWithPassword: async ({ email }) => ({ data: { user: { email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
   rpc: async (name, args) => {
     calls.push({ name, args });
-    if (name === 'list_my_companies') return { data: companies, error: null };
+    if (name === 'list_my_companies') return { data: onboardingMode ? (onboardingCreated ? [{company_id:'new-company',company_name:'My Investment Company',member_role:'owner'}] : []) : companies, error: null };
+    if (name === 'create_my_company') { onboardingCreated = true; return { data: null, error: {message:'Duplicate creation response'} }; }
     if (name === 'list_company_deals') return failCompanyB && args.p_company_id === 'b' ? { data: null, error: Error('Network unavailable') } : { data: args.p_company_id === 'a' ? [deal] : [], error: null };
     if (name === 'get_my_lifetime_deal_usage') return { data: 1, error: null };
     if (name === 'get_company_deal') return { data: [deal], error: null };
@@ -37,6 +38,15 @@ const fakeClient = {
 };
 const context = { document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: () => [], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
 vm.runInNewContext(script, context);
+onboardingMode = true;
+el('email').value = 'new-user@example.com';
+el('password').value = 'synthetic-password';
+await el('login').onclick();
+assert.equal(calls.filter(x => x.name === 'create_my_company').length, 1, 'New user attempts workspace creation once');
+assert.equal(el('workspace').classList.contains('hidden'), false, 'Workspace opens after creation succeeded despite an error response');
+assert.equal(el('company').value, 'new-company');
+await el('logout').onclick();
+onboardingMode = false;
 el('email').value = 'fictional@example.com';
 el('password').value = 'synthetic-password';
 loginError = { code: 'email_not_confirmed', message: 'Email not confirmed' };
