@@ -33,7 +33,7 @@ const fakeClient = {
     if (name === 'create_company_deal_from_listing') return { data: {id:'imported-property',saved:true}, error: null };
     return { data: null, error: null };
   },
-  from(table) { let fields={},operation=null;const predicates={}; const query = { select() { return query; }, eq(key,value) { predicates[key]=value;return query; },order(){return query;},insert(value){fields=value;operation='insert';return query;},update(value){fields=value;operation='update';return query;},single:async()=>{calls.push({name:'table-write',table,operation,fields,predicates});return {data:{id:'lender-fixture',company_id:fields.company_id||predicates.company_id,...fields},error:null};},then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject);}, maybeSingle: async () => ({ data: { plan: 'free', billing_status: 'not_connected' }, error: null }) }; return query; },
+  from(table) { let fields={},operation=null;const predicates={}; const query = { select() { return query; }, eq(key,value) { predicates[key]=value;return query; },order(){return query;},insert(value){fields=value;operation='insert';return query;},update(value){fields=value;operation='update';return query;},single:async()=>{calls.push({name:'table-write',table,operation,fields,predicates});if(table==='deals'&&operation==='update'){if(predicates.company_id!==deal.company_id||predicates.id!==deal.id)return {data:null,error:Error('Wrong company')};Object.assign(deal,fields);return {data:{id:deal.id,...fields},error:null};}return {data:{id:'lender-fixture',company_id:fields.company_id||predicates.company_id,...fields},error:null};},then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject);}, maybeSingle: async () => ({ data: { plan: 'free', billing_status: 'not_connected' }, error: null }) }; return query; },
 };
 const context = { document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: () => [], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
 vm.runInNewContext(script, context);
@@ -81,6 +81,19 @@ assert.equal(savedCall.args.p_deal_id,'deal-a');
 assert.equal(el('save-analysis-status').textContent,'Saved to this property.');
 await editable.onclick();
 assert.equal(Number(el('offer').value),165000,'Reopening must load saved offer');
+const pipelineCard=el('pipeline-deals').children[0];
+const stageControl=pipelineCard.children.find(x=>x.tagName==='select');
+const followLabel=pipelineCard.children.find(x=>x.tagName==='label');
+const followControl=followLabel.children.find(x=>x.tagName==='input');
+stageControl.value='offer';await stageControl.onchange();
+assert.equal(deal.status,'offer','Pipeline stage must persist');
+assert.equal(el('pipeline-deals').children[0].children.find(x=>x.tagName==='select').value,'offer','Refreshed pipeline must display saved stage');
+const currentFollow=el('pipeline-deals').children[0].children.find(x=>x.tagName==='label').children.find(x=>x.tagName==='input');
+currentFollow.value='2026-11-05';await currentFollow.onchange();
+assert.equal(deal.follow_up_date,'2026-11-05','Follow-up must persist');
+assert.equal(el('pipeline-deals').children[0].children.find(x=>x.tagName==='label').children.find(x=>x.tagName==='input').value,'2026-11-05','Refreshed pipeline must display saved follow-up');
+console.log('PASS: pipeline stage and follow-up date persist and reopen in correct workspace');
+
 companies[0].member_role='viewer';
 console.log('PASS: owner changes offer, saves company-scoped record, and reopens persisted price');
 
