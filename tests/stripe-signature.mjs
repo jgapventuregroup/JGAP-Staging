@@ -1,0 +1,22 @@
+import Stripe from 'stripe';
+import assert from 'node:assert/strict';
+import { createBillingWebhookHandler } from '../supabase/functions/_shared/billing-core.mjs';
+
+const stripe = new Stripe('sk_test_fixture', { httpClient: Stripe.createFetchHttpClient() });
+const crypto = Stripe.createSubtleCryptoProvider();
+const secret = 'whsec_synthetic_signature_fixture';
+const payload = JSON.stringify({ id: 'evt_signaturefixture', livemode: false, created: Math.floor(Date.now() / 1000), type: 'customer.subscription.updated', data: { object: { id: 'sub_signaturefixture', object: 'subscription', customer: 'cus_signaturefixture' } } });
+let applied = 0;
+const config = { enabled: true, secretKey: 'sk_test_fixture', webhookSecret: secret, investorPrice: 'price_investor', proPrice: 'price_pro' };
+const handler = createBillingWebhookHandler({ report() {}, verifyEvent: (body, signature, signingSecret) => stripe.webhooks.constructEventAsync(body, signature, signingSecret, undefined, crypto), stripe: { subscriptions: { retrieve: async () => ({ id: 'sub_signaturefixture', customer: 'cus_signaturefixture', livemode: false, status: 'canceled', items: { data: [] } }) } }, applyEvent: async () => { applied++; return 'applied'; } }, config);
+const header = await stripe.webhooks.generateTestHeaderStringAsync({ payload, secret, cryptoProvider: crypto });
+const request = (body, signature) => new Request('https://test.invalid/webhook', { method: 'POST', headers: { 'stripe-signature': signature }, body });
+assert.equal((await handler(request(payload, header))).status, 200);
+assert.equal(applied, 1);
+assert.equal((await handler(request(payload.replace('subscription.updated', 'subscription.deleted'), header))).status, 400, 'Tampered payload must fail before database writes');
+const wrong = await stripe.webhooks.generateTestHeaderStringAsync({ payload, secret: 'whsec_wrong', cryptoProvider: crypto });
+assert.equal((await handler(request(payload, wrong))).status, 400);
+const stale = await stripe.webhooks.generateTestHeaderStringAsync({ payload, secret, timestamp: Math.floor(Date.now() / 1000) - 600, cryptoProvider: crypto });
+assert.equal((await handler(request(payload, stale))).status, 400);
+assert.equal(applied, 1, 'Invalid signatures must not reach billing updates');
+console.log('PASS: actual Stripe SDK webhook verification — valid signatures, tampered bodies, wrong secrets, expired signature timestamps');

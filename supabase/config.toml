@@ -1,0 +1,7 @@
+project_id = "qfszapteuxuogoselprp"
+
+[functions.billing-session]
+verify_jwt = false
+
+[functions.billing-webhook]
+verify_jwt = false

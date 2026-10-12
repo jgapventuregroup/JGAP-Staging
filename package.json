@@ -1,0 +1,16 @@
+{
+  "name": "jgap-staging",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node verify.mjs && node tests/customer-workflow.mjs && node tests/billing.mjs && node tests/stripe-signature.mjs",
+    "check:edge": "deno check --config deno.json supabase/functions/billing-session/index.ts supabase/functions/billing-webhook/index.ts"
+  },
+  "devDependencies": {
+    "deno": "2.9.6"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.3",
+    "stripe": "23.0.0"
+  }
+}
