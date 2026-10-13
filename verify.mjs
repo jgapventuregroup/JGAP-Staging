@@ -6,6 +6,9 @@ assert.match(html,/STAGING ONLY/);assert.match(html,/html\[data-theme="dark"\] i
 assert.match(html,/qfszapteuxuogoselprp\.supabase\.co/);
 assert.match(html,/list_my_companies/);
 assert.match(html,/!rawPrice\|\|!rawRent/, 'Blank property price and rent must not silently become zero');
+assert.match(html,/id="new-deal-price"[^>]*placeholder="Enter purchase price"/, 'Purchase price must begin blank');
+assert.match(html,/id="new-deal-rent"[^>]*placeholder="Enter monthly rent"/, 'Monthly rent must begin blank');
+assert.doesNotMatch(html,/id="new-deal-(?:price|rent)"[^>]*value="0"/, 'Financial inputs must not prefill zero');
 assert.match(html,/currentCompanyDealNames\.has\(name\.toLocaleLowerCase\(\)\)/, 'Duplicate property names must be checked before creating a record');
 assert.match(html,/currentCompanyDealNames=new Set\(\);window\.JGAPDealIntelligence/, 'Duplicate-name cache must reset when switching workspaces');
 
