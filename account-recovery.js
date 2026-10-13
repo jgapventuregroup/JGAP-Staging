@@ -25,7 +25,7 @@
       const client = createAuth();
       const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: returnUrl });
       if (error) throw error;
-      el('status').textContent = 'If an account exists for this email, a reset link will arrive. Open the newest link to choose a new password. You can request another link in 60 seconds.';
+      el('status').textContent = 'Reset request accepted. For privacy, this does not confirm that the account exists or that an email was delivered. Check your inbox and spam folder for the newest link. You can request another link in 60 seconds.';
     } catch (error) {
       const code = String(error?.code || 'request_failed').replace(/[^a-z0-9_]/gi, '').slice(0, 60);
       const limited = error?.status === 429 || /rate_limit|over_email_send_rate_limit/.test(code);
