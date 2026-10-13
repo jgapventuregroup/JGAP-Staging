@@ -17,7 +17,8 @@ assert.equal(normal.calls.length, 0, 'Invalid email must not trigger a request')
 normal.el('email').value = 'PERSON@example.com'; await normal.el('forgot-password').onclick();
 assert.equal(normal.calls.find(x => x.action === 'request').email, 'person@example.com');
 assert.equal(normal.calls.find(x => x.action === 'request').options.redirectTo, 'https://jgapventuregroup.github.io/JGAP-Staging/');
-assert.match(normal.el('status').textContent, /If an account exists/);
+assert.match(normal.el('status').textContent, /Reset request accepted/);
+assert.match(normal.el('status').textContent, /does not confirm.*email was delivered/);
 assert.equal(normal.el('forgot-password').disabled, true);
 assert.equal(normal.timers[0].ms, 60000);
 await normal.el('forgot-password').onclick(); assert.equal(normal.calls.filter(x => x.action === 'request').length, 1);
