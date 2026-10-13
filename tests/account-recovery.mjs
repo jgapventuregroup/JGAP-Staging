@@ -58,6 +58,8 @@ throttled.el('email').value = 'person@example.com';
 await throttled.el('forgot-password').onclick();
 assert.match(throttled.el('status').textContent, /rate-limited/);
 assert.match(throttled.el('status').textContent, /over_email_send_rate_limit/);
+assert.equal(throttled.el('forgot-password').disabled, false, 'Rejected reset requests must permit a retry');
+assert.equal(throttled.timers.length, 0, 'Rejected reset requests must not start a success cooldown');
 const rejected = fixture('#type=recovery', false, false, { update: { code: 'weak_password' } }); await flush();
 rejected.el('new-password').value = 'a-long-rejected-password';
 rejected.el('confirm-password').value = 'a-long-rejected-password';
