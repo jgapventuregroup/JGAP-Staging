@@ -13,6 +13,10 @@ assert.match(html,/currentCompanyDealNames\.has\(name\.toLocaleLowerCase\(\)\)/,
 assert.match(html,/currentCompanyDealNames=new Set\(\);window\.JGAPDealIntelligence/, 'Duplicate-name cache must reset when switching workspaces');
 
 assert.match(html,/list_company_deals/);
+assert.match(html,/const request=\+\+analyzerOpenRequest/, 'Each property-open request needs a unique order');
+assert.match(html,/request!==analyzerOpenRequest\|\|client!==activeClient/, 'Stale property-open responses must be discarded');
+assert.match(html,/clearCompanyView=\(\)=>\{analyzerOpenRequest\+\+/, 'Workspace changes must invalidate pending property-open requests');
+assert.match(html,/request===analyzerOpenRequest&&client===activeClient&&companyId===activeCompany\)status\('Analyze error/, 'Stale property-open errors must not appear in another workspace');
 assert.match(html,/Property saved, but the pipeline could not refresh/, 'Confirmed property saves must survive refresh errors');
 assert.match(html,/Financials saved, but the pipeline could not refresh/, 'Confirmed analyzer saves must survive refresh errors');
 assert.match(html,/Stage saved, but the pipeline could not refresh/, 'Confirmed pipeline stage saves must survive refresh errors');
