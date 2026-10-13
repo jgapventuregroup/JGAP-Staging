@@ -10,6 +10,10 @@ assert.match(html,/currentCompanyDealNames\.has\(name\.toLocaleLowerCase\(\)\)/,
 assert.match(html,/currentCompanyDealNames=new Set\(\);window\.JGAPDealIntelligence/, 'Duplicate-name cache must reset when switching workspaces');
 
 assert.match(html,/list_company_deals/);
+assert.match(html,/Property saved, but the pipeline could not refresh/, 'Confirmed property saves must survive refresh errors');
+assert.match(html,/Financials saved, but the pipeline could not refresh/, 'Confirmed analyzer saves must survive refresh errors');
+assert.match(html,/Stage saved, but the pipeline could not refresh/, 'Confirmed pipeline stage saves must survive refresh errors');
+assert.match(html,/Follow-up date saved, but the pipeline could not refresh/, 'Confirmed follow-up saves must survive refresh errors');
 assert.match(html,/get_company_deal/);
 assert.doesNotMatch(html,/service_role|sb_secret_/i);
 const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
