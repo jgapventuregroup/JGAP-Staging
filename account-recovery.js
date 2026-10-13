@@ -21,17 +21,20 @@
     const email = el('email').value.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { el('status').textContent = 'Enter your email address above to request a reset link.'; el('email').focus(); return; }
     el('forgot-password').disabled = true;
+    let accepted = false;
     try {
       const client = createAuth();
       const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: returnUrl });
       if (error) throw error;
+      accepted = true;
       el('status').textContent = 'Reset request accepted. For privacy, this does not confirm that the account exists or that an email was delivered. Check your inbox and spam folder for the newest link. You can request another link in 60 seconds.';
     } catch (error) {
       const code = String(error?.code || 'request_failed').replace(/[^a-z0-9_]/gi, '').slice(0, 60);
       const limited = error?.status === 429 || /rate_limit|over_email_send_rate_limit/.test(code);
       el('status').textContent = limited ? 'Email sending is temporarily rate-limited (' + code + '). Wait before trying again; repeated requests will not help.' : 'Reset email request failed (' + code + '). Please try later. If this continues, contact JGAP support.';
     } finally {
-      setTimeout(() => { el('forgot-password').disabled = false; }, 60000);
+      if (accepted) setTimeout(() => { el('forgot-password').disabled = false; }, 60000);
+      else el('forgot-password').disabled = false;
     }
   };
   el('save-new-password').onclick = async () => {
