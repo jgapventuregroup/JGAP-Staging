@@ -17,7 +17,7 @@ assert.match(html,/const request=\+\+analyzerOpenRequest/, 'Each property-open r
 assert.match(html,/request!==analyzerOpenRequest\|\|client!==activeClient/, 'Stale property-open responses must be discarded');
 assert.match(html,/clearCompanyView=\(\)=>\{newDealRefreshBlocked=false;analyzerOpenRequest\+\+/, 'Workspace changes must invalidate pending property-open requests');
 assert.match(html,/request===analyzerOpenRequest&&client===activeClient&&companyId===activeCompany\)status\('Analyze error/, 'Stale property-open errors must not appear in another workspace');
-assert.match(html,/Property saved, but the pipeline could not refresh/, 'Confirmed property saves must survive refresh errors');
+assert.match(html,/Property saved successfully, but the pipeline could not refresh/, 'Confirmed property saves must survive refresh errors');
 assert.match(html,/if\(savingNewDeal\|\|newDealRefreshBlocked\|\|/, 'A failed refresh after confirmed creation must block duplicate submission');
 assert.match(html,/newDealRefreshBlocked=true;\$\('new-deal-status'\)/, 'Confirmed save refresh failures must engage the lock');
 assert.match(html,/\$\('new-deal-form'\)\.hidden\|\|newDealRefreshBlocked/, 'Save button must stay disabled while refresh lock is active');
