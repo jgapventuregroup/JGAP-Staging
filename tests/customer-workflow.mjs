@@ -66,6 +66,9 @@ assert.equal(el('company').value, '', 'Multiple memberships must require an expl
 assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'No company may be loaded before selection');
 assert.match(el('workspace-status').textContent, /Choose the company/);
 
+el('company').value = ''; await el('company').onchange();
+assert.match(el('workspace-status').textContent, /Choose a company workspace/);
+assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'Blank workspace selection must not load company data');
 el('company').value = 'a'; await el('company').onchange();
 assert.equal(el('metric-count').textContent, '1');
 assert.equal(el('new-deal-form').hidden, true, 'Viewers cannot add properties');
