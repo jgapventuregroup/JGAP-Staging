@@ -117,6 +117,8 @@ const currentFollow=el('pipeline-deals').children[0].children.find(x=>x.tagName=
 currentFollow.value='2026-11-05';await currentFollow.onchange();
 assert.equal(deal.follow_up_date,'2026-11-05','Follow-up must persist');
 assert.equal(el('pipeline-deals').children[0].children.find(x=>x.tagName==='label').children.find(x=>x.tagName==='input').value,'2026-11-05','Refreshed pipeline must display saved follow-up');
+assert.match(el('dashboard-followups').children[0].textContent,/2026-11-05/,'Dashboard must display the exact persisted pipeline follow-up date');
+assert.match(el('dashboard-followups').children[0].textContent,/Synthetic|Test|Property|deal/i,'Dashboard follow-up must identify the property');
 console.log('PASS: pipeline stage and follow-up date persist and reopen in correct workspace');
 
 companies[0].member_role='viewer';
