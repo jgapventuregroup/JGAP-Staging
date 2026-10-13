@@ -162,3 +162,8 @@ assert.ok(element('deal-explanation').children.every(card=>card.className.includ
 for(const [id,value] of Object.entries({...fields,rent:3000}))element(id).value=String(value);
 element('calculate').onclick();assert.match(element('deal-assessment').textContent,/MEETS BOTH TARGETS/);assert.ok(element('deal-explanation').children[0].className.includes('assessment-pass'));
 console.log('PASS: preliminary assumptions prevent green approval; complete passing inputs still compare targets');
+
+// Investor usability: both calculation actions must navigate to their results after success.
+assert.match(html,/\$\('calculate'\)\.onclick=[^\n]*calculate\(\);[^\n]*\$\('results'\)\.scrollIntoView\(/,'Analyze offer must scroll to calculated financial results');
+assert.match(html,/\$\('solve-offer'\)\.onclick=[^\n]*solveOffer\(\);[^\n]*\$\('price-comparison'\)\.scrollIntoView\(/,'Maximum offer must scroll to the offer comparison');
+console.log('PASS: analyzer and maximum-offer buttons navigate to their results');
