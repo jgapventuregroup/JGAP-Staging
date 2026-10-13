@@ -44,7 +44,7 @@ el('password').value = 'synthetic-password';
 await el('login').onclick();
 assert.equal(calls.filter(x => x.name === 'create_my_company').length, 1, 'New user attempts workspace creation once');
 assert.equal(el('workspace').classList.contains('hidden'), false, 'Workspace opens after creation succeeded despite an error response');
-assert.equal(el('company').value, 'new-company');
+assert.equal(el('company').options[0].value, 'new-company', 'New company is available in the workspace selector');
 await el('logout').onclick();
 onboardingMode = false;
 el('email').value = 'fictional@example.com';
