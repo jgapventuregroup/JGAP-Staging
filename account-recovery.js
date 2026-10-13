@@ -50,7 +50,9 @@
       el('recovery-status').textContent = 'Password updated. Return to sign in with your new password.';
     } catch (error) {
       const code = String(error?.code || 'unknown_error').replace(/[^a-z0-9_]/gi, '').slice(0, 60);
-      el('recovery-status').textContent = 'Password update failed (' + code + '). Your password was not changed. If this is a password-policy error, choose a different password. If the link expired, request a new reset link.';
+      const expired = /expired|invalid_token|session_not_found|session_expired|bad_jwt/.test(code);
+      const policy = /weak_password|same_password|password/.test(code);
+      el('recovery-status').textContent = expired ? 'Password update failed (' + code + '). The recovery session is no longer valid. Request a new reset link.' : policy ? 'Password update failed (' + code + '). Choose a different password with at least 12 characters and try again.' : 'Password update failed (' + code + '). Your password was not changed. Please try again; if this continues, request a new reset link.';
     } finally { updating = false; el('save-new-password').disabled = !verifiedRecovery; }
   };
   el('back-to-signin').onclick = async () => {
