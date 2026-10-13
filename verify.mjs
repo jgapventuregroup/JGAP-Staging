@@ -167,3 +167,13 @@ console.log('PASS: preliminary assumptions prevent green approval; complete pass
 assert.match(html,/\$\('calculate'\)\.onclick=[^\n]*calculate\(\);[^\n]*\$\('results'\)\.scrollIntoView\(/,'Analyze offer must scroll to calculated financial results');
 assert.match(html,/\$\('solve-offer'\)\.onclick=[^\n]*solveOffer\(\);[^\n]*\$\('price-comparison'\)\.scrollIntoView\(/,'Maximum offer must scroll to the offer comparison');
 console.log('PASS: analyzer and maximum-offer buttons navigate to their results');
+
+// Real customer fixture: $150k asking, $140k offer, $1,500 rent and 8% CoC goal.
+// The cash-flow constraint must cap the maximum offer near $126,822.
+for(const [id,value] of Object.entries({ask:150000,offer:140000,rent:1500,other:0,vacancy:5,expenses:450,down:20,rate:7,years:30,costs:5000}))element(id).value=String(value);
+element('target-flow').value='300';element('target-coc').value='8';element('reserve-cash').value='5000';
+element('solve-offer').onclick();
+assert.match(element('offer-guidance').textContent,/Maximum offer meeting both targets: \$126,822\.01/,'Maximum offer must match live customer test fixture');
+assert.match(element('offer-guidance').textContent,/Limiting requirement: monthly cash flow/,'Monthly cash-flow target should bind');
+assert.match(element('offer-guidance').textContent,/Estimated monthly cash flow: \$300\.00/,'Maximum offer must meet cash-flow target');
+console.log('PASS: live investor fixture yields $126,822 maximum offer and $300 monthly cash flow');
