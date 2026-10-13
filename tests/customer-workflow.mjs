@@ -97,6 +97,8 @@ el('company').value='a';await el('company').onchange();
 const editable=el('deals').children[0].children.find(x=>x.tagName==='button');
 await editable.onclick();
 el('offer').value='165000';
+el('offer').listeners.input();
+assert.match(el('save-analysis-status').textContent, /Unsaved changes/, 'Editing a saved property must warn that changes are not persisted');
 await el('save-analysis').onclick();
 assert.equal(deal.target_offer_price,165000,'Changed offer must persist');
 assert.equal(deal.purchase_price,165000,'Underwriting purchase price must match saved offer');
