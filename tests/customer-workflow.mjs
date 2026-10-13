@@ -47,6 +47,7 @@ assert.equal(el('workspace').classList.contains('hidden'), false, 'Workspace ope
 assert.equal(el('company').options[0].value, 'new-company', 'New company is available in the workspace selector');
 await el('logout').onclick();
 onboardingMode = false;
+calls.length = 0;
 el('email').value = 'fictional@example.com';
 el('password').value = 'synthetic-password';
 loginError = { code: 'email_not_confirmed', message: 'Email not confirmed' };
