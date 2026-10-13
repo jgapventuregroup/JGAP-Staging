@@ -20,14 +20,15 @@ const elements = new Map();
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
 const companies = [{ company_id: 'a', company_name: 'Company A', member_role: 'viewer' }, { company_id: 'b', company_name: 'Company B', member_role: 'owner' }];
 const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
-const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false;
+const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = [];
 const fakeClient = {
   auth: { signInWithPassword: async ({ email }) => ({ data: { user: { email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
   rpc: async (name, args) => {
     calls.push({ name, args });
     if (name === 'list_my_companies') return { data: onboardingMode ? (onboardingCreated ? [{company_id:'new-company',company_name:'My Investment Company',member_role:'owner'}] : []) : companies, error: null };
     if (name === 'create_my_company') { onboardingCreated = true; return { data: null, error: {message:'Duplicate creation response'} }; }
-    if (name === 'list_company_deals') return failCompanyB && args.p_company_id === 'b' ? { data: null, error: Error('Network unavailable') } : { data: args.p_company_id === 'a' ? [deal] : [], error: null };
+    if (name === 'list_company_deals') return failCompanyB && args.p_company_id === 'b' ? { data: null, error: Error('Network unavailable') } : { data: args.p_company_id === 'a' ? [deal] : companyBDeals, error: null };
+    if (name === 'create_company_deal') { const created={id:'created-'+(companyBDeals.length+1),company_id:args.p_company_id,name:args.p_name,purchase_price:args.p_purchase_price,monthly_rent:args.p_monthly_rent,status:'lead'};companyBDeals.push(created);return {data:created,error:null}; }
     if (name === 'get_my_lifetime_deal_usage') return { data: 1, error: null };
     if (name === 'get_company_deal') return { data: [deal], error: null };
     if (name === 'update_company_deal') { if (args.p_company_id !== 'a' || args.p_deal_id !== deal.id) return { data:null,error:Error('Wrong company') }; Object.assign(deal,args.p_patch); return {data:deal,error:null}; }
@@ -135,6 +136,24 @@ assert.equal(el('pipeline-deals').children.length, 0, 'Company B pipeline exclud
 assert.equal(el('export-properties').disabled, true, 'Company B cannot export Company A properties');
 assert.equal(calls.filter(x => x.name === 'list_company_deals').at(-1).args.p_company_id, 'b', 'Company B query must be scoped');
 console.log('PASS: successful company switch excludes previous company data');
+// New property creation requires deliberate financial input and prevents duplicate names.
+const form=el('new-deal-form');
+el('new-deal-name').value='Synthetic Triplex';el('new-deal-price').value='';el('new-deal-rent').value='1500';
+await form.onsubmit({preventDefault(){}});
+assert.equal(companyBDeals.length,0,'Blank purchase price must not create a property');
+el('new-deal-price').value='150000.001';
+await form.onsubmit({preventDefault(){}});
+assert.equal(companyBDeals.length,0,'Fractional cents must not create a property');
+el('new-deal-price').value='150000.29';
+await form.onsubmit({preventDefault(){}});
+assert.equal(companyBDeals.length,1,'Valid financial inputs must create exactly one property');
+assert.equal(companyBDeals[0].purchase_price,150000.29);
+assert.equal(el('metric-count').textContent,'1','New property must appear after refresh');
+el('new-deal-name').value='Synthetic Triplex';
+await form.onsubmit({preventDefault(){}});
+assert.equal(companyBDeals.length,1,'Duplicate name must not create a second property');
+assert.match(el('new-deal-status').textContent,/already in your pipeline/);
+console.log('PASS: new property rejects blank price and fractional cents, saves valid cents, blocks duplicate name');
 await assert.rejects(context.window.JGAPIntelligenceContext.save({}, 'a'), /not authorized/, 'Import cannot write to a previous company');
 const imported={address:'123 Test Street',asking_price:200000,planned_offer:150000,rent_monthly:1800,expenses_monthly:600,source_name:'Synthetic export',external_id:'test-import'};
 await context.window.JGAPIntelligenceContext.save(imported,'b');
