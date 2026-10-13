@@ -5,6 +5,8 @@ const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
 assert.match(html,/STAGING ONLY/);assert.match(html,/html\[data-theme="dark"\] input\[aria-invalid="true"\]/,'Dark mode must have distinct invalid-field styling');
 assert.match(html,/qfszapteuxuogoselprp\.supabase\.co/);
 assert.match(html,/list_my_companies/);
+assert.match(html,/!rawPrice\|\|!rawRent/, 'Blank property price and rent must not silently become zero');
+
 assert.match(html,/list_company_deals/);
 assert.match(html,/get_company_deal/);
 assert.doesNotMatch(html,/service_role|sb_secret_/i);
