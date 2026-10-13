@@ -20,7 +20,7 @@ const elements = new Map();
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
 const companies = [{ company_id: 'a', company_name: 'Company A', member_role: 'viewer' }, { company_id: 'b', company_name: 'Company B', member_role: 'owner' }];
 const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
-const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = [];
+const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = []; let lifetimeB = 0;
 const fakeClient = {
   auth: { signInWithPassword: async ({ email }) => ({ data: { user: { email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
   rpc: async (name, args) => {
@@ -28,8 +28,8 @@ const fakeClient = {
     if (name === 'list_my_companies') return { data: onboardingMode ? (onboardingCreated ? [{company_id:'new-company',company_name:'My Investment Company',member_role:'owner'}] : []) : companies, error: null };
     if (name === 'create_my_company') { onboardingCreated = true; return { data: null, error: {message:'Duplicate creation response'} }; }
     if (name === 'list_company_deals') return failCompanyB && args.p_company_id === 'b' ? { data: null, error: Error('Network unavailable') } : { data: args.p_company_id === 'a' ? [deal] : companyBDeals, error: null };
-    if (name === 'create_company_deal') { const created={id:'created-'+(companyBDeals.length+1),company_id:args.p_company_id,name:args.p_name,purchase_price:args.p_purchase_price,monthly_rent:args.p_monthly_rent,status:'lead'};companyBDeals.push(created);return {data:created,error:null}; }
-    if (name === 'get_my_lifetime_deal_usage') return { data: 1, error: null };
+    if (name === 'create_company_deal') { if(args.p_company_id==='b'&&lifetimeB>=5)return {data:null,error:{message:'FREE_LIFETIME_PROPERTY_LIMIT_REACHED'}}; if(args.p_company_id==='b')lifetimeB++; const created={id:'created-'+(companyBDeals.length+1),company_id:args.p_company_id,name:args.p_name,purchase_price:args.p_purchase_price,monthly_rent:args.p_monthly_rent,status:'lead'};companyBDeals.push(created);return {data:created,error:null}; }
+    if (name === 'get_my_lifetime_deal_usage') return { data: args.p_company_id==='b'?lifetimeB:1, error: null };
     if (name === 'get_company_deal') return { data: [deal], error: null };
     if (name === 'update_company_deal') { if (args.p_company_id !== 'a' || args.p_deal_id !== deal.id) return { data:null,error:Error('Wrong company') }; Object.assign(deal,args.p_patch); return {data:deal,error:null}; }
     if (name === 'create_company_deal_from_listing') return { data: {id:'imported-property',saved:true}, error: null };
@@ -160,6 +160,20 @@ assert.equal(companyBDeals.length,2,'Explicit zero amounts must be accepted');
 assert.equal(companyBDeals[1].purchase_price,0);
 assert.equal(companyBDeals[1].monthly_rent,0);
 assert.equal(el('metric-count').textContent,'2','Both saved properties must appear in pipeline');
+for(let n=3;n<=5;n++){
+  el('new-deal-name').value='Synthetic Property '+n;
+  el('new-deal-price').value='100000';el('new-deal-rent').value='1000';
+  await form.onsubmit({preventDefault(){}});
+}
+assert.equal(lifetimeB,5,'Five lifetime slots are consumed');
+companyBDeals.splice(0,1); // Simulate deletion; lifetime count must not reset.
+el('new-deal-name').value='Synthetic Sixth Property';
+el('new-deal-price').value='90000';el('new-deal-rent').value='900';
+await form.onsubmit({preventDefault(){}});
+assert.equal(lifetimeB,5,'A deleted property must not release a lifetime slot');
+assert.equal(companyBDeals.some(x=>x.name==='Synthetic Sixth Property'),false,'Sixth property must be refused');
+assert.match(el('new-deal-status').textContent,/five lifetime Free property slots/);
+console.log('PASS: five lifetime Free slots enforced in simulated server response, including after deletion');
 console.log('PASS: new property rejects blank price and fractional cents, saves valid cents, blocks duplicate name');
 await assert.rejects(context.window.JGAPIntelligenceContext.save({}, 'a'), /not authorized/, 'Import cannot write to a previous company');
 const imported={address:'123 Test Street',asking_price:200000,planned_offer:150000,rent_monthly:1800,expenses_monthly:600,source_name:'Synthetic export',external_id:'test-import'};
