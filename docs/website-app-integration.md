@@ -17,3 +17,11 @@ The public JGAP Venture Group marketing website and the authenticated JGAP inves
 - Configure the approved app origin and redirect URLs in staging/production auth settings as appropriate, and test signup, verification, password recovery and logout on the final origin.
 - Test mobile navigation and browser back/forward behavior between marketing website and app.
 - Do not enable Stripe, change production infrastructure, or launch publicly without owner approval.
+
+## Coordinated launch requirement (October 15, 2026)
+
+The owners require the JGAP Venture Group website, Investor App and JGAP Book to go live **together**, not independently. The companion website release gate is tracked in `jgapventuregroup/JGAP-Website/THREE-PRODUCT-LAUNCH-GATES.md`.
+
+The app's passing CI checks are evidence of code-level tests only. Before public release, obtain evidence for: (1) fresh real customer signup and verification, (2) deal creation, offer edits, save/reload, pipeline follow-up and cross-company access refusal, (3) Free five-lifetime-property enforcement, (4) secure test checkout, signed webhook activation, failed payment, cancellation and customer portal, (5) password recovery via actual email, (6) final production URL and allowed auth redirects, (7) mobile/browser QA, privacy/terms and support, and (8) explicit approval by Sean and Lesleigh.
+
+Do not enable real charges or publicly link this staging app to meet a date. Confirm the book's finished ordering page and the website's approved public domain before updating either product's navigation. Never copy staging customer data into the marketing website.
