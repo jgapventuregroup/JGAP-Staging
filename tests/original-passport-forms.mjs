@@ -102,3 +102,15 @@ test('combined Passport form refuses missing frequency before saving equipment',
   assert.match(status.textContent,/Service frequency must be a positive whole number/);
  }finally{globalThis.document=old}
 });
+
+test('equipment-only Passport entry leaves optional service empty',async()=>{
+ const old=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  let saved;
+  const form=createPassportSystemForm(async value=>{saved=value});
+  form.elements.namedItem('name').value='Furnace';
+  await form.listeners.submit({preventDefault(){}});
+  assert.equal(saved.assetValues.name,'Furnace');
+  assert.equal(saved.serviceValues,null);
+ }finally{globalThis.document=old}
+});
