@@ -18,13 +18,14 @@ jobs:
       - run: npm test
       - name: Verify required preview assets
         run: |
+          test -f previews/index.html
           test -f previews/property-operations-demo.html
           test -f previews/investor-ledger-demo.html
       - name: Package Investor preview
         run: |
           mkdir -p dist/previews
           cp index.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs dist/
-          cp previews/property-operations-demo.html previews/investor-ledger-demo.html dist/previews/
+          cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html dist/previews/
       - uses: actions/upload-artifact@v4
         with:
           name: investor-preview-site
