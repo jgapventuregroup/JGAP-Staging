@@ -22,3 +22,10 @@ test('writer rejects invalid maintenance status before database access',async()=
  await assert.rejects(saveOriginalPassportEntry({kind:'maintenance',values:{title:'Repair',maintenance_date:'2026-10-18',status:'unknown'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/maintenance status/);
  assert.equal(called,false);
 });
+
+test('service writer rejects equipment owned by another property before insert',async()=>{
+ let inserted=false;
+ const client={from(table){assert.equal(table,'property_assets');return {select(){return this},eq(){return this},async single(){return {data:{id:'a1',company_id:'c2',deal_id:'d2'},error:null}},insert(){inserted=true;throw Error('Should not insert')}}}};
+ await assert.rejects(saveOriginalPassportEntry({kind:'service',values:{asset_id:'a1',service_name:'Filter',frequency_value:1,frequency_unit:'year'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/does not belong/);
+ assert.equal(inserted,false);
+});
