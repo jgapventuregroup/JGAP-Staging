@@ -15,6 +15,6 @@ export function createOriginalPassportForm(kind,onSubmit,{assets=[]}={}){
    const guidance=document.createElement('p');guidance.setAttribute('data-service-guidance','');guidance.textContent='Add equipment first to create its service schedule.';form.append(guidance);
  }
  const message=document.createElement('p');message.setAttribute('role','status');form.append(message);
- form.addEventListener('submit',async event=>{event.preventDefault();if(button.disabled)return;button.disabled=true;message.textContent='Saving…';try{const values={};for(const [key,,type] of fields){const raw=form.elements.namedItem(key)?.value?.trim();if(raw)values[key]=type==='number'?Number(raw):raw}await onSubmit(values);message.textContent='Saved';form.reset()}catch(error){message.textContent='Could not save: '+(error?.message||'Unknown error')}finally{button.disabled=false}});
+ form.addEventListener('submit',async event=>{event.preventDefault();if(button.disabled)return;button.disabled=true;message.textContent='Saving…';try{const values={};for(const [key,,type] of fields){const raw=form.elements.namedItem(key)?.value?.trim();if(raw)values[key]=type==='number'?Number(raw):raw}await onSubmit(values);message.textContent='Saved';form.reset()}catch(error){message.textContent='Could not save: '+(error?.message||'Unknown error')}finally{button.disabled=kind==='service'&&!Array.from(form.elements.namedItem('asset_id')?.options||[]).some(option=>option.value)||false}});
  return form;
 }
