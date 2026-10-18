@@ -9,7 +9,7 @@ test('Passport preview requires active entitlement and ignores stale company res
  const elements=[];
  function node(tag){
    const item={tag,children:[],attributes:{},textContent:'',disabled:false,isConnected:true,
-     append(...children){this.children.push(...children)},
+     append(...children){for(const child of children){this.children.push(child);if(child&&typeof child==='object')child.parentNode=this}},
      setAttribute(k,v){this.attributes[k]=v},
      after(child){this.afterNode=child},
      remove(){this.removed=true},
@@ -34,6 +34,12 @@ test('Passport preview requires active entitlement and ignores stale company res
    await line.children[0].onclick();
    assert.equal(line.afterNode?.attributes['aria-label'],'Property Passport preview');
    assert.equal(line.afterNode.children[0].textContent,'Duplex — Passport preview');
+   const openPanel=line.afterNode;
+   const closeButton=openPanel.children[1];
+   assert.equal(closeButton.textContent,'Close Passport');
+   closeButton.onclick();
+   assert.equal(openPanel.removed,true,'Close action removes the active Passport');
+   assert.equal(line.children[0].disabled,false,'Close action leaves preview button usable');
    let release;
    options.fetchDeal=()=>new Promise(resolve=>{release=resolve});
    const second=node('p');
