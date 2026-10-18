@@ -75,11 +75,13 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         printWindow.focus();printWindow.print();
       };
       panel.append(print);
+      const passportMoney=new Set(['Purchase price','Current market value','Mortgage balance','Estimated equity','Target offer','Monthly rent','Operating expenses / month']);
+      const formatPassportValue=(label,value)=>value===null?'Not recorded':passportMoney.has(label)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value):String(value);
       for(const [label,value] of [['Address',p.address],['Type',p.propertyType],['Stage',p.status],['Units',p.units],['Purchase price',p.purchasePrice],['Purchase date',p.purchaseDate],['Current market value',p.currentValue],['Mortgage balance',p.mortgageBalance],['Estimated equity',p.equity],['Target offer',p.targetOfferPrice],['Monthly rent',p.monthlyRent],['Operating expenses / month',p.monthlyOperatingExpenses],['Notes',p.notes],['Follow-up',p.followUpDate]]){
         const row=document.createElement('p');
         const strong=document.createElement('strong');
         strong.textContent=label+': ';
-        row.append(strong,document.createTextNode(value===null?'Not recorded':String(value)));
+        row.append(strong,document.createTextNode(formatPassportValue(label,value)));
         panel.append(row);
       }
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true){
