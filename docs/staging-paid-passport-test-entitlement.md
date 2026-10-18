@@ -29,3 +29,9 @@ Status: **planning only; no paid test workspace provisioned and no membership ch
 - `get_company_deal(p_company_id,p_deal_id)` is a security-invoker SQL function that checks `auth.uid()` and `public.is_company_member(p_company_id)` before returning the matching deal; underlying deals RLS remains applicable.
 - `enforce_company_deal_limit()` is a security-definer trigger that locks the company/usage record, rejects workspace transfers, and blocks creation once five lifetime Free slots are consumed unless a paid plan has `billing_status='active'`.
 - These findings do not establish a safe paid entitlement issuance procedure; that remains to be reviewed before any database mutation.
+
+## Subscription lifecycle review (read-only, 2026-10-18)
+- New companies automatically receive `free / not_connected` via `initialize_company_free_subscription` on company INSERT.
+- Updates to `plan` or `billing_status` are recorded by the `audit_subscription_changes` AFTER UPDATE trigger in `subscription_change_audit`, including old/new values.
+- `is_company_member` requires an authenticated user and a non-null membership role from `jgap_private.member_role`.
+- No staging entitlement has been issued; do not use an ordinary client to modify subscription records.
