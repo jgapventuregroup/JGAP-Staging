@@ -1,5 +1,5 @@
 import {projectPropertyPassport} from './property-passport.mjs';
-import {projectOriginalPassportChild} from './original-passport-recovery.mjs';
+import {loadOriginalPassportRecords} from './original-passport-loader.mjs';
 import {summarizePropertyOperations} from './property-operations.mjs';
 import {fetchPropertyOperations} from './property-operations-loader.mjs';
 import {createPropertyActivityForm} from './property-activity-forms.mjs';
@@ -20,7 +20,7 @@ function setEligibility(next){
   panel=null;
   eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true};
 }
-function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations,fetchOriginalRecords}){
+function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
   if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
   const button=document.createElement('button');
   button.type='button';
@@ -61,14 +61,14 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         row.append(strong,document.createTextNode(value===null?'Not recorded':String(value)));
         panel.append(row);
       }
-      if(typeof fetchOriginalRecords==='function'){
-        const legacy=await fetchOriginalRecords();
+      if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true){
+        const legacy=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
         if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
         for(const [kind,title,key] of [['asset','Systems & equipment','assets'],['service','Service schedules','services'],['maintenance','Maintenance history','maintenance'],['improvement','Improvements','improvements']]){
           const section=document.createElement('section');const h=document.createElement('h3');h.textContent=title;section.append(h);
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
           for(const record of records){
-            const item=projectOriginalPassportChild(record,companyId,p.id,kind);
+            const item=record;
             const row=document.createElement('p');row.textContent=[item.name,item.service_name,item.title].find(Boolean)||'Untitled record';section.append(row);
           }
           if(!records.length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty);}
