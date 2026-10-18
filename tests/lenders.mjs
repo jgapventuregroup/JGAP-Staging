@@ -18,7 +18,7 @@ const lenders = context.window.JGAPLenders;
 await lenders.load(); assert.equal(el('lender-form').hidden, true); assert.equal(el('l_toggle_form').hidden, false); el('l_toggle_form').onclick(); assert.equal(el('lender-form').hidden, false);
 el('l_inst').value = 'Synthetic Credit Union'; el('l_min').value = '0'; el('l_max').value = '100000';
 await el('lender-form').onsubmit({ preventDefault() {} });
-assert.equal(writes.length, 1); assert.equal(writes[0].company, 'a'); assert.equal(writes[0].fields.minimum_loan_amount, 0); assert.equal(writes[0].fields.typical_ltv, null, 'Unknown lender terms must remain null');
+assert.equal(writes.length, 1); assert.equal(writes[0].company, 'a'); assert.equal(writes[0].fields.minimum_loan_amount, 0); assert.equal(writes[0].fields.typical_ltv, null, 'Unknown lender terms must remain null'); await el('lender-form').onsubmit({ preventDefault() {} }); assert.equal(writes.length, 1, 'Hidden form must not save'); el('l_toggle_form').onclick();
 el('l_inst').value = 'Synthetic Bank'; el('l_min').value = '200'; el('l_max').value = '100'; await el('lender-form').onsubmit({ preventDefault() {} }); assert.equal(writes.length, 1); assert.match(el('l_msg').textContent, /Minimum loan cannot exceed/);
 el('l_min').value = ''; el('l_max').value = ''; el('l_web').value = 'javascript:alert(1)'; await el('lender-form').onsubmit({ preventDefault() {} }); assert.equal(writes.length, 1);
 el('l_web').value = ''; el('l_cancel_btn').onclick(); assert.equal(el('lender-form').hidden, true, 'Cancel closes lender form');
