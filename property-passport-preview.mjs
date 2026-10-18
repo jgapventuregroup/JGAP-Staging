@@ -1,5 +1,6 @@
 import {projectPropertyPassport} from './property-passport.mjs';
 import {summarizePropertyOperations} from './property-operations.mjs';
+import {fetchPropertyOperations} from './property-operations-loader.mjs';
 
 // Read-only preview. Paid entitlement must be verified by the server before activation.
 let eligibility={companyId:null,enabled:false};
@@ -83,5 +84,5 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
   };
   line.append(button);
 }
-window.JGAPPassportPreview={clear,setEligibility,addAction};
+window.JGAPPassportPreview={clear,setEligibility,addAction,fetchPropertyOperations};
 window.dispatchEvent?.(new Event('jgap-passport-ready'));
