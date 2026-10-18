@@ -39,7 +39,7 @@ export function createPropertyActivityForm({kind,client,companyId,dealId,onSaved
    if(getCurrentCompany?.()!==companyId||getCurrentClient?.()!==client||!form.isConnected){message.textContent='Saved to the previous property. Reopen the property to see it.';return;}
    message.textContent='Saved successfully';form.reset();
    for(const key of ['entryDate','openedOn'])if(controls[key])controls[key].value=[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-');
-   try{await onSaved?.();}catch(refreshError){message.textContent='Saved, but could not refresh totals: '+(refreshError?.message||'Please reopen this property');}
+   try{await onSaved?.();}catch(refreshError){if(form.isConnected&&getCurrentCompany?.()===companyId&&getCurrentClient?.()===client)message.textContent='Saved, but could not refresh totals: '+(refreshError?.message||'Please reopen this property');}
   }catch(error){message.textContent=error?.message||'Could not save activity';}
   finally{pending=false;submit.disabled=false;}
  });
