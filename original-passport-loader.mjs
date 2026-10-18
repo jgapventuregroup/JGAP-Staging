@@ -10,6 +10,7 @@ export async function loadOriginalPassportRecords({client,companyId,propertyId})
   if(!Array.isArray(data))throw Error('Invalid '+key+' records');
   const kind={assets:'asset',services:'service',maintenance:'maintenance',improvements:'improvement'}[key];
   result[key]=data.map(row=>projectOriginalPassportChild({...row,property_id:row.deal_id},companyId,propertyId,kind));
+  if(new Set(result[key].map(item=>item.id)).size!==result[key].length)throw Error('Duplicate '+key+' records returned for this property');
   const dateField={assets:'installed_date',services:'next_service_date',maintenance:'maintenance_date',improvements:'improvement_date'}[key];
   result[key].sort((a,b)=>key==='assets'?String(a.name||'').localeCompare(String(b.name||'')):key==='services'?String(a[dateField]||'9999-12-31').localeCompare(String(b[dateField]||'9999-12-31')):String(b[dateField]||'').localeCompare(String(a[dateField]||'')));
  }
