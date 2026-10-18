@@ -13,9 +13,9 @@ export function summarizePropertyOperations({ledger=[],repairs=[],tasks=[]}={}){
   }
   if(!Number.isSafeInteger(estimatedRepairCents)||!Number.isSafeInteger(actualRepairCents))throw Error('Repair total exceeds safe precision');
  }
- let openTasks=0,doneTasks=0,overdueTasks=0;
+ let openTasks=0,doneTasks=0;
  for(const task of tasks){
   if(task.status==='open'){openTasks++;}else if(task.status==='done'){doneTasks++;}else throw Error('Invalid task status');
  }
- return {cashFlow,repairs:{open:openRepairs,completed:completedRepairs,estimatedCost:estimatedRepairCents/100,actualCost:actualRepairCents/100},tasks:{open:openTasks,done:doneTasks,overdue:overdueTasks}};
+ return {cashFlow,repairs:{open:openRepairs,completed:completedRepairs,estimatedCost:estimatedRepairCents/100,actualCost:actualRepairCents/100},tasks:{open:openTasks,done:doneTasks}};
 }
