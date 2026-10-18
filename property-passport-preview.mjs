@@ -12,8 +12,14 @@ let eligibility={companyId:null,enabled:false};
 let requestId=0;
 let panel=null;
 let expandedButton=null;
+let pendingButton=null;
+function releasePendingButton(){
+  if(pendingButton)pendingButton.disabled=false;
+  pendingButton=null;
+}
 function clear(){
   requestId++;
+  releasePendingButton();
   eligibility={companyId:null,enabled:false};
   panel?.remove();
   panel=null;
@@ -22,6 +28,7 @@ function clear(){
 }
 function setEligibility(next){
   requestId++;
+  releasePendingButton();
   panel?.remove();
   panel=null;
   expandedButton?.setAttribute('aria-expanded','false');
@@ -37,7 +44,9 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
   button.setAttribute('aria-expanded','false');
   button.setAttribute('aria-controls','property-passport-panel');
   button.onclick=async()=>{
+    releasePendingButton();
     const current=++requestId;
+    pendingButton=button;
     button.disabled=true;
     try{
       if(getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
@@ -278,7 +287,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel.setAttribute('role','alert');
       panel.textContent='Could not open Property Passport: '+(error?.message||'Unknown error');
       line.after(panel);
-    }finally{if(current===requestId)button.disabled=false;}
+    }finally{if(pendingButton===button){button.disabled=false;pendingButton=null;}}
   };
   line.append(button);
 }
