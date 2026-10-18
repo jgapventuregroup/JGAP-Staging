@@ -74,3 +74,14 @@ test('combined Passport writer rejects incomplete service details before any ins
  }
  assert.equal(calls,0);
 });
+
+test('combined Passport writer rejects caller-provided equipment ID before database access',async()=>{
+ let called=false;
+ const client={from(){called=true;throw Error('Database must not be called')}};
+ await assert.rejects(savePassportSystemWithService({
+  client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client,
+  assetValues:{name:'Boiler'},
+  serviceValues:{asset_id:'another-asset',service_name:'Inspect',frequency_value:1,frequency_unit:'year'}
+ }),/assigned automatically/);
+ assert.equal(called,false);
+});
