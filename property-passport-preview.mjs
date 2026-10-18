@@ -30,6 +30,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
   button.textContent='Open Property Passport';
   button.setAttribute('aria-label','Open property passport for '+deal.name);
   button.setAttribute('aria-expanded','false');
+  button.setAttribute('aria-controls','property-passport-panel');
   button.onclick=async()=>{
     const current=++requestId;
     button.disabled=true;
@@ -53,6 +54,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel=document.createElement('section');
       const activePanel=panel;
       panel.setAttribute('aria-label','Property Passport');
+      panel.setAttribute('id','property-passport-panel');
       const heading=document.createElement('h2');
       heading.textContent=p.name+' — Property Passport';
       panel.append(heading);
