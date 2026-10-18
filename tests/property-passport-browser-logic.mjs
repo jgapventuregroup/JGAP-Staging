@@ -75,8 +75,10 @@ test('Passport preview requires active entitlement and ignores stale company res
    const second=node('p');
    preview.addAction({...options,line:second});
    const pending=second.children[0].onclick();
+   assert.equal(second.children[0].disabled,true,'Loading disables the current Passport action');
    company='c2';
    preview.clear();
+   assert.equal(second.children[0].disabled,false,'Clearing a session releases an unfinished loading button');
    release({id:'deal-1',company_id:'c1',name:'Private'});
    await pending;
    assert.equal(second.afterNode,undefined,'Stale result must not render');
@@ -87,6 +89,7 @@ test('Passport preview requires active entitlement and ignores stale company res
    preview.addAction({...options,line:third,fetchDeal:()=>new Promise((_,reject)=>{rejectRequest=reject})});
    const failed=third.children[0].onclick();
    preview.setEligibility({companyId:'c1',enabled:false});
+   assert.equal(third.children[0].disabled,false,'Revoking entitlement releases an unfinished loading button');
    rejectRequest(new Error('Private server error'));
    await failed;
    assert.equal(third.afterNode,undefined,'Revoked entitlement must suppress stale errors');
