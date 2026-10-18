@@ -9,8 +9,10 @@
   const scope = () => window.JGAPLenderContext?.scope();
   const canEdit = () => ['owner', 'admin', 'editor'].includes(scope()?.role);
   const money = value => value == null ? 'Not supplied' : Number(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  function showForm(open) { el('lender-form').hidden = !open; el('l_toggle_form').setAttribute('aria-expanded', String(open)); el('l_toggle_form').textContent = open ? 'Hide lender form −' : 'Add lender +'; }
+  el('l_toggle_form').onclick = () => { if (!canEdit()) return; if (!el('lender-form').hidden && editing) clearForm(); showForm(el('lender-form').hidden); };
   function clearForm() { editing = null; editingCompany = null; for (const id of Object.keys(mapping)) el(id).value = ''; el('l_type').value = 'Bank'; el('l_status').value = 'Prospect'; el('l_form_title').textContent = 'Add lender'; el('l_save_btn').textContent = 'Save lender'; el('l_cancel_btn').hidden = true; }
-  function clear() { loading++; rows = []; clearForm(); el('lender-form').hidden = true; el('lenderList').replaceChildren(); el('l_search').value = ''; el('l_show_archived').checked = false; el('l_msg').textContent = ''; for (const id of ['l_count', 'l_active', 'l_due']) el(id).textContent = ''; }
+  function clear() { loading++; rows = []; clearForm(); showForm(false); el('l_toggle_form').hidden = true; el('lenderList').replaceChildren(); el('l_search').value = ''; el('l_show_archived').checked = false; el('l_msg').textContent = ''; for (const id of ['l_count', 'l_active', 'l_due']) el(id).textContent = ''; }
   function payload() {
     const result = {};
     for (const [id, column] of Object.entries(mapping)) {
@@ -39,7 +41,7 @@
       const terms = document.createElement('p'); terms.textContent = row.lender_type + ' · ' + row.status + ' · Loan types: ' + (row.loan_types || 'Not supplied') + ' · Minimum: ' + money(row.minimum_loan_amount) + ' · Maximum: ' + money(row.maximum_loan_amount) + ' · LTV: ' + (row.typical_ltv == null ? 'Not supplied' : row.typical_ltv + '%') + ' · DSCR: ' + (row.typical_dscr ?? 'Not supplied');
       const notes = document.createElement('p'); notes.style.whiteSpace = 'pre-wrap'; notes.textContent = [row.rate_notes, row.term_notes, row.notes].filter(Boolean).join('\n');
       const followup = document.createElement('p'); followup.textContent = 'Last contact: ' + (row.last_contact_date || 'Not recorded') + ' · Next follow-up: ' + (row.next_follow_up_date || 'Not scheduled');
-      const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = 'Edit'; edit.disabled = !canEdit(); edit.onclick = () => { const active = scope(); if (!active || active.companyId !== row.company_id || !canEdit()) return; editing = row.id; editingCompany = active.companyId; for (const [id, key] of Object.entries(mapping)) el(id).value = row[key] ?? ''; el('l_form_title').textContent = 'Edit lender'; el('l_save_btn').textContent = 'Update lender'; el('l_cancel_btn').hidden = false; el('l_form_title').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+      const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = 'Edit'; edit.disabled = !canEdit(); edit.onclick = () => { const active = scope(); if (!active || active.companyId !== row.company_id || !canEdit()) return; editing = row.id; editingCompany = active.companyId; for (const [id, key] of Object.entries(mapping)) el(id).value = row[key] ?? ''; el('l_form_title').textContent = 'Edit lender'; showForm(true); el('l_save_btn').textContent = 'Update lender'; el('l_cancel_btn').hidden = false; el('l_form_title').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
       const archive = document.createElement('button'); archive.type = 'button'; archive.textContent = archived ? 'Restore' : 'Archive'; archive.disabled = !canEdit(); archive.onclick = async () => { const active = scope(); if (!active || active.companyId !== row.company_id || !canEdit() || archive.disabled) return; archive.disabled = true; try { const result = await window.JGAPLenderContext.archive(row.id, !row.archived, active.companyId); if (result.stale) return; el('l_msg').textContent = row.archived ? 'Lender restored.' : 'Lender archived. Use Show archived lenders to restore it.'; await load(); } catch (error) { if (scope()?.companyId !== active.companyId) return; el('l_msg').textContent = 'Could not update lender: ' + error.message; archive.disabled = false; } };
       card.append(heading, details, terms, followup, notes, edit, archive);
       if (row.website) { try { const url = new URL(row.website); if (url.protocol === 'https:' && !url.username && !url.password) { const link = document.createElement('a'); link.href = url.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = 'Institution website'; card.append(link); } } catch {} }
@@ -50,7 +52,7 @@
     const active = scope(), generation = ++loading;
     el('lenderList').replaceChildren();
     rows = []; for (const id of ['l_count', 'l_active', 'l_due']) el(id).textContent = '';
-    el('lender-form').hidden = !canEdit();
+    el('l_toggle_form').hidden = !canEdit(); showForm(false);
     if (!active) { el('l_msg').textContent = 'Choose a company workspace to view its lenders.'; return; }
     el('lenderList').textContent = 'Loading lender directory…';
     try { const result = await window.JGAPLenderContext.load(active.companyId); if (generation !== loading || result.stale || scope()?.companyId !== active.companyId) return; if (!Array.isArray(result.rows) || result.rows.some(row => row.company_id !== active.companyId)) throw Error('Lender records could not be verified for this company.'); rows = result.rows; render(); }
