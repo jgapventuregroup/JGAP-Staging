@@ -44,6 +44,8 @@ test('Passport preview requires active entitlement and ignores stale company res
    const financialRows=openPanel.children.flatMap(child=>child.tag==='section'?child.children.filter(row=>row.tag==='p'):child.tag==='p'?[child]:[]).map(child=>child.children.map(part=>part.textContent).join(''));
    assert.ok(financialRows.includes('Estimated equity: Not recorded'),'Unknown equity must be explicit');
    assert.ok(financialRows.includes('Current market value: Not recorded'),'ARV must not be shown as market value');
+   const groups=openPanel.children.filter(child=>child.tag==='section').map(child=>child.attributes['aria-label']);
+   assert.deepEqual(groups.slice(0,3),['Property details','Financial snapshot','Notes & next steps'],'Passport groups must be available in the app and printable view');
    const closeButton=openPanel.children[1];
    assert.equal(closeButton.textContent,'Close Passport');
    closeButton.onclick();
