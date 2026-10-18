@@ -1,5 +1,7 @@
 import {projectPropertyPassport} from './property-passport.mjs';
 import {loadOriginalPassportRecords} from './original-passport-loader.mjs';
+import {createOriginalPassportForm} from './original-passport-forms.mjs';
+import {saveOriginalPassportEntry} from './original-passport-writer.mjs';
 import {summarizePropertyOperations} from './property-operations.mjs';
 import {fetchPropertyOperations} from './property-operations-loader.mjs';
 import {createPropertyActivityForm} from './property-activity-forms.mjs';
@@ -73,6 +75,14 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           }
           if(!records.length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty);}
           panel.append(section);
+        }
+        if(window.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true){
+          const editor=document.createElement('section');const heading=document.createElement('h3');heading.textContent='Add Passport records';editor.append(heading);
+          for(const kind of ['asset','service','maintenance','improvement'])editor.append(createOriginalPassportForm(kind,async values=>{
+            if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
+            await saveOriginalPassportEntry({kind,values,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+          }));
+          panel.append(editor);
         }
       }
       const operationsHeading=document.createElement('h3');
