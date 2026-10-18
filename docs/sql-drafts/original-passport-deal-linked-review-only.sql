@@ -68,6 +68,8 @@ alter table public.property_asset_services enable row level security;
 alter table public.property_maintenance enable row level security;
 alter table public.property_improvements enable row level security;
 revoke all on public.property_assets,public.property_asset_services,public.property_maintenance,public.property_improvements from anon,authenticated;
+-- Verified staging metadata: both membership and role helper functions exist
+-- and authenticated has EXECUTE. This is NOT a substitute for RLS testing.
 -- Proposed policies use is_company_member(company_id) for SELECT and
 -- jgap_private.member_role(company_id) for write roles. Confirm function grants
 -- and paid entitlement lookup behavior before granting any table privileges.
