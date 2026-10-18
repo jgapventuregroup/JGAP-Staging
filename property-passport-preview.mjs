@@ -11,16 +11,21 @@ import {createPropertyActivityForm} from './property-activity-forms.mjs';
 let eligibility={companyId:null,enabled:false};
 let requestId=0;
 let panel=null;
+let expandedButton=null;
 function clear(){
   requestId++;
   eligibility={companyId:null,enabled:false};
   panel?.remove();
   panel=null;
+  expandedButton?.setAttribute('aria-expanded','false');
+  expandedButton=null;
 }
 function setEligibility(next){
   requestId++;
   panel?.remove();
   panel=null;
+  expandedButton?.setAttribute('aria-expanded','false');
+  expandedButton=null;
   eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true};
 }
 function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
@@ -51,6 +56,8 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       }
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       panel?.remove();
+      expandedButton?.setAttribute('aria-expanded','false');
+      expandedButton=null;
       panel=document.createElement('section');
       const activePanel=panel;
       panel.setAttribute('aria-label','Property Passport');
@@ -60,7 +67,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel.append(heading);
       const close=document.createElement('button');
       close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
-      close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;button.setAttribute('aria-expanded','false');}};
+      close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;button.setAttribute('aria-expanded','false');if(expandedButton===button)expandedButton=null;}};
       panel.append(close);
       // Recovered from the original Passport: browser print of the open record.
       // Print only this Passport, not the rest of the app workspace.
@@ -263,6 +270,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       line.after(panel);
       panel.scrollIntoView?.({block:'nearest'});
       button.setAttribute('aria-expanded','true');
+      expandedButton=button;
     }catch(error){
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       panel?.remove();
