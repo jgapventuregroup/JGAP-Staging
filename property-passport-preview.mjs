@@ -115,6 +115,57 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         }
         panel.append(group);
       }
+      // Financial edits are routed through the staging RPC; never update deals directly.
+      const financeForm=document.createElement('form');
+      financeForm.setAttribute('aria-label','Edit Passport financials');
+      const financeTitle=document.createElement('h3');financeTitle.textContent='Update financial snapshot';financeForm.append(financeTitle);
+      const financeFields=[
+        ['p_purchase_date','Purchase date','date',p.purchaseDate],
+        ['p_current_value','Current market value ($)','number',p.currentValue],
+        ['p_mortgage_balance','Mortgage balance ($)','number',p.mortgageBalance]
+      ];
+      for(const [name,label,type,value] of financeFields){
+        const field=document.createElement('label');field.textContent=label;
+        const input=document.createElement('input');input.name=name;input.type=type;
+        if(type==='number'){input.min='0';input.step='0.01';}
+        input.value=value===null?'':String(value);field.append(input);financeForm.append(field);
+      }
+      const financeSave=document.createElement('button');financeSave.type='submit';financeSave.textContent='Save financial details';financeForm.append(financeSave);
+      const financeStatus=document.createElement('p');financeStatus.setAttribute('role','status');financeForm.append(financeStatus);
+      financeForm.onsubmit=async event=>{
+        event.preventDefault();
+        const isCurrent=()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId;
+        if(!isCurrent())return;
+        const date=financeForm.elements.namedItem('p_purchase_date').value;
+        const currentValue=financeForm.elements.namedItem('p_current_value').value;
+        const balance=financeForm.elements.namedItem('p_mortgage_balance').value;
+        const validMoney=value=>value===''||(/^(?:\\d+)(?:\\.\\d{1,2})?$/.test(value)&&Number.isFinite(Number(value)));
+        if(!validMoney(currentValue)||!validMoney(balance)){financeStatus.textContent='Enter nonnegative dollar amounts with at most two decimals.';return;}
+        financeSave.disabled=true;financeStatus.textContent='Saving…';
+        try{
+          const {data,error}=await client.rpc('update_passport_financials',{
+            p_company_id:companyId,p_deal_id:record.id,p_purchase_date:date||null,
+            p_current_value:currentValue===''?null:Number(currentValue),
+            p_mortgage_balance:balance===''?null:Number(balance)
+          });
+          if(error)throw error;
+          if(!isCurrent())return;
+          if(!data||data.id!==record.id||data.company_id!==companyId)throw Error('Save response did not match the property.');
+          const refreshed=await fetchDeal();
+          if(!isCurrent())return;
+          const saved=Array.isArray(refreshed)?refreshed[0]:refreshed;
+          if(!saved||saved.id!==record.id||saved.company_id!==companyId)throw Error('Could not verify saved property.');
+          const next=projectPropertyPassport(saved,companyId);
+          for(const [group,label,value] of [['Property details','Purchase date',next.purchaseDate],['Financial snapshot','Current market value',next.currentValue],['Financial snapshot','Mortgage balance',next.mortgageBalance],['Financial snapshot','Estimated equity',next.equity]]){
+            const section=Array.from(activePanel.querySelectorAll('section')).find(el=>el.getAttribute('aria-label')===group);
+            const row=Array.from(section?.querySelectorAll('p')||[]).find(el=>el.querySelector('strong')?.textContent===label+': ');
+            if(row)row.replaceChildren(Object.assign(document.createElement('strong'),{textContent:label+': '}),document.createTextNode(formatPassportValue(label,value)));
+          }
+          financeStatus.textContent='Financial details saved and verified from staging.';
+        }catch(error){if(isCurrent())financeStatus.textContent='Could not save financial details: '+(error?.message||'Unknown error');}
+        finally{if(isCurrent())financeSave.disabled=false;}
+      };
+      panel.append(financeForm);
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY!==true){
         const unavailable=document.createElement('section');unavailable.setAttribute('aria-label','Passport record sections');
         const heading=document.createElement('h3');heading.textContent='Property records';unavailable.append(heading);
