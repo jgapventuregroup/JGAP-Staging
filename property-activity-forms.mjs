@@ -18,7 +18,7 @@ export function createPropertyActivityForm({kind,client,companyId,dealId,onSaved
   if(type==='select'){for(const value of options){const option=document.createElement('option');option.value=value;option.textContent=value.replaceAll('_',' ');field.append(option);}}
   else {field.type=type;if(type==='number'){field.step='0.01';field.min='0';}}
   field.name=name;
-  if(name==='entryDate'||name==='openedOn')field.value=new Date().toLocaleDateString('en-CA');
+  if(name==='entryDate'||name==='openedOn')field.value=[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-');
   if(name==='title'||name==='category'||name==='amount'||name==='entryDate'||name==='openedOn')field.required=true;
   if(name==='amount')field.step='0.01';
   wrapper.append(field);form.append(wrapper);controls[name]=field;
@@ -37,6 +37,7 @@ export function createPropertyActivityForm({kind,client,companyId,dealId,onSaved
    await savePropertyActivity({client,companyId,dealId,kind,input});
    if(getCurrentCompany?.()!==companyId||getCurrentClient?.()!==client){message.textContent='Saved to the previous property. Workspace changed; reopen the property to see it.';return;}
    message.textContent='Saved successfully';form.reset();
+   for(const key of ['entryDate','openedOn'])if(controls[key])controls[key].value=[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-');
    try{await onSaved?.();}catch(refreshError){message.textContent='Saved, but could not refresh totals: '+(refreshError?.message||'Please reopen this property');}
   }catch(error){message.textContent=error?.message||'Could not save activity';}
   finally{pending=false;submit.disabled=false;}
