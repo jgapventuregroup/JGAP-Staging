@@ -64,3 +64,13 @@ test('combined Passport save reports partial success and never duplicates equipm
  });
  assert.equal(equipmentInserts,1);
 });
+
+test('combined Passport writer rejects incomplete service details before any insert',async()=>{
+ let calls=0;
+ const client={from(){calls++;throw Error('Unexpected database call')}};
+ const context={client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client,assetValues:{name:'Furnace'}};
+ for(const serviceValues of [{next_service_date:'2026-11-01'},{service_name:'Inspect'},{service_name:'Inspect',frequency_value:0},{service_name:'Inspect',frequency_value:1,frequency_unit:'daily'}]){
+  await assert.rejects(savePassportSystemWithService({...context,serviceValues}));
+ }
+ assert.equal(calls,0);
+});
