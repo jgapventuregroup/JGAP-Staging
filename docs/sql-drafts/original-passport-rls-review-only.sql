@@ -87,6 +87,12 @@ create policy property_improvements_paid_update on public.property_improvements
    where s.company_id=public.property_improvements.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 
+-- No DELETE policy is proposed. Records cannot be deleted by browser clients.
+-- Before any deployment, verify subscription visibility to RLS policy evaluation,
+-- since company_subscriptions has its own RLS. A denied subscription lookup
+-- must fail closed, not be worked around by weakening tenant boundaries.
+-- Check authenticated grants only after passing two-company isolation tests.
+
 -- Identity-scope update protection proposal: reject any attempt to move a
 -- Passport child row between companies, deals, or equipment owners.
 -- Run only after review and with an authorized migration window.
