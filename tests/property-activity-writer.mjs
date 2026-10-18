@@ -32,3 +32,21 @@ test('rejects database errors and mismatched saved ownership',async()=>{
   const second=mockClient({returned:{company_id:'company-B',deal_id:dealId}});
   await assert.rejects(savePropertyActivity({client:second.client,companyId,dealId,kind:'task',input:{title:'Inspect roof'}}),/does not match/);
 });
+
+test('requires a selected company, property and client',async()=>{
+ const {client,calls}=mockClient();
+ for(const missing of [{client:null,companyId,dealId},{client,companyId:'',dealId},{client,companyId,dealId:''}]){
+  await assert.rejects(savePropertyActivity({...missing,kind:'task',input:{title:'Inspect roof'}}),/Select a company and property/);
+ }
+ assert.equal(calls.length,0);
+});
+test('does not allow form fields to override company or deal ownership',async()=>{
+ const {client,calls}=mockClient();
+ await savePropertyActivity({client,companyId,dealId,kind:'task',input:{title:'Inspect roof',company_id:'company-B',deal_id:'other-deal'}});
+ assert.equal(calls[0].payload.company_id,companyId);
+ assert.equal(calls[0].payload.deal_id,dealId);
+});
+test('does not accept a mismatched deal returned by database',async()=>{
+ const {client}=mockClient({returned:{company_id:companyId,deal_id:'other-deal'}});
+ await assert.rejects(savePropertyActivity({client,companyId,dealId,kind:'task',input:{title:'Inspect roof'}}),/does not match/);
+});
