@@ -49,7 +49,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       line.after(panel);
       panel.scrollIntoView?.({block:'nearest'});
     }catch(error){
-      if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
+      if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       panel?.remove();
       panel=document.createElement('p');
       panel.setAttribute('role','alert');
