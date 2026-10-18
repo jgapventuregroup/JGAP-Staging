@@ -108,7 +108,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
               for(const item of updated[key]){const row=document.createElement('p');row.textContent=describePassportEntry(entryKind,item);section.append(row)}
               if(!updated[key].length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty)}
             }
-          }));
+          },{assets:legacy.assets}));
           panel.append(editor);
         }
       }
