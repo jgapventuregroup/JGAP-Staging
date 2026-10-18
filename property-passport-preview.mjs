@@ -57,6 +57,23 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
       close.onclick=()=>{if(panel===close.parentNode){requestId++;panel.remove();panel=null;button.disabled=false;}};
       panel.append(close);
+      // Recovered from the original Passport: browser print of the open record.
+      // Print only this Passport, not the rest of the app workspace.
+      const print=document.createElement('button');
+      print.type='button';print.textContent='Print Passport';
+      print.onclick=()=>{
+        if(panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
+        const printable=activePanel.cloneNode(true);
+        printable.querySelectorAll('button,form,input,select,textarea').forEach(node=>node.remove());
+        const printWindow=window.open('','_blank','noopener,noreferrer');
+        if(!printWindow){window.alert('Allow pop-ups to print the Passport');return;}
+        const doc=printWindow.document;
+        doc.title=p.name+' — Property Passport';
+        const style=doc.createElement('style');style.textContent='body{font:15px system-ui,sans-serif;color:#172b42;max-width:760px;margin:35px auto;padding:0 18px}section{break-inside:avoid;margin:18px 0}h2,h3{color:#173b5c}p{margin:7px 0}';
+        doc.head.append(style);doc.body.append(printable);
+        printWindow.focus();printWindow.print();
+      };
+      panel.append(print);
       for(const [label,value] of [['Address',p.address],['Type',p.propertyType],['Stage',p.status],['Units',p.units],['Purchase price',p.purchasePrice],['Target offer',p.targetOfferPrice],['Monthly rent',p.monthlyRent],['Operating expenses / month',p.monthlyOperatingExpenses],['Notes',p.notes],['Follow-up',p.followUpDate]]){
         const row=document.createElement('p');
         const strong=document.createElement('strong');
