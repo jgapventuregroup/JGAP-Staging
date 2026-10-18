@@ -30,3 +30,18 @@ test('service schedule accepts equipment options and enables save',()=>{
   assert.equal(form.elements.namedItem('asset_id').options[1].value,'asset-1');
  }finally{globalThis.document=old}
 });
+
+test('Passport form rejects repeated submits while first save is pending',async()=>{
+ const old=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  let release;let saves=0;
+  const form=createOriginalPassportForm('asset',async()=>{saves++;await new Promise(resolve=>{release=resolve})});
+  form.elements.namedItem('name').value='Boiler';
+  const event={preventDefault(){}};
+  const first=form.listeners.submit(event);
+  await form.listeners.submit(event);
+  assert.equal(saves,1);
+  release();await first;
+  assert.equal(form.children.find(n=>n.tag==='button').disabled,false);
+ }finally{globalThis.document=old}
+});
