@@ -17,10 +17,10 @@ function setEligibility(next){
   requestId++;
   panel?.remove();
   panel=null;
-  eligibility={companyId:next.companyId,enabled:next.enabled===true};
+  eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true};
 }
 function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
-  if(!eligibility.enabled||eligibility.companyId!==companyId)return;
+  if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
   const button=document.createElement('button');
   button.type='button';
   button.textContent='Passport preview';
