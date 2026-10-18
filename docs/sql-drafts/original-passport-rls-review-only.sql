@@ -109,7 +109,7 @@ for each row execute function jgap_private.passport_reject_scope_change();
 create trigger property_improvements_scope_guard before update on public.property_improvements
 for each row execute function jgap_private.passport_reject_scope_change();
 
--- IMPORTANT: Before any deployment, enforce immutable company_id/deal_id/creator on UPDATE, and
+-- IMPORTANT: Before any deployment, enforce immutable company_id/deal_id on UPDATE, and
 -- validate service asset FK and user roles under actual JWTs.
 -- Deliberately no GRANT statements: remains inaccessible to clients.
 rollback;
