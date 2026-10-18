@@ -9,6 +9,7 @@ const definitions={
 export function createPropertyActivityForm({kind,client,companyId,dealId,onSaved,getCurrentCompany,getCurrentClient}){
  const definition=definitions[kind];
  if(!definition)throw Error('Unknown property activity form');
+ if(!client||!companyId||!dealId)throw Error('Property activity requires an active company and property');
  const form=document.createElement('form');
  const title=document.createElement('h4');title.textContent=definition.title;form.append(title);
  const controls={};
