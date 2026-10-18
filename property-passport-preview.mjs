@@ -68,7 +68,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           const section=document.createElement('section');const h=document.createElement('h3');h.textContent=title;section.append(h);
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
           for(const record of records){
-            const item=projectOriginalPassportChild(record,companyId,record.id&&p.id,kind);
+            const item=projectOriginalPassportChild(record,companyId,p.id,kind);
             const row=document.createElement('p');row.textContent=[item.name,item.service_name,item.title].find(Boolean)||'Untitled record';section.append(row);
           }
           if(!records.length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty);}
