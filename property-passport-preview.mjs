@@ -106,6 +106,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       const accessNote=document.createElement('p');
       accessNote.setAttribute('role','status');
       accessNote.textContent=window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true ? (window.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true ? 'Property records: viewing and editing enabled.' : 'Property records: read-only until secure editing is activated.') : 'Property records: preview only until secure database access is activated.';
+      accessNote.className='passport-access-status';
       panel.append(accessNote);
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true){
         const legacy=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
