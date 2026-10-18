@@ -38,8 +38,8 @@ test('Passport preview requires active entitlement and ignores stale company res
    preview.addAction(options);
    assert.equal(line.children.length,1,'Paid workspace gets Passport action');
    await line.children[0].onclick();
-   assert.equal(line.afterNode?.attributes['aria-label'],'Property Passport preview');
-   assert.equal(line.afterNode.children[0].textContent,'Duplex — Passport preview');
+   assert.equal(line.afterNode?.attributes['aria-label'],'Property Passport');
+   assert.equal(line.afterNode.children[0].textContent,'Duplex — Property Passport');
    const openPanel=line.afterNode;
    const closeButton=openPanel.children[1];
    assert.equal(closeButton.textContent,'Close Passport');
