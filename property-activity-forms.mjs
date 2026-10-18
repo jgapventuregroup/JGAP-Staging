@@ -30,12 +30,12 @@ export function createPropertyActivityForm({kind,client,companyId,dealId,onSaved
  form.addEventListener('submit',async event=>{
   event.preventDefault();
   if(pending)return;
-  if(getCurrentCompany?.()!==companyId||getCurrentClient?.()!==client){message.textContent='Workspace changed. Reopen the property.';return;}
+  if(getCurrentCompany?.()!==companyId||getCurrentClient?.()!==client||!form.isConnected){message.textContent='Property view changed. Reopen the property.';return;}
   pending=true;submit.disabled=true;message.textContent='Saving...';
   try{
    const input=Object.fromEntries(Object.entries(controls).map(([key,field])=>[key,field.value]));
    await savePropertyActivity({client,companyId,dealId,kind,input});
-   if(getCurrentCompany?.()!==companyId||getCurrentClient?.()!==client){message.textContent='Saved to the previous property. Workspace changed; reopen the property to see it.';return;}
+   if(getCurrentCompany?.()!==companyId||getCurrentClient?.()!==client||!form.isConnected){message.textContent='Saved to the previous property. Reopen the property to see it.';return;}
    message.textContent='Saved successfully';form.reset();
    for(const key of ['entryDate','openedOn'])if(controls[key])controls[key].value=[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-');
    try{await onSaved?.();}catch(refreshError){message.textContent='Saved, but could not refresh totals: '+(refreshError?.message||'Please reopen this property');}
