@@ -26,6 +26,8 @@ export async function saveOriginalPassportEntry({kind,values,client,companyId,de
 export async function savePassportSystemWithService({assetValues,serviceValues,...context}){
  const asset=await saveOriginalPassportEntry({...context,kind:'asset',values:assetValues});
  if(!serviceValues?.service_name)return {asset,service:null};
+ // Validate the optional schedule before the equipment insert on the client side
+ // in the form; this second guard protects callers outside that form.
  try{
   const service=await saveOriginalPassportEntry({...context,kind:'service',values:{...serviceValues,asset_id:asset.id}});
   return {asset,service};
