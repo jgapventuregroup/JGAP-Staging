@@ -16,13 +16,14 @@ create table public.property_assets (
  condition text,
  next_service_date date,
  created_at timestamptz not null default now(),
+ unique (id,company_id,deal_id),
  foreign key (deal_id,company_id) references public.deals(id,company_id) on delete cascade
 );
 create table public.property_asset_services (
  id uuid primary key default gen_random_uuid(),
  company_id uuid not null,
  deal_id uuid not null,
- asset_id uuid not null references public.property_assets(id) on delete cascade,
+ asset_id uuid not null,
  service_name text not null check (length(trim(service_name)) between 1 and 150),
  frequency_value integer check (frequency_value>0),
  frequency_unit text check (frequency_unit in ('year','month','quarter','week')),
@@ -31,6 +32,7 @@ create table public.property_asset_services (
  notes text,
  active boolean not null default true,
  created_at timestamptz not null default now(),
+ foreign key (asset_id,company_id,deal_id) references public.property_assets(id,company_id,deal_id) on delete cascade,
  foreign key (deal_id,company_id) references public.deals(id,company_id) on delete cascade
 );
 create table public.property_maintenance (
@@ -59,7 +61,7 @@ create table public.property_improvements (
  created_at timestamptz not null default now(),
  foreign key (deal_id,company_id) references public.deals(id,company_id) on delete cascade
 );
--- Security defaults: NO client grants until policies and composite asset/service FK
+-- Security defaults: NO client grants until policies and entitlement checks
 -- are reviewed. All four tables must have RLS before any API exposure.
 alter table public.property_assets enable row level security;
 alter table public.property_asset_services enable row level security;
@@ -68,4 +70,4 @@ alter table public.property_improvements enable row level security;
 revoke all on public.property_assets,public.property_asset_services,public.property_maintenance,public.property_improvements from anon,authenticated;
 commit;
 -- IMPORTANT: This draft deliberately does not enable client access. Review RLS,
--- entitlement and asset/service cross-company FK before approving any deployment.
+-- entitlement and role permissions before approving any deployment.
