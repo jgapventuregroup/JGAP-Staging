@@ -99,6 +99,6 @@ test('combined Passport form refuses missing frequency before saving equipment',
   await form.listeners.submit({preventDefault(){}});
   assert.equal(saves,0);
   const status=form.children.find(n=>n.attributes.role==='status');
-  assert.match(status.textContent,/Service frequency is required/);
+  assert.match(status.textContent,/Service frequency must be a positive whole number/);
  }finally{globalThis.document=old}
 });
