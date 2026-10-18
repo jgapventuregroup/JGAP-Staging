@@ -1,6 +1,8 @@
 -- REVIEW ONLY. Do not execute without explicit approval and paid-account RLS tests.
 -- Requires original-passport-deal-linked-review-only.sql to be reviewed first.
 -- RLS policies deliberately separate membership reads from paid editor writes.
+-- Staging column audit verified company_subscriptions(company_id,plan,billing_status).
+-- No grant statements are included; this draft ends with ROLLBACK.
 begin;
 
 create policy property_assets_member_read on public.property_assets
