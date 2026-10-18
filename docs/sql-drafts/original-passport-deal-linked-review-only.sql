@@ -1,0 +1,71 @@
+-- REVIEW ONLY: never execute without explicit staging migration approval.
+-- Restore original Passport equipment, service, maintenance and improvements.
+-- Reuse public.deals(id, company_id); do not create a second properties table.
+-- Prerequisite: reviewed unique (id, company_id) constraint on deals.
+begin;
+create table public.property_assets (
+ id uuid primary key default gen_random_uuid(),
+ company_id uuid not null,
+ deal_id uuid not null,
+ name text not null check (length(trim(name)) between 1 and 150),
+ asset_type text,
+ installed_date date,
+ purchase_cost numeric(12,2) check (purchase_cost>=0),
+ expected_life_years numeric(6,2) check (expected_life_years>=0),
+ warranty_expiration date,
+ condition text,
+ next_service_date date,
+ created_at timestamptz not null default now(),
+ foreign key (deal_id,company_id) references public.deals(id,company_id) on delete cascade
+);
+create table public.property_asset_services (
+ id uuid primary key default gen_random_uuid(),
+ company_id uuid not null,
+ deal_id uuid not null,
+ asset_id uuid not null references public.property_assets(id) on delete cascade,
+ service_name text not null check (length(trim(service_name)) between 1 and 150),
+ frequency_value integer check (frequency_value>0),
+ frequency_unit text check (frequency_unit in ('year','month','quarter','week')),
+ last_service_date date,
+ next_service_date date,
+ notes text,
+ active boolean not null default true,
+ created_at timestamptz not null default now(),
+ foreign key (deal_id,company_id) references public.deals(id,company_id) on delete cascade
+);
+create table public.property_maintenance (
+ id uuid primary key default gen_random_uuid(),
+ company_id uuid not null,
+ deal_id uuid not null,
+ title text not null check (length(trim(title)) between 1 and 150),
+ maintenance_date date not null,
+ description text,
+ cost numeric(12,2) check (cost>=0),
+ status text not null default 'open',
+ due_date date,
+ performed_by text,
+ created_at timestamptz not null default now(),
+ foreign key (deal_id,company_id) references public.deals(id,company_id) on delete cascade
+);
+create table public.property_improvements (
+ id uuid primary key default gen_random_uuid(),
+ company_id uuid not null,
+ deal_id uuid not null,
+ title text not null check (length(trim(title)) between 1 and 150),
+ improvement_date date not null,
+ description text,
+ cost numeric(12,2) check (cost>=0),
+ category text,
+ created_at timestamptz not null default now(),
+ foreign key (deal_id,company_id) references public.deals(id,company_id) on delete cascade
+);
+-- Security defaults: NO client grants until policies and composite asset/service FK
+-- are reviewed. All four tables must have RLS before any API exposure.
+alter table public.property_assets enable row level security;
+alter table public.property_asset_services enable row level security;
+alter table public.property_maintenance enable row level security;
+alter table public.property_improvements enable row level security;
+revoke all on public.property_assets,public.property_asset_services,public.property_maintenance,public.property_improvements from anon,authenticated;
+commit;
+-- IMPORTANT: This draft deliberately does not enable client access. Review RLS,
+-- entitlement and asset/service cross-company FK before approving any deployment.
