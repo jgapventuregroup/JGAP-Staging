@@ -12,7 +12,7 @@ export async function saveOriginalPassportEntry({kind,values,client,companyId,de
  for(const key of ['installed_date','warranty_expiration','next_service_date','last_service_date','maintenance_date','due_date','improvement_date']){
   if(row[key]===undefined)continue;
   const value=row[key];
-  if(typeof value!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)||Number.isNaN(Date.parse(value+'T00:00:00Z'))||new Date(value+'T00:00:00Z').toISOString().slice(0,10)!==value)throw Error('Invalid Passport date: '+key);
+  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value)||Number.isNaN(Date.parse(value+'T00:00:00Z'))||new Date(value+'T00:00:00Z').toISOString().slice(0,10)!==value)throw Error('Invalid Passport date: '+key);
  }
  if(kind==='service'&&row.frequency_unit!==undefined&&!['year','month','quarter','week'].includes(row.frequency_unit))throw Error('Invalid service frequency unit');
  if(kind==='maintenance'&&row.status!==undefined&&!['completed','planned','open','cancelled'].includes(row.status))throw Error('Invalid maintenance status');
@@ -49,7 +49,7 @@ export async function savePassportSystemWithService({assetValues,serviceValues,.
  if(serviceValues){
   for(const key of ['last_service_date','next_service_date']){
    const value=serviceValues[key];
-   if(value&&(!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)||Number.isNaN(Date.parse(value+'T00:00:00Z'))||new Date(value+'T00:00:00Z').toISOString().slice(0,10)!==value))throw Error('Invalid service date: '+key);
+   if(value&&(!/^\d{4}-\d{2}-\d{2}$/.test(value)||Number.isNaN(Date.parse(value+'T00:00:00Z'))||new Date(value+'T00:00:00Z').toISOString().slice(0,10)!==value))throw Error('Invalid service date: '+key);
   }
  }
  const needsService=!!serviceValues?.service_name?.trim();
