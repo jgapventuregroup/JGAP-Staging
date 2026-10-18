@@ -150,7 +150,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             let updated;
             try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});}
             catch(error){
-              if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after save');
+              if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after save');
               const warning=document.createElement('p');warning.setAttribute('role','alert');warning.textContent='Record saved, but the Passport could not refresh. Close and reopen it to see the latest data.';editor.prepend(warning);
               return;
             }
@@ -168,7 +168,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             let updated;
             try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});}
             catch(error){
-              if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after save');
+              if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after save');
               const warning=document.createElement('p');warning.setAttribute('role','alert');warning.textContent='Record saved, but the Passport could not refresh. Close and reopen it to see the latest data.';editor.prepend(warning);
               return;
             }
