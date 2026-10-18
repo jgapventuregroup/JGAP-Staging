@@ -6,11 +6,12 @@ test('rejects other workspaces',()=>assert.throws(()=>projectPropertyPassport({i
 test('blank is not zero',()=>assert.equal(projectPropertyPassport({id:'a',company_id:'c',monthly_rent:''},'c').monthlyRent,null));
 
 import fs from 'node:fs';
-test('Passport preview is only offered for active paid membership',()=>{
+test('Passport preview requires active paid membership or server-authorized owner preview',()=>{
  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
  const preview=fs.readFileSync(new URL('../property-passport-preview.mjs',import.meta.url),'utf8');
  assert.match(html,/const paidActive=\(plan==='investor'\|\|plan==='pro'\)&&billingStatus==='active'/);
- assert.match(html,/setEligibility\(\{companyId:activeCompany,enabled:paidActive\}\)/);
+ assert.match(html,/has_owner_preview_access/);
+ assert.match(html,/setEligibility\(\{companyId:activeCompany,enabled:paidActive\|\|ownerPreview\}\)/);
  assert.match(preview,/if\(!eligibility.enabled\|\|eligibility.companyId!==companyId\|\|!deal\?\.id\)return/);
  assert.match(preview,/getCurrentCompany\(\)!==companyId\|\|getCurrentClient\(\)!==client/);
  assert.match(preview,/projectPropertyPassport\(record,companyId\)/);
