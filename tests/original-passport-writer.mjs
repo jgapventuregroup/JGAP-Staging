@@ -99,3 +99,13 @@ test('combined Passport writer rejects malformed schedule details without insert
  }
  assert.equal(calls,0);
 });
+
+test('combined Passport writer rejects invalid calendar dates before any equipment insert',async()=>{
+ let calls=0;
+ const client={from(){calls++;throw Error('Unexpected database access')}};
+ const context={client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client,assetValues:{name:'Boiler'}};
+ for(const date of ['2026-02-30','2026-13-01','2026-1-01','not-a-date']){
+  await assert.rejects(savePassportSystemWithService({...context,serviceValues:{service_name:'Inspect',frequency_value:1,frequency_unit:'year',next_service_date:date}}),/Invalid service date/);
+ }
+ assert.equal(calls,0);
+});
