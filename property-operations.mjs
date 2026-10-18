@@ -1,5 +1,5 @@
 import {summarizeLedger} from './property-ledger.mjs';
-export function summarizePropertyOperations({ledger=[],repairs=[],tasks=[]}={}){
+export function summarizePropertyOperations({ledger=[],repairs=[],tasks=[],asOfDate=null}={}){
  const cashFlow=summarizeLedger(ledger);
  let openRepairs=0,completedRepairs=0,estimatedRepairCents=0,actualRepairCents=0;
  for(const repair of repairs){
@@ -13,9 +13,10 @@ export function summarizePropertyOperations({ledger=[],repairs=[],tasks=[]}={}){
   }
   if(!Number.isSafeInteger(estimatedRepairCents)||!Number.isSafeInteger(actualRepairCents))throw Error('Repair total exceeds safe precision');
  }
- let openTasks=0,doneTasks=0;
+ let openTasks=0,doneTasks=0,overdueTasks=0;
+ if(asOfDate!==null&&!/^\d{4}-\d{2}-\d{2}$/.test(asOfDate))throw Error('Invalid reference date');
  for(const task of tasks){
-  if(task.status==='open'){openTasks++;}else if(task.status==='done'){doneTasks++;}else throw Error('Invalid task status');
+  if(task.status==='open'){openTasks++;if(asOfDate&&task.due_on&&task.due_on<asOfDate)overdueTasks++;}else if(task.status==='done'){doneTasks++;}else throw Error('Invalid task status');
  }
- return {cashFlow,repairs:{open:openRepairs,completed:completedRepairs,estimatedCost:estimatedRepairCents/100,actualCost:actualRepairCents/100},tasks:{open:openTasks,done:doneTasks}};
+ return {cashFlow,repairs:{open:openRepairs,completed:completedRepairs,estimatedCost:estimatedRepairCents/100,actualCost:actualRepairCents/100},tasks:{open:openTasks,done:doneTasks,...(asOfDate?{overdue:overdueTasks}:{})}};
 }
