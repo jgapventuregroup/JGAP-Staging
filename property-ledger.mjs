@@ -3,7 +3,8 @@ export function validateLedgerEntry(input){
   const type=String(input?.entryType??'').trim();
   if(!['income','expense'].includes(type))errors.push('Choose income or expense');
   const date=String(input?.entryDate??'').trim();
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date+'T00:00:00Z'))||new Date(date+'T00:00:00Z').toISOString().slice(0,10)!==date)errors.push('Enter a valid date');
+  const parsedDate=/^\d{4}-\d{2}-\d{2}$/.test(date)?new Date(date+'T00:00:00Z'):null;
+  if(!parsedDate||!Number.isFinite(parsedDate.getTime())||parsedDate.toISOString().slice(0,10)!==date)errors.push('Enter a valid date');
   const category=String(input?.category??'').trim();
   if(!category||category.length>80)errors.push('Category must be 1–80 characters');
   const description=String(input?.description??'');
@@ -17,7 +18,7 @@ export function summarizeLedger(entries){
   for(const entry of entries){
     const type=entry.entry_type;
     const amount=Number(entry.amount);
-    if(!['income','expense'].includes(type)||!Number.isFinite(amount)||amount<=0||!Number.isSafeInteger(Math.round(amount*100)))throw Error('Invalid ledger entry');
+    if(!['income','expense'].includes(type)||!Number.isFinite(amount)||amount<=0||amount>9999999999.99||!Number.isSafeInteger(Math.round(amount*100))||Math.abs(amount*100-Math.round(amount*100))>0.00001)throw Error('Invalid ledger entry');
     const cents=Math.round(amount*100);
     if(type==='income')incomeCents+=cents;else expenseCents+=cents;
   }
