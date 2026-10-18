@@ -41,6 +41,12 @@ export async function savePassportSystemWithService({assetValues,serviceValues,.
    if(value!==undefined&&value!==null&&typeof value!=='string')throw Error('Invalid service schedule field: '+key);
   }
  }
+ if(serviceValues){
+  for(const key of ['last_service_date','next_service_date']){
+   const value=serviceValues[key];
+   if(value&&(!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)||Number.isNaN(Date.parse(value+'T00:00:00Z'))||new Date(value+'T00:00:00Z').toISOString().slice(0,10)!==value))throw Error('Invalid service date: '+key);
+  }
+ }
  const needsService=!!serviceValues?.service_name?.trim();
  const asset=await saveOriginalPassportEntry({...context,kind:'asset',values:assetValues});
  if(!needsService)return {asset,service:null};
