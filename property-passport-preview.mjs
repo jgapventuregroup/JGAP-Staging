@@ -60,3 +60,4 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
   line.append(button);
 }
 window.JGAPPassportPreview={clear,setEligibility,addAction};
+window.dispatchEvent?.(new Event('jgap-passport-ready'));
