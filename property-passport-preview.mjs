@@ -33,10 +33,11 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
     const current=++requestId;
     button.disabled=true;
     try{
+      if(getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       const response=await fetchDeal();
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       const record=Array.isArray(response)?response[0]:response;
-      if(!record||record.id!==deal.id)throw Error('Property record did not match the selected property.');
+      if(!record||record.id!==deal.id||record.company_id!==companyId)throw Error('Property record did not match the selected company and property.');
       const p=projectPropertyPassport(record,companyId);
       // Operations are loaded only when a real, authorized data provider is wired in.
       // Do not display fictional or zero totals as though they were live data.
