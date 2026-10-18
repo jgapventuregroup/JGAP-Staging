@@ -2,6 +2,8 @@
 -- Restore original Passport equipment, service, maintenance and improvements.
 -- Reuse public.deals(id, company_id); do not create a second properties table.
 -- Prerequisite: reviewed unique (id, company_id) constraint on deals.
+-- IMPORTANT: This draft is not executable as-is until that prerequisite exists.
+-- No DROP TABLE or destructive migration is permitted.
 begin;
 create table public.property_assets (
  id uuid primary key default gen_random_uuid(),
