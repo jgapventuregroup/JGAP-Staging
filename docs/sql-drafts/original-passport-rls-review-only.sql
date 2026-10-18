@@ -3,13 +3,13 @@
 -- RLS policies deliberately separate membership reads from paid editor writes.
 -- Staging column audit verified company_subscriptions(company_id,plan,billing_status).
 -- No grant statements are included; this draft ends with ROLLBACK.
--- NOTE: Existing SELECT policies allow all company members to read, including Free.
--- Do not enable grants until the paid read entitlement is enforced at database level.
--- This draft alone is NOT sufficient to activate Passport.
+-- SELECT and write policies require an active Investor or Pro subscription.
+-- Validate paid entitlement under real staging JWTs before any grants.
+-- This review-only draft alone is NOT sufficient to activate Passport.
 begin;
 
 create policy property_assets_member_read on public.property_assets
- for select to authenticated using (public.is_company_member(public.property_assets.company_id));
+ for select to authenticated using (public.is_company_member(public.property_assets.company_id) and exists (select 1 from public.company_subscriptions s where s.company_id=public.property_assets.company_id and s.plan in ('investor','pro') and s.billing_status='active'));
 create policy property_assets_paid_insert on public.property_assets
  for insert to authenticated with check (
   jgap_private.member_role(public.property_assets.company_id) in ('owner','admin','editor')
@@ -29,7 +29,7 @@ create policy property_assets_paid_update on public.property_assets
 
 
 create policy property_asset_services_member_read on public.property_asset_services
- for select to authenticated using (public.is_company_member(public.property_asset_services.company_id));
+ for select to authenticated using (public.is_company_member(public.property_asset_services.company_id) and exists (select 1 from public.company_subscriptions s where s.company_id=public.property_asset_services.company_id and s.plan in ('investor','pro') and s.billing_status='active'));
 create policy property_asset_services_paid_insert on public.property_asset_services
  for insert to authenticated with check (
   jgap_private.member_role(public.property_asset_services.company_id) in ('owner','admin','editor')
@@ -49,7 +49,7 @@ create policy property_asset_services_paid_update on public.property_asset_servi
 
 
 create policy property_maintenance_member_read on public.property_maintenance
- for select to authenticated using (public.is_company_member(public.property_maintenance.company_id));
+ for select to authenticated using (public.is_company_member(public.property_maintenance.company_id) and exists (select 1 from public.company_subscriptions s where s.company_id=public.property_maintenance.company_id and s.plan in ('investor','pro') and s.billing_status='active'));
 create policy property_maintenance_paid_insert on public.property_maintenance
  for insert to authenticated with check (
   jgap_private.member_role(public.property_maintenance.company_id) in ('owner','admin','editor')
@@ -69,7 +69,7 @@ create policy property_maintenance_paid_update on public.property_maintenance
 
 
 create policy property_improvements_member_read on public.property_improvements
- for select to authenticated using (public.is_company_member(public.property_improvements.company_id));
+ for select to authenticated using (public.is_company_member(public.property_improvements.company_id) and exists (select 1 from public.company_subscriptions s where s.company_id=public.property_improvements.company_id and s.plan in ('investor','pro') and s.billing_status='active'));
 create policy property_improvements_paid_insert on public.property_improvements
  for insert to authenticated with check (
   jgap_private.member_role(public.property_improvements.company_id) in ('owner','admin','editor')
