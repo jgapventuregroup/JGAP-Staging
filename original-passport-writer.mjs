@@ -8,6 +8,7 @@ export async function saveOriginalPassportEntry({kind,values,client,companyId,de
  const row={company_id:companyId,deal_id:dealId};for(const key of allowed)if(values[key]!==undefined&&values[key]!==null&&values[key]!=='')row[key]=values[key];
  const required={asset:['name'],service:['asset_id','service_name','frequency_value'],maintenance:['title','maintenance_date'],improvement:['title','improvement_date']}[kind];
  for(const key of required){if(key==='frequency_value'){if(!Number.isInteger(row[key])||row[key]<1)throw Error('Required positive whole-number Passport field: '+key);}else if(!row[key]||typeof row[key]!=='string'||!row[key].trim())throw Error('Required Passport field: '+key);}
+ for(const key of ['purchase_cost','cost','expected_life_years'])if(row[key]!==undefined){if(typeof row[key]!=='number'||!Number.isFinite(row[key])||row[key]<0||(key==='expected_life_years'&&(!Number.isInteger(row[key])||row[key]<1)))throw Error('Invalid nonnegative Passport amount: '+key);}
  if(kind==='service'&&row.frequency_unit!==undefined&&!['year','month','quarter','week'].includes(row.frequency_unit))throw Error('Invalid service frequency unit');
  if(kind==='maintenance'&&row.status!==undefined&&!['completed','planned','open','cancelled'].includes(row.status))throw Error('Invalid maintenance status');
  if(kind==='service'){
