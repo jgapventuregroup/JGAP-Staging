@@ -17,7 +17,11 @@ export function createPropertyActivityForm({kind,client,companyId,dealId,onSaved
   const field=document.createElement(type==='select'?'select':'input');
   if(type==='select'){for(const value of options){const option=document.createElement('option');option.value=value;option.textContent=value.replaceAll('_',' ');field.append(option);}}
   else {field.type=type;if(type==='number'){field.step='0.01';field.min='0';}}
-  field.name=name;wrapper.append(field);form.append(wrapper);controls[name]=field;
+  field.name=name;
+  if(name==='entryDate'||name==='openedOn')field.value=new Date().toLocaleDateString('en-CA');
+  if(name==='title'||name==='category'||name==='amount'||name==='entryDate'||name==='openedOn')field.required=true;
+  if(name==='amount')field.step='0.01';
+  wrapper.append(field);form.append(wrapper);controls[name]=field;
  }
  const message=document.createElement('p');message.setAttribute('role','status');
  const submit=document.createElement('button');submit.type='submit';submit.textContent='Save '+kind;
