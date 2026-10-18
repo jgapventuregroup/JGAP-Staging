@@ -85,3 +85,17 @@ test('combined Passport writer rejects caller-provided equipment ID before datab
  }),/assigned automatically/);
  assert.equal(called,false);
 });
+
+test('combined Passport writer rejects malformed schedule details without inserting equipment',async()=>{
+ let calls=0;
+ const client={from(){calls++;throw Error('Unexpected database access')}};
+ const context={client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client,assetValues:{name:'Boiler'}};
+ for(const serviceValues of [
+  {service_name:'Inspection',frequency_value:1,frequency_unit:'year',notes:{unexpected:true}},
+  {service_name:'Inspection',frequency_value:1,frequency_unit:'year',next_service_date:12345},
+  {service_name:'Inspection',frequency_value:1,frequency_unit:'year',last_service_date:false}
+ ]){
+  await assert.rejects(savePassportSystemWithService({...context,serviceValues}),/Invalid service schedule field/);
+ }
+ assert.equal(calls,0);
+});
