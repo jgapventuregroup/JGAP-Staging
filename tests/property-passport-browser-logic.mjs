@@ -41,6 +41,9 @@ test('Passport preview requires active entitlement and ignores stale company res
    assert.equal(line.afterNode?.attributes['aria-label'],'Property Passport');
    assert.equal(line.afterNode.children[0].textContent,'Duplex — Property Passport');
    const openPanel=line.afterNode;
+   const financialRows=openPanel.children.filter(child=>child.tag==='p').map(child=>child.children.map(part=>part.textContent).join(''));
+   assert.ok(financialRows.includes('Estimated equity: Not recorded'),'Unknown equity must be explicit');
+   assert.ok(financialRows.includes('Current market value: Not recorded'),'ARV must not be shown as market value');
    const closeButton=openPanel.children[1];
    assert.equal(closeButton.textContent,'Close Passport');
    closeButton.onclick();
