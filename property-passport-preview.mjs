@@ -85,6 +85,12 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         row.append(strong,document.createTextNode(formatPassportValue(label,value)));
         panel.append(row);
       }
+      if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY!==true){
+        const unavailable=document.createElement('section');unavailable.setAttribute('aria-label','Passport record sections');
+        const heading=document.createElement('h3');heading.textContent='Property records';unavailable.append(heading);
+        const message=document.createElement('p');message.textContent='Systems & equipment, service schedules, maintenance history, and improvements are awaiting secure database activation.';unavailable.append(message);
+        panel.append(unavailable);
+      }
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true){
         const legacy=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
         if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
