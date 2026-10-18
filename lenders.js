@@ -10,7 +10,7 @@
   const canEdit = () => ['owner', 'admin', 'editor'].includes(scope()?.role);
   const money = value => value == null ? 'Not supplied' : Number(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
   function showForm(open) { el('lender-form').hidden = !open; el('l_toggle_form').ariaExpanded = String(open); el('l_toggle_form').textContent = open ? 'Hide lender form −' : 'Add lender +'; }
-  el('l_toggle_form').onclick = () => { if (!canEdit()) return; if (!el('lender-form').hidden && editing) clearForm(); showForm(el('lender-form').hidden); };
+  el('l_toggle_form').onclick = () => { if (!canEdit() || saving) return; const opening = el('lender-form').hidden; if (!opening && editing) clearForm(); showForm(opening); };
   function clearForm() { editing = null; editingCompany = null; for (const id of Object.keys(mapping)) el(id).value = ''; el('l_type').value = 'Bank'; el('l_status').value = 'Prospect'; el('l_form_title').textContent = 'Add lender'; el('l_save_btn').textContent = 'Save lender'; el('l_cancel_btn').hidden = true; }
   function clear() { loading++; rows = []; clearForm(); showForm(false); el('l_toggle_form').hidden = true; el('lenderList').replaceChildren(); el('l_search').value = ''; el('l_show_archived').checked = false; el('l_msg').textContent = ''; for (const id of ['l_count', 'l_active', 'l_due']) el(id).textContent = ''; }
   function payload() {
@@ -60,7 +60,7 @@
   }
   el('lender-form').onsubmit = async event => {
     event.preventDefault(); const active = scope();
-    if (saving || !active || !canEdit() || (editing && editingCompany !== active.companyId)) return;
+    if (saving || !active || !canEdit() || el('lender-form').hidden || (editing && editingCompany !== active.companyId)) return;
     let fields; try { fields = payload(); } catch (error) { el('l_msg').textContent = error.message; return; }
     saving = true; el('l_save_btn').disabled = true;
     for (const id of Object.keys(mapping)) el(id).disabled = true; el('l_cancel_btn').disabled = true;
