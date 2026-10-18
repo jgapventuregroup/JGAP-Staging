@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {saveOriginalPassportEntry} from '../original-passport-writer.mjs';
+import test from 'node:test';import assert from 'node:assert/strict';import {saveOriginalPassportEntry,savePassportSystemWithService} from '../original-passport-writer.mjs';
 test('writer pins company and deal and ignores injected identity',async()=>{
  let written;const client={from(table){assert.equal(table,'property_assets');return {insert(row){written=row;return this},select(){return this},async single(){return {data:{id:'new',company_id:'c1',deal_id:'d1'},error:null}}}}};
  await saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace',company_id:'other',deal_id:'other'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client});
@@ -41,4 +41,13 @@ test('writer rejects negative and nonfinite costs before database access',async(
   await assert.rejects(saveOriginalPassportEntry({...context,kind:'asset',values:{name:'Furnace',expected_life_years:life}}),/Invalid nonnegative Passport amount/);
  }
  assert.equal(called,false);
+});
+
+test('combined equipment workflow saves its first schedule using new equipment ID',async()=>{
+ const inserted=[];
+ const client={from(table){return {insert(row){inserted.push({table,row});return this},select(){return this},eq(){return this},async single(){return {data:table==='property_assets'&&inserted.length===1?{id:'asset-new',company_id:'c1',deal_id:'d1'}:table==='property_assets'?{id:'asset-new',company_id:'c1',deal_id:'d1'}:{id:'service-new',company_id:'c1',deal_id:'d1'},error:null}}}}};
+ const result=await savePassportSystemWithService({assetValues:{name:'Boiler'},serviceValues:{service_name:'Inspection',frequency_value:1,frequency_unit:'year'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client});
+ assert.equal(result.asset.id,'asset-new');assert.equal(result.service.id,'service-new');
+ assert.equal(inserted[1].row.asset_id,'asset-new');
+ assert.equal(inserted.filter(x=>x.table==='property_assets').length,1);
 });
