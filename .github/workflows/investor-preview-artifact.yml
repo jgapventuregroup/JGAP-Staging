@@ -1,0 +1,28 @@
+name: Build Investor preview artifact
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Package Investor preview
+        run: |
+          mkdir -p dist/previews
+          cp index.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs dist/
+          cp previews/property-operations-demo.html previews/investor-ledger-demo.html dist/previews/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: investor-preview-site
+          path: dist/
+          retention-days: 7
