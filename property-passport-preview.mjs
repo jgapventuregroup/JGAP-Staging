@@ -63,7 +63,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       const print=document.createElement('button');
       print.type='button';print.textContent='Print Passport';
       print.onclick=()=>{
-        if(panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
+        if(panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
         const printable=activePanel.cloneNode(true);
         printable.querySelectorAll('button,form,input,select,textarea').forEach(node=>node.remove());
         const printWindow=window.open('','_blank');
