@@ -1,5 +1,6 @@
 import {projectPropertyPassport} from './property-passport.mjs';
 import {loadOriginalPassportRecords} from './original-passport-loader.mjs';
+import {describePassportEntry} from './original-passport-display.mjs';
 import {createOriginalPassportForm} from './original-passport-forms.mjs';
 import {saveOriginalPassportEntry} from './original-passport-writer.mjs';
 import {summarizePropertyOperations} from './property-operations.mjs';
@@ -70,8 +71,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           const section=document.createElement('section');const h=document.createElement('h3');h.textContent=title;section.append(h);
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
           for(const record of records){
-            const item=record;
-            const row=document.createElement('p');row.textContent=[item.name,item.service_name,item.title].find(Boolean)||'Untitled record';section.append(row);
+            const row=document.createElement('p');row.textContent=describePassportEntry(kind,record);section.append(row);
           }
           if(!records.length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty);}
           panel.append(section);
