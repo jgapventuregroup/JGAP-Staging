@@ -15,3 +15,12 @@ test('Passport preview is only offered for active paid membership',()=>{
  assert.match(preview,/getCurrentCompany\(\)!==companyId\|\|getCurrentClient\(\)!==client/);
  assert.match(preview,/projectPropertyPassport\(record,companyId\)/);
 });
+
+test('Passport equity needs both market value and mortgage balance',()=>{
+ const base={id:'a',company_id:'c',arv:300000,purchase_price:180000};
+ assert.equal(projectPropertyPassport(base,'c').equity,null,'ARV cannot be treated as market value');
+ assert.equal(projectPropertyPassport({...base,passport_current_value:240000},'c').equity,null,'Unknown mortgage is not zero');
+ const record=projectPropertyPassport({...base,passport_current_value:'240000',passport_mortgage_balance:'175000',passport_purchase_date:'2025-05-01'},'c');
+ assert.equal(record.equity,65000);assert.equal(record.purchaseDate,'2025-05-01');
+ assert.equal(projectPropertyPassport({...base,passport_current_value:0,passport_mortgage_balance:0},'c').equity,0);
+});
