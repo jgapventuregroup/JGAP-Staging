@@ -17,3 +17,8 @@ test('ledger totals use integer cents and preserve net cash flow',()=>{
   assert.throws(()=>summarizeLedger([{entry_type:'expense',amount:-5}]),/Invalid ledger/);
   assert.throws(()=>summarizeLedger([{entry_type:'income',amount:'1.001'}]),/Invalid ledger/);
 });
+
+test('ledger summary rejects totals exceeding safe integer-cent precision',()=>{
+  const many=Array.from({length:10000},()=>({entry_type:'income',amount:'9999999999.99'}));
+  assert.throws(()=>summarizeLedger(many),/safe precision/);
+});
