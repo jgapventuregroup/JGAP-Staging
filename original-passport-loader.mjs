@@ -12,3 +12,5 @@ export async function loadOriginalPassportRecords({client,companyId,propertyId})
  }
  return result;
 }
+
+export const originalPassportTableNames=Object.freeze({...tables});
