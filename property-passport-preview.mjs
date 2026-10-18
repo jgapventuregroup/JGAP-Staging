@@ -43,6 +43,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       }
       panel?.remove();
       panel=document.createElement('section');
+      const activePanel=panel;
       panel.setAttribute('aria-label','Property Passport preview');
       const heading=document.createElement('h2');
       heading.textContent=p.name+' — Passport preview';
@@ -77,9 +78,9 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         const forms=document.createElement('section');
         const formsTitle=document.createElement('h3');formsTitle.textContent='Add property activity';forms.append(formsTitle);
         for(const kind of ['ledger','repair','task'])forms.append(createPropertyActivityForm({kind,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient,onSaved:async()=>{
-          if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
+          if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
           const fresh=await fetchPropertyOperations({client,companyId,dealId:record.id});
-          if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
+          if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
           const summary=summarizePropertyOperations({...fresh,asOfDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-')});
           for(const [key,value] of Object.entries({income:summary.cashFlow.income,expenses:summary.cashFlow.expenses,net:summary.cashFlow.net,repairsOpen:summary.repairs.open,repairsCompleted:summary.repairs.completed,tasksOpen:summary.tasks.open,tasksOverdue:summary.tasks.overdue})){
             const target=panel?.querySelector('[data-activity-total="'+key+'"]');
