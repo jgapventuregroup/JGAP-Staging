@@ -88,7 +88,19 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY!==true){
         const unavailable=document.createElement('section');unavailable.setAttribute('aria-label','Passport record sections');
         const heading=document.createElement('h3');heading.textContent='Property records';unavailable.append(heading);
-        const message=document.createElement('p');message.textContent='Systems & equipment, service schedules, maintenance history, and improvements are awaiting secure database activation.';unavailable.append(message);
+        const message=document.createElement('p');message.textContent='Your saved property is available above. The original Passport record sections below will become editable after their secure database tables and access rules are approved and activated.';unavailable.append(message);
+        for(const [label,description] of [
+          ['Systems & equipment','Record major appliances, HVAC, roofs, installation dates, warranties, and condition.'],
+          ['Service schedules','Link recurring inspections and servicing to existing equipment.'],
+          ['Maintenance history','Track repairs, dates, costs, contractors, and upcoming work.'],
+          ['Property improvements','Document upgrades, project dates, categories, and costs.']
+        ]){
+          const section=document.createElement('section');
+          const title=document.createElement('h4');title.textContent=label;section.append(title);
+          const detail=document.createElement('p');detail.textContent=description;section.append(detail);
+          const state=document.createElement('p');state.textContent='Not yet connected — no records loaded or saved.';section.append(state);
+          unavailable.append(section);
+        }
         panel.append(unavailable);
       }
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true){
