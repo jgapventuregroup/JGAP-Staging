@@ -16,6 +16,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - name: Verify required preview assets
+        run: |
+          test -f previews/property-operations-demo.html
+          test -f previews/investor-ledger-demo.html
       - name: Package Investor preview
         run: |
           mkdir -p dist/previews
