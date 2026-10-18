@@ -16,7 +16,7 @@ create table public.property_ledger_entries (
   entry_type text not null check (entry_type in ('income','expense')),
   category text not null check (length(trim(category)) between 1 and 80),
   description text not null default '' check (length(description) <= 2000),
-  amount numeric(12,2) not null check (amount > 0),
+  amount numeric(12,2) not null check (amount > 0 and amount <= 9999999999.99),
   created_by uuid not null default auth.uid(),
   created_at timestamptz not null default now(),
   constraint ledger_deal_company_fk foreign key (deal_id,company_id)
@@ -25,7 +25,7 @@ create table public.property_ledger_entries (
 create index ledger_company_deal_date_idx
   on public.property_ledger_entries(company_id,deal_id,entry_date desc);
 
-create function public.prevent_ledger_identity_change()
+create or replace function public.prevent_ledger_identity_change()
 returns trigger language plpgsql set search_path = ''
 as $$
 begin
@@ -43,11 +43,11 @@ create trigger ledger_identity_immutable before update
 on public.property_ledger_entries for each row
 execute function public.prevent_ledger_identity_change();
 
-create function public.set_ledger_creator()
+create or replace function public.set_ledger_creator()
 returns trigger language plpgsql set search_path = ''
 as $$
 begin
-  new.created_by := auth.uid();
+  new.created_by := (select auth.uid());
   if new.created_by is null then
     raise exception 'Authentication required';
   end if;
@@ -114,4 +114,7 @@ commit;
 
 -- Before execution: review SQL with DBA, inspect role function permissions,
 -- confirm constraints are absent, test cross-company reads/writes and downgrade,
--- and use a formal migration once approved.
+-- and use a formal migration once approved. 
+-- NOTE: RLS policy subqueries on company_subscriptions are evaluated under the
+-- caller's access; test authenticated role grants and actual subscription RLS.
+-- UPDATE/DELETE must be verified to reject downgrade writes, including direct API calls.
