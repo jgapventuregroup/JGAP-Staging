@@ -14,9 +14,19 @@ export function summarizePropertyOperations({ledger=[],repairs=[],tasks=[],asOfD
   if(!Number.isSafeInteger(estimatedRepairCents)||!Number.isSafeInteger(actualRepairCents))throw Error('Repair total exceeds safe precision');
  }
  let openTasks=0,doneTasks=0,overdueTasks=0;
- if(asOfDate!==null&&!/^\d{4}-\d{2}-\d{2}$/.test(asOfDate))throw Error('Invalid reference date');
+ if(asOfDate!==null){
+  const parsed=/^\d{4}-\d{2}-\d{2}$/.test(asOfDate)?new Date(asOfDate+'T00:00:00Z'):null;
+  if(!parsed||!Number.isFinite(parsed.getTime())||parsed.toISOString().slice(0,10)!==asOfDate)throw Error('Invalid reference date');
+ }
  for(const task of tasks){
-  if(task.status==='open'){openTasks++;if(asOfDate&&task.due_on&&task.due_on<asOfDate)overdueTasks++;}else if(task.status==='done'){doneTasks++;}else throw Error('Invalid task status');
+  if(task.status==='open'){
+   openTasks++;
+   if(task.due_on!==null&&task.due_on!==undefined&&task.due_on!==''){
+     const parsed=/^\d{4}-\d{2}-\d{2}$/.test(task.due_on)?new Date(task.due_on+'T00:00:00Z'):null;
+     if(!parsed||!Number.isFinite(parsed.getTime())||parsed.toISOString().slice(0,10)!==task.due_on)throw Error('Invalid task due date');
+     if(asOfDate&&task.due_on<asOfDate)overdueTasks++;
+   }
+  }else if(task.status==='done'){doneTasks++;}else throw Error('Invalid task status');
  }
  return {cashFlow,repairs:{open:openRepairs,completed:completedRepairs,estimatedCost:estimatedRepairCents/100,actualCost:actualRepairCents/100},tasks:{open:openTasks,done:doneTasks,...(asOfDate?{overdue:overdueTasks}:{})}};
 }
