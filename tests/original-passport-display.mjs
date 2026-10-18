@@ -11,3 +11,18 @@ test('improvement displays description',()=>{assert.match(describePassportEntry(
 
 test('Passport tables retain original maintenance columns and descriptions',()=>{const old=globalThis.document;try{globalThis.document={createElement(tag){return {tag,children:[],attributes:{},textContent:'',append(...nodes){this.children.push(...nodes)},setAttribute(k,v){this.attributes[k]=v}}}};const table=createPassportRecordsTable('maintenance',[{title:'Valve',maintenance_date:'2026-01-02',status:'done',cost:75,due_date:'2026-01-03',description:'Replace valve',performed_by:'Plumber'}]);assert.equal(table.tag,'table');assert.deepEqual(table.children[1].children[0].children.map(c=>c.textContent),['Date','Item','Status','Cost','Due']);assert.match(table.children[2].children[1].children[0].textContent,/Replace valve/);}finally{globalThis.document=old}});
 test('service table joins equipment by id',()=>{const old=globalThis.document;try{globalThis.document={createElement(tag){return {tag,children:[],textContent:'',append(...nodes){this.children.push(...nodes)},setAttribute(){}}}};const table=createPassportRecordsTable('service',[{asset_id:'a1',service_name:'Flush'}],[{id:'a1',name:'Water heater'}]);assert.equal(table.children[2].children[0].children[0].textContent,'Water heater');}finally{globalThis.document=old}});
+
+test('systems table includes service schedules under the matching equipment',()=>{
+ const old=globalThis.document;
+ try{
+  globalThis.document={createElement(tag){return {tag,children:[],textContent:'',append(...nodes){this.children.push(...nodes)},setAttribute(){}}}};
+  const table=createPassportRecordsTable('asset',[{id:'a1',name:'Water heater'},{id:'a2',name:'Furnace'}],[],[
+   {asset_id:'a1',service_name:'Flush',frequency_value:1,frequency_unit:'year',next_service_date:'2027-03-01'},
+   {asset_id:'a2',service_name:'Filter',frequency_value:3,frequency_unit:'month'}
+  ]);
+  const rows=table.children[2].children;
+  assert.match(rows[1].children[0].textContent,/Flush every 1 year.*Next 2027-03-01/);
+  assert.doesNotMatch(rows[1].children[0].textContent,/Filter/);
+  assert.match(rows[3].children[0].textContent,/Filter every 3 month/);
+ }finally{globalThis.document=old}
+});
