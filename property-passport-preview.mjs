@@ -92,8 +92,8 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         for(const [kind,title,key] of [['asset','Systems & equipment','assets'],['service','Service schedules','services'],['maintenance','Maintenance history','maintenance'],['improvement','Improvements','improvements']]){
           const section=document.createElement('section');const h=document.createElement('h3');h.textContent=title;section.append(h);
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
-          for(const record of records){
-            const row=document.createElement('p');row.textContent=describePassportEntry(kind,record);section.append(row);
+          for(const entry of records){
+            const row=document.createElement('p');row.textContent=describePassportEntry(kind,entry);section.append(row);
           }
           if(!records.length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty);}
           passportSections[key]=section;
