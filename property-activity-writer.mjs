@@ -11,6 +11,7 @@ export async function savePropertyActivity({client,companyId,dealId,kind,input})
   const result=validate(input);
   if(!result.ok)throw Error(result.errors.join('; '));
   const payload={...result.value,company_id:companyId,deal_id:dealId};
+  // Ownership is supplied by the selected workspace, never by user form fields.
   const {data,error}=await client.from(table).insert(payload).select('*').single();
   if(error)throw Error('Could not save '+kind+': '+error.message);
   if(!data||data.company_id!==companyId||data.deal_id!==dealId)throw Error('Saved activity does not match selected property');
