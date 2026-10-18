@@ -16,10 +16,11 @@ const passportColumns={
  maintenance:[['Date','maintenance_date'],['Item','title'],['Status','status'],['Cost','cost'],['Due','due_date']],
  improvement:[['Date','improvement_date'],['Improvement','title'],['Category','category'],['Cost','cost']]
 };
-export function createPassportRecordsTable(kind,records,assets=[]){
+export function createPassportRecordsTable(kind,records,assets=[],services=[]){
  const columns=passportColumns[kind];
  if(!columns)throw Error('Unknown Passport entry');
  if(!Array.isArray(records))throw Error('Invalid Passport records');
+ if(kind==='asset'&&!Array.isArray(services))throw Error('Invalid service schedules');
  const table=document.createElement('table');
  const caption=document.createElement('caption');caption.textContent=({asset:'Systems & equipment',service:'Service schedules',maintenance:'Maintenance history',improvement:'Improvements'})[kind];table.append(caption);
  const head=document.createElement('thead');const heading=document.createElement('tr');
@@ -37,6 +38,8 @@ export function createPassportRecordsTable(kind,records,assets=[]){
   body.append(tr);
   if(kind==='asset'){
    const details=[record.asset_type,record.purchase_cost!==null&&record.purchase_cost!==undefined?'Cost '+money(record.purchase_cost):null,record.expected_life_years?'Expected life '+record.expected_life_years+' years':null].filter(Boolean);
+   const schedules=services.filter(service=>service.asset_id===record.id);
+   for(const schedule of schedules){details.push('Service: '+(schedule.service_name||'Scheduled service')+(schedule.frequency_value?' every '+schedule.frequency_value+' '+(schedule.frequency_unit||'period'):'')+(schedule.next_service_date?' · Next '+schedule.next_service_date:''));}
    if(details.length){const detail=document.createElement('tr');const cell=document.createElement('td');cell.setAttribute('colspan',String(columns.length));cell.textContent=details.join(' · ');detail.append(cell);body.append(detail);}
   }
   if(kind==='service'&&record.notes||kind==='maintenance'&&(record.description||record.performed_by)||kind==='improvement'&&record.description){
