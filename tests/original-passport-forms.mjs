@@ -75,3 +75,30 @@ test('combined Passport form blocks resubmission after partial equipment save',a
   assert.equal(saves,1);
  }finally{globalThis.document=old}
 });
+
+test('combined Passport form refuses incomplete schedule before saving equipment',async()=>{
+ const old=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  let saves=0;
+  const form=createPassportSystemForm(async()=>{saves++});
+  form.elements.namedItem('name').value='Furnace';
+  form.elements.namedItem('next_service_date').value='2026-11-01';
+  await form.listeners.submit({preventDefault(){}});
+  assert.equal(saves,0);
+  const status=form.children.find(n=>n.attributes.role==='status');
+  assert.match(status.textContent,/Enter a service name/);
+ }finally{globalThis.document=old}
+});
+test('combined Passport form refuses missing frequency before saving equipment',async()=>{
+ const old=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  let saves=0;
+  const form=createPassportSystemForm(async()=>{saves++});
+  form.elements.namedItem('name').value='Furnace';
+  form.elements.namedItem('service_name').value='Annual check';
+  await form.listeners.submit({preventDefault(){}});
+  assert.equal(saves,0);
+  const status=form.children.find(n=>n.attributes.role==='status');
+  assert.match(status.textContent,/Service frequency is required/);
+ }finally{globalThis.document=old}
+});
