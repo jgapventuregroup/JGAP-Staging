@@ -69,5 +69,9 @@ alter table public.property_maintenance enable row level security;
 alter table public.property_improvements enable row level security;
 revoke all on public.property_assets,public.property_asset_services,public.property_maintenance,public.property_improvements from anon,authenticated;
 commit;
+-- Proposed read permissions: active company members only. Paid writes require
+-- verified subscription and owner/admin/editor role. These policies are NOT
+-- activated in this draft, because the subscription lookup authorization path
+-- and migration prerequisite must be verified with two real staging accounts.
 -- IMPORTANT: This draft deliberately does not enable client access. Review RLS,
 -- entitlement and role permissions before approving any deployment.
