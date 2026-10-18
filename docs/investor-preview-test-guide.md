@@ -6,8 +6,8 @@ This ZIP is an **artifact**, not a deployed website. It contains a full staging-
 
 1. Download `investor-preview-site` from the successful GitHub Actions run and extract it.
 2. From the extracted directory, start a local static web server. With Python installed, run `python -m http.server 8000` (Windows may require `py -m http.server 8000`).
-3. Open `http://localhost:8000/previews/property-operations-demo.html` to test the fictional cash-flow, repair and task summary.
-4. Open `http://localhost:8000/previews/investor-ledger-demo.html` to test the in-memory income/expense entry form.
+3. Open `http://localhost:8000/previews/` to see the Investor preview home page.
+4. Select **Property Passport — Operations** or **Income & Expense Tracker** to test the fictional screens.
 
 The demos do not persist changes or touch Supabase. They are not a substitute for paid-entitlement and row-level security testing.
 
