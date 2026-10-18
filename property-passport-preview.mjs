@@ -74,7 +74,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         const formsTitle=document.createElement('h3');formsTitle.textContent='Add property activity';forms.append(formsTitle);
         for(const kind of ['ledger','repair','task'])forms.append(createPropertyActivityForm({kind,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient,onSaved:async()=>{
           if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
-          const fresh=await fetchOperations();
+          const fresh=await fetchPropertyOperations({client,companyId,dealId:record.id});
           if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
           const summary=summarizePropertyOperations({...fresh,asOfDate:new Date().toISOString().slice(0,10)});
           for(const [key,value] of Object.entries({income:summary.cashFlow.income,expenses:summary.cashFlow.expenses,net:summary.cashFlow.net,repairsOpen:summary.repairs.open,repairsCompleted:summary.repairs.completed,tasksOpen:summary.tasks.open,tasksOverdue:summary.tasks.overdue})){
