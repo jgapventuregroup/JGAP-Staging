@@ -74,6 +74,9 @@ revoke all on public.property_assets,public.property_asset_services,public.prope
 -- jgap_private.member_role(company_id) for write roles. Confirm function grants
 -- and paid entitlement lookup behavior before granting any table privileges.
 commit;
+-- Staging subscription audit: company_subscriptions has RLS enabled,
+-- authenticated SELECT only, and a company_members/auth.uid() SELECT policy.
+-- Confirm subscription statuses with isolated paid test accounts before activation.
 -- Proposed read permissions: active company members only. Paid writes require
 -- verified subscription and owner/admin/editor role. These policies are NOT
 -- activated in this draft, because the subscription lookup authorization path
