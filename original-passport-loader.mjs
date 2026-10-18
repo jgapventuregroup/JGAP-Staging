@@ -3,6 +3,7 @@ const tables={assets:'property_assets',services:'property_asset_services',mainte
 export async function loadOriginalPassportRecords({client,companyId,propertyId}){
  if(!client||!companyId||!propertyId)throw Error('Active company and property required');
  const result={};
+ // Client filters are convenience only; projected records independently enforce company and deal scope.
  for(const [key,table] of Object.entries(tables)){
   const {data,error}=await client.from(table).select('*').eq('company_id',companyId).eq('deal_id',propertyId);
   if(error)throw Error('Could not load '+key+': '+error.message);
