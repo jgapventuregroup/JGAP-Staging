@@ -4,86 +4,85 @@
 begin;
 
 create policy property_assets_member_read on public.property_assets
- for select to authenticated using (public.is_company_member(company_id));
+ for select to authenticated using (public.is_company_member(public.property_assets.company_id));
 create policy property_assets_paid_insert on public.property_assets
  for insert to authenticated with check (
-  jgap_private.member_role(company_id) in ('owner','admin','editor')
+  jgap_private.member_role(public.property_assets.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_assets.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 create policy property_assets_paid_update on public.property_assets
  for update to authenticated
- using (jgap_private.member_role(company_id) in ('owner','admin','editor')
+ using (jgap_private.member_role(public.property_assets.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_assets.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'))
- with check (jgap_private.member_role(company_id) in ('owner','admin','editor')
+ with check (jgap_private.member_role(public.property_assets.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_assets.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 
 
 create policy property_asset_services_member_read on public.property_asset_services
- for select to authenticated using (public.is_company_member(company_id));
+ for select to authenticated using (public.is_company_member(public.property_asset_services.company_id));
 create policy property_asset_services_paid_insert on public.property_asset_services
  for insert to authenticated with check (
-  jgap_private.member_role(company_id) in ('owner','admin','editor')
+  jgap_private.member_role(public.property_asset_services.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_asset_services.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 create policy property_asset_services_paid_update on public.property_asset_services
  for update to authenticated
- using (jgap_private.member_role(company_id) in ('owner','admin','editor')
+ using (jgap_private.member_role(public.property_asset_services.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_asset_services.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'))
- with check (jgap_private.member_role(company_id) in ('owner','admin','editor')
+ with check (jgap_private.member_role(public.property_asset_services.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_asset_services.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 
 
 create policy property_maintenance_member_read on public.property_maintenance
- for select to authenticated using (public.is_company_member(company_id));
+ for select to authenticated using (public.is_company_member(public.property_maintenance.company_id));
 create policy property_maintenance_paid_insert on public.property_maintenance
  for insert to authenticated with check (
-  jgap_private.member_role(company_id) in ('owner','admin','editor')
+  jgap_private.member_role(public.property_maintenance.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_maintenance.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 create policy property_maintenance_paid_update on public.property_maintenance
  for update to authenticated
- using (jgap_private.member_role(company_id) in ('owner','admin','editor')
+ using (jgap_private.member_role(public.property_maintenance.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_maintenance.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'))
- with check (jgap_private.member_role(company_id) in ('owner','admin','editor')
+ with check (jgap_private.member_role(public.property_maintenance.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_maintenance.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 
 
 create policy property_improvements_member_read on public.property_improvements
- for select to authenticated using (public.is_company_member(company_id));
+ for select to authenticated using (public.is_company_member(public.property_improvements.company_id));
 create policy property_improvements_paid_insert on public.property_improvements
  for insert to authenticated with check (
-  jgap_private.member_role(company_id) in ('owner','admin','editor')
+  jgap_private.member_role(public.property_improvements.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_improvements.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 create policy property_improvements_paid_update on public.property_improvements
  for update to authenticated
- using (jgap_private.member_role(company_id) in ('owner','admin','editor')
+ using (jgap_private.member_role(public.property_improvements.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_improvements.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'))
- with check (jgap_private.member_role(company_id) in ('owner','admin','editor')
+ with check (jgap_private.member_role(public.property_improvements.company_id) in ('owner','admin','editor')
   and exists (select 1 from public.company_subscriptions s
-   where s.company_id=company_id and s.plan in ('investor','pro')
+   where s.company_id=public.property_improvements.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 
--- IMPORTANT: Before any deployment, qualify correlated column references
--- explicitly, enforce immutable company_id/deal_id/creator on UPDATE, and
+-- IMPORTANT: Before any deployment, enforce immutable company_id/deal_id/creator on UPDATE, and
 -- validate service asset FK and user roles under actual JWTs.
 -- Deliberately no GRANT statements: remains inaccessible to clients.
 rollback;
