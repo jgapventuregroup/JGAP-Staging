@@ -154,7 +154,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
               const warning=document.createElement('p');warning.setAttribute('role','alert');warning.textContent='Record saved, but the Passport could not refresh. Close and reopen it to see the latest data.';editor.prepend(warning);
               return;
             }
-            if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after refresh');
+            if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after refresh');
             const equipmentSelector=editor.querySelector('select[name="asset_id"]');
             if(equipmentSelector){const selected=equipmentSelector.value;equipmentSelector.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Select equipment';equipmentSelector.append(empty);for(const asset of updated.assets){if(!asset?.id||!asset?.name)continue;const option=document.createElement('option');option.value=asset.id;option.textContent=asset.name;equipmentSelector.append(option)}equipmentSelector.value=updated.assets.some(asset=>asset?.id===selected)?selected:'';const serviceForm=equipmentSelector.closest?.('form');const saveService=serviceForm?.querySelector?.('button[type="submit"]');if(saveService)saveService.disabled=!updated.assets.some(asset=>asset?.id&&asset?.name);const guidance=serviceForm?.querySelector?.('[data-service-guidance]');if(guidance)guidance.hidden=updated.assets.some(asset=>asset?.id&&asset?.name);}
             for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
@@ -172,7 +172,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
               const warning=document.createElement('p');warning.setAttribute('role','alert');warning.textContent='Record saved, but the Passport could not refresh. Close and reopen it to see the latest data.';editor.prepend(warning);
               return;
             }
-            if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after refresh');
+            if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after refresh');
             const equipmentSelector=editor.querySelector('select[name="asset_id"]');
             if(equipmentSelector){
               const selected=equipmentSelector.value;
