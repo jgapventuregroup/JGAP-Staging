@@ -121,6 +121,13 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
                     for(const asset of saved.assets){if(!asset?.id||!asset?.name)continue;const option=document.createElement('option');option.value=asset.id;option.textContent=asset.name;selector.append(option)}
                     selector.value=saved.assets.some(asset=>asset.id===error.assetId)?error.assetId:'';
                     const serviceForm=selector.closest?.('form');
+                    if(selector.value===error.assetId&&serviceForm&&serviceValues){
+                      for(const [key,value] of Object.entries(serviceValues)){
+                        if(key==='asset_id'||value===undefined||value===null)continue;
+                        const field=serviceForm.elements?.namedItem(key);
+                        if(field)field.value=String(value);
+                      }
+                    }
                     const submit=serviceForm?.querySelector?.('button[type="submit"]');
                     if(submit)submit.disabled=!saved.assets.some(asset=>asset?.id&&asset?.name);
                     const guidance=serviceForm?.querySelector?.('[data-service-guidance]');
