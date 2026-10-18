@@ -32,7 +32,8 @@ export function createPropertyActivityForm({kind,client,companyId,dealId,onSaved
    const input=Object.fromEntries(Object.entries(controls).map(([key,field])=>[key,field.value]));
    await savePropertyActivity({client,companyId,dealId,kind,input});
    if(getCurrentCompany?.()!==companyId||getCurrentClient?.()!==client){message.textContent='Workspace changed. Reopen the property.';return;}
-   message.textContent='Saved successfully';form.reset();await onSaved?.();
+   message.textContent='Saved successfully';form.reset();
+   try{await onSaved?.();}catch(refreshError){message.textContent='Saved, but could not refresh totals: '+(refreshError?.message||'Please reopen this property');}
   }catch(error){message.textContent=error?.message||'Could not save activity';}
   finally{pending=false;submit.disabled=false;}
  });
