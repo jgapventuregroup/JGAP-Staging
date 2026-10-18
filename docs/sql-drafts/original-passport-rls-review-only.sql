@@ -88,6 +88,9 @@ create policy property_improvements_paid_update on public.property_improvements
    and s.billing_status='active'));
 
 -- No DELETE policy is proposed. Records cannot be deleted by browser clients.
+-- WARNING: Do not grant UPDATE until an actual paid-account JWT test verifies
+-- immutable company_id/deal_id and the trigger guards all four tables.
+-- This draft also requires an explicit GRANT plan, separately reviewed.
 -- Before any deployment, verify subscription visibility to RLS policy evaluation,
 -- since company_subscriptions has its own RLS. A denied subscription lookup
 -- must fail closed, not be worked around by weakening tenant boundaries.
