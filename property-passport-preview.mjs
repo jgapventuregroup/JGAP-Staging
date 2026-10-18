@@ -69,10 +69,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         unavailable.textContent='Income, expenses, repairs, and tasks will appear here after secure staging integration.';
         panel.append(unavailable);
       }
-      if(operations&&typeof fetchOperations==='function'){
+      if(operations&&typeof fetchOperations==='function'&&window.JGAP_OPERATIONS_WRITES_READY===true){
         const forms=document.createElement('section');
         const formsTitle=document.createElement('h3');formsTitle.textContent='Add property activity';forms.append(formsTitle);
-        for(const kind of ['ledger','repair','task'])forms.append(createPropertyActivityForm({kind,client,companyId,dealId:deal.id,getCurrentCompany,getCurrentClient,onSaved:async()=>{
+        for(const kind of ['ledger','repair','task'])forms.append(createPropertyActivityForm({kind,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient,onSaved:async()=>{
           if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
           const fresh=await fetchOperations();
           if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
@@ -85,7 +85,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         panel.append(forms);
       }
       const note=document.createElement('small');
-      note.textContent=operations?'Property activity entries save to the connected staging database.':'Read-only preview. No changes are saved here.';
+      note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Property activity entries save to the connected staging database.':'Operations data is read-only until secure write access is enabled.'):'Read-only preview. No changes are saved here.';
       panel.append(note);
       line.after(panel);
       panel.scrollIntoView?.({block:'nearest'});
