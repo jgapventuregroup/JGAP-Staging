@@ -54,6 +54,14 @@ test('Passport preview requires active entitlement and ignores stale company res
    assert.equal(openPanel.removed,true,'Close action removes the active Passport');
    assert.equal(line.children[0].attributes['aria-expanded'],'false','Closing Passport restores collapsed state');
    assert.equal(line.children[0].disabled,false,'Close action leaves preview button usable');
+   preview.setEligibility({companyId:'c1',enabled:true});
+   const accountChange=node('p');
+   preview.addAction({...options,line:accountChange});
+   await accountChange.children[0].onclick();
+   assert.equal(accountChange.children[0].attributes['aria-expanded'],'true');
+   preview.clear();
+   assert.equal(accountChange.children[0].attributes['aria-expanded'],'false','Account reset collapses Passport');
+   preview.setEligibility({companyId:'c1',enabled:true});
    const wrong=node('p');
    preview.addAction({...options,line:wrong,fetchDeal:async()=>({id:'another-deal',company_id:'c1',name:'Wrong property'})});
    await wrong.children[0].onclick();
