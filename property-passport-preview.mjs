@@ -99,6 +99,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel.append(print);
       const passportMoney=new Set(['Purchase price','Current market value','Mortgage balance','Estimated equity','Target offer','Monthly rent','Operating expenses / month']);
       const formatPassportValue=(label,value)=>value===null?'Not recorded':passportMoney.has(label)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value):String(value);
+      const financialDisplayRows={};
       for(const [groupTitle,fields] of [
         ['Property details',[['Address',p.address],['Type',p.propertyType],['Stage',p.status],['Units',p.units],['Purchase date',p.purchaseDate]]],
         ['Financial snapshot',[['Purchase price',p.purchasePrice],['Current market value',p.currentValue],['Mortgage balance',p.mortgageBalance],['Estimated equity',p.equity],['Target offer',p.targetOfferPrice],['Monthly rent',p.monthlyRent],['Operating expenses / month',p.monthlyOperatingExpenses]]],
@@ -110,11 +111,53 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         for(const [label,value] of fields){
           const row=document.createElement('p');
           const strong=document.createElement('strong');strong.textContent=label+': ';
-          row.append(strong,document.createTextNode(formatPassportValue(label,value)));
+          const display=document.createElement('span');display.textContent=formatPassportValue(label,value);row.append(strong,display);if(['Purchase date','Current market value','Mortgage balance','Estimated equity'].includes(label))financialDisplayRows[label]=display;
           group.append(row);
         }
         panel.append(group);
       }
+      const financialEditor=document.createElement('form');
+      financialEditor.setAttribute('aria-label','Edit Passport financial details');
+      const financialHeading=document.createElement('h3');financialHeading.textContent='Update property financial details';financialEditor.append(financialHeading);
+      const financialInputs={};
+      for(const [field,label,type,value] of [
+        ['purchase_date','Purchase date','date',p.purchaseDate],
+        ['current_value','Current market value','number',p.currentValue],
+        ['mortgage_balance','Remaining mortgage balance','number',p.mortgageBalance]
+      ]){
+        const wrapper=document.createElement('label');wrapper.textContent=label+' ';
+        const input=document.createElement('input');input.name=field;input.type=type;input.value=value??'';
+        if(type==='number'){input.min='0';input.step='0.01';input.inputMode='decimal';}
+        wrapper.append(input);financialEditor.append(wrapper);financialInputs[field]=input;
+      }
+      const financialSave=document.createElement('button');financialSave.type='submit';financialSave.textContent='Save financial details';financialEditor.append(financialSave);
+      const financialStatus=document.createElement('p');financialStatus.setAttribute('role','status');financialEditor.append(financialStatus);
+      financialEditor.onsubmit=async event=>{
+        event.preventDefault();
+        if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
+        const parseMoney=input=>input.value.trim()===''?null:Number(input.value);
+        const currentValue=parseMoney(financialInputs.current_value),mortgageBalance=parseMoney(financialInputs.mortgage_balance);
+        if([currentValue,mortgageBalance].some(value=>value!==null&&(!Number.isFinite(value)||value<0))){financialStatus.textContent='Enter valid nonnegative amounts.';return;}
+        financialSave.disabled=true;financialStatus.textContent='Saving…';
+        try{
+          const {data,error}=await client.rpc('update_passport_financials',{
+            p_company_id:companyId,p_deal_id:record.id,
+            p_purchase_date:financialInputs.purchase_date.value||null,
+            p_current_value:currentValue,p_mortgage_balance:mortgageBalance
+          });
+          if(error)throw error;
+          if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
+          const saved=Array.isArray(data)?data[0]:data;
+          if(!saved||saved.id!==record.id||saved.company_id!==companyId)throw Error('Saved property could not be verified');
+          const updated=projectPropertyPassport(saved,companyId);
+          for(const [label,value] of [['Purchase date',updated.purchaseDate],['Current market value',updated.currentValue],['Mortgage balance',updated.mortgageBalance],['Estimated equity',updated.equity]]){
+            const node=financialDisplayRows[label];if(node)node.textContent=formatPassportValue(label,value);
+          }
+          financialStatus.textContent='Financial details saved. Reopen the Passport to verify persistence.';
+        }catch(error){financialStatus.textContent='Unable to save financial details: '+(error?.message||'Unknown error');}
+        finally{financialSave.disabled=false;}
+      };
+      panel.append(financialEditor);
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY!==true){
         const unavailable=document.createElement('section');unavailable.setAttribute('aria-label','Passport record sections');
         const heading=document.createElement('h3');heading.textContent='Property records';unavailable.append(heading);
