@@ -80,7 +80,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel.setAttribute('role','alert');
       panel.textContent='Could not open Property Passport: '+(error?.message||'Unknown error');
       line.after(panel);
-    }finally{button.disabled=false;}
+    }finally{if(current===requestId)button.disabled=false;}
   };
   line.append(button);
 }
