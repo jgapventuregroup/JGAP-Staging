@@ -26,7 +26,7 @@ function setEligibility(next){
 function passportRecordLabel(kind,entry,assets){
   const label=describePassportEntry(kind,entry);
   if(kind!=='service')return label;
-  const asset=assets.find(item=>item.id===entry.asset_id);
+  const asset=(Array.isArray(assets)?assets:[]).find(item=>item.id===entry.asset_id);
   return (asset?.name?asset.name+' — ':'Unlinked equipment — ')+label;
 }
 function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
