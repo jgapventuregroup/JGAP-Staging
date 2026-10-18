@@ -21,10 +21,15 @@ jobs:
           test -f previews/index.html
           test -f previews/property-operations-demo.html
           test -f previews/investor-ledger-demo.html
+          test -f original-passport-loader.mjs
+          test -f original-passport-display.mjs
+          test -f original-passport-forms.mjs
+          test -f original-passport-writer.mjs
+          test -f original-passport-recovery.mjs
       - name: Package Investor preview
         run: |
           mkdir -p dist/previews
-          cp index.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs dist/
+          cp index.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
           cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html dist/previews/
       - uses: actions/upload-artifact@v4
         with:
