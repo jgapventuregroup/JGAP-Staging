@@ -13,6 +13,8 @@ export async function loadOriginalPassportRecords({client,companyId,propertyId})
   const dateField={assets:'installed_date',services:'next_service_date',maintenance:'maintenance_date',improvements:'improvement_date'}[key];
   result[key].sort((a,b)=>key==='assets'?String(a.name||'').localeCompare(String(b.name||'')):key==='services'?String(a[dateField]||'9999-12-31').localeCompare(String(b[dateField]||'9999-12-31')):String(b[dateField]||'').localeCompare(String(a[dateField]||'')));
  }
+ const assetIds=new Set(result.assets.map(asset=>asset.id));
+ for(const service of result.services){if(!assetIds.has(service.asset_id))throw Error('Service schedule references equipment outside the selected property');}
  return result;
 }
 
