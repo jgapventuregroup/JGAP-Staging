@@ -14,7 +14,7 @@ Approved direction: preserve Free exactly as currently implemented; provide a us
 | Repairs, notes, follow-ups | No change to Free | Basic | Advanced including vendors, work history and reporting |
 | Money-Making System | No change to Free | — | Full |
 | Market Map, Deal Radar, Alerts, Lead Generation | No change to Free | — | Full, after validating original modules |
-| Laundromat Division | No change to Free | — | Full |
+| Laundromat Division | Out of scope for current release | Out of scope for current release | Deferred for possible future release |
 | Dashboard customization and team permissions | No change to Free | — | Full, with secure company roles |
 | Ads | Planned; not yet active | Planned; not yet active | No ads |
 
@@ -26,5 +26,5 @@ Approved direction: preserve Free exactly as currently implemented; provide a us
 4. Preserve staging/production isolation and company-level row security. Server/database enforcement is required for paid entitlements; hiding buttons alone is insufficient.
 5. On downgrade or cancellation, retain customer data, limit new paid-only actions, and avoid destructive deletion.
 6. Paid checkout, Stripe, advertisements, real payment verification, and production release remain **web development company handoff items**.
-7. Prioritize a functional Investor basic Property Passport, finance view, and repair/task records; then restore Pro's Money-Making System, financial dashboard, Market Map and advanced modules.
+7. Prioritize a functional Investor basic Property Passport, finance view, and repair/task records; then restore Pro's Money-Making System, financial dashboard, Market Map and advanced real-estate modules. The Laundromat Division is deferred and must not be included in the current release.
 8. Recheck original module dependencies, tables, migrations, permissions, and browser workflows before declaring any migration complete.
