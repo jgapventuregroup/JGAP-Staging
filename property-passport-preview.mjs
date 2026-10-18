@@ -47,6 +47,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       const heading=document.createElement('h2');
       heading.textContent=p.name+' — Passport preview';
       panel.append(heading);
+      const close=document.createElement('button');
+      close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
+      close.onclick=()=>{if(panel===close.parentNode){requestId++;panel.remove();panel=null;button.disabled=false;}};
+      panel.append(close);
       for(const [label,value] of [['Address',p.address],['Type',p.propertyType],['Stage',p.status],['Units',p.units],['Purchase price',p.purchasePrice],['Target offer',p.targetOfferPrice],['Monthly rent',p.monthlyRent],['Operating expenses / month',p.monthlyOperatingExpenses],['Notes',p.notes],['Follow-up',p.followUpDate]]){
         const row=document.createElement('p');
         const strong=document.createElement('strong');
