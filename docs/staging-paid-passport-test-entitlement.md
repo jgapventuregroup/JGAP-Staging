@@ -23,3 +23,9 @@ Status: **planning only; no paid test workspace provisioned and no membership ch
 - Do not manually change any existing Free subscription for testing.
 - Do not use UI-only plan flags as evidence of paid authorization.
 - Do not claim browser testing is complete without an actual deployed staging URL and user sign-in.
+
+## Database security review (read-only, 2026-10-18)
+- RLS is enabled on `public.companies`, `public.company_members`, `public.company_subscriptions`, and `public.deals`.
+- `get_company_deal(p_company_id,p_deal_id)` is a security-invoker SQL function that checks `auth.uid()` and `public.is_company_member(p_company_id)` before returning the matching deal; underlying deals RLS remains applicable.
+- `enforce_company_deal_limit()` is a security-definer trigger that locks the company/usage record, rejects workspace transfers, and blocks creation once five lifetime Free slots are consumed unless a paid plan has `billing_status='active'`.
+- These findings do not establish a safe paid entitlement issuance procedure; that remains to be reviewed before any database mutation.
