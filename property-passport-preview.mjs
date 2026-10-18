@@ -106,7 +106,39 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           const editor=document.createElement('section');const heading=document.createElement('h3');heading.textContent='Add Passport records';editor.append(heading);
           for(const kind of ['asset','service','maintenance','improvement'])editor.append((kind==='asset'?createPassportSystemForm:createOriginalPassportForm)(kind==='asset'?async ({assetValues,serviceValues})=>{
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
-            await savePassportSystemWithService({assetValues,serviceValues,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+            try{
+              await savePassportSystemWithService({assetValues,serviceValues,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+            }catch(error){
+              if(error?.partialSave){
+                if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after partial save');
+                try{
+                  const saved=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
+                  if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after partial save');
+                  const selector=editor.querySelector('select[name="asset_id"]');
+                  if(selector){
+                    selector.replaceChildren();
+                    const empty=document.createElement('option');empty.value='';empty.textContent='Select equipment';selector.append(empty);
+                    for(const asset of saved.assets){if(!asset?.id||!asset?.name)continue;const option=document.createElement('option');option.value=asset.id;option.textContent=asset.name;selector.append(option)}
+                    selector.value=saved.assets.some(asset=>asset.id===error.assetId)?error.assetId:'';
+                    const serviceForm=selector.closest?.('form');
+                    const submit=serviceForm?.querySelector?.('button[type="submit"]');
+                    if(submit)submit.disabled=!saved.assets.some(asset=>asset?.id&&asset?.name);
+                    const guidance=serviceForm?.querySelector?.('[data-service-guidance]');
+                    if(guidance)guidance.hidden=saved.assets.some(asset=>asset?.id&&asset?.name);
+                  }
+                  for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
+                    const section=passportSections[key];if(!section)continue;
+                    while(section.children.length>1)section.lastChild.remove();
+                    section.append(createPassportRecordsTable(entryKind,saved[key],saved.assets,saved.services));
+                  }
+                }catch(refreshError){
+                  if(refreshError?.message==='Passport context changed after partial save')throw refreshError;
+                  const warning=document.createElement('p');warning.setAttribute('role','alert');
+                  warning.textContent='Equipment saved, but Passport could not refresh. Reopen it before adding a service schedule.';editor.prepend(warning);
+                }
+              }
+              throw error;
+            }
             let updated;
             try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});}
             catch(error){
