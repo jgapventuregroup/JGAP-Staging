@@ -3,6 +3,9 @@
 -- RLS policies deliberately separate membership reads from paid editor writes.
 -- Staging column audit verified company_subscriptions(company_id,plan,billing_status).
 -- No grant statements are included; this draft ends with ROLLBACK.
+-- NOTE: Existing SELECT policies allow all company members to read, including Free.
+-- Do not enable grants until the paid read entitlement is enforced at database level.
+-- This draft alone is NOT sufficient to activate Passport.
 begin;
 
 create policy property_assets_member_read on public.property_assets
