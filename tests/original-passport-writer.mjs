@@ -29,3 +29,16 @@ test('service writer rejects equipment owned by another property before insert',
  await assert.rejects(saveOriginalPassportEntry({kind:'service',values:{asset_id:'a1',service_name:'Filter',frequency_value:1,frequency_unit:'year'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/does not belong/);
  assert.equal(inserted,false);
 });
+
+test('writer rejects negative and nonfinite costs before database access',async()=>{
+ let called=false;const client={from(){called=true}};
+ const context={client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client};
+ for(const cost of [-1,NaN,Infinity]){
+  await assert.rejects(saveOriginalPassportEntry({...context,kind:'asset',values:{name:'Furnace',purchase_cost:cost}}),/Invalid nonnegative Passport amount/);
+  await assert.rejects(saveOriginalPassportEntry({...context,kind:'maintenance',values:{title:'Repair',maintenance_date:'2026-10-18',cost}}),/Invalid nonnegative Passport amount/);
+ }
+ for(const life of [0,-2,1.5,Infinity]){
+  await assert.rejects(saveOriginalPassportEntry({...context,kind:'asset',values:{name:'Furnace',expected_life_years:life}}),/Invalid nonnegative Passport amount/);
+ }
+ assert.equal(called,false);
+});
