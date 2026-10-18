@@ -33,7 +33,7 @@
     const current = rows.filter(row => !row.archived);
     el('l_count').textContent = String(current.length); el('l_active').textContent = String(current.filter(row => row.status === 'Active Relationship').length); el('l_due').textContent = String(current.filter(row => row.next_follow_up_date && row.next_follow_up_date <= date).length);
     el('lenderList').replaceChildren();
-    if (!visible.length) { el('lenderList').textContent = archived ? 'No archived lenders match.' : 'No lenders match. Add an institution above.'; return; }
+    if (!visible.length) { el('lenderList').textContent = archived ? 'No archived lenders match.' : 'No lenders match. Use Add lender + to create one.'; return; }
     for (const row of visible) {
       const card = document.createElement('article'); card.className = 'metric';
       const heading = document.createElement('h2'); heading.textContent = row.institution_name;
@@ -68,7 +68,7 @@
     catch (error) { if (scope()?.companyId !== active.companyId) return; el('l_msg').textContent = 'Could not save lender: ' + error.message; }
     finally { saving = false; el('l_save_btn').disabled = !canEdit(); for (const id of Object.keys(mapping)) el(id).disabled = !canEdit(); el('l_cancel_btn').disabled = false; }
   };
-  el('l_cancel_btn').onclick = clearForm; el('l_search').oninput = render; el('l_show_archived').onchange = render;
+  el('l_cancel_btn').onclick = () => { clearForm(); showForm(false); }; el('l_search').oninput = render; el('l_show_archived').onchange = render;
   window.JGAPLenders = { load, clear };
   clear();
 })();
