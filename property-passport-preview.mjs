@@ -122,6 +122,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
                     selector.value=saved.assets.some(asset=>asset.id===error.assetId)?error.assetId:'';
                     const serviceForm=selector.closest?.('form');
                     if(selector.value===error.assetId&&serviceForm&&serviceValues){
+                      const recovery=document.createElement('p');recovery.setAttribute('role','status');recovery.textContent='Equipment was saved. Review the restored schedule details, then save the schedule for this existing equipment.';serviceForm.prepend(recovery);
                       for(const [key,value] of Object.entries(serviceValues)){
                         if(key==='asset_id'||value===undefined||value===null)continue;
                         const field=serviceForm.elements?.namedItem(key);
