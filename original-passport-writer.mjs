@@ -24,10 +24,18 @@ export async function saveOriginalPassportEntry({kind,values,client,companyId,de
 }
 
 export async function savePassportSystemWithService({assetValues,serviceValues,...context}){
+ if(serviceValues!==null&&serviceValues!==undefined){
+  if(typeof serviceValues!=='object'||Array.isArray(serviceValues))throw Error('Invalid optional service schedule');
+  const supplied=Object.entries(serviceValues).some(([key,value])=>key!=='frequency_unit'&&value!==null&&value!==undefined&&String(value).trim()!=='');
+  if(supplied){
+   if(typeof serviceValues.service_name!=='string'||!serviceValues.service_name.trim())throw Error('Service name is required when schedule details are supplied');
+   if(!Number.isInteger(serviceValues.frequency_value)||serviceValues.frequency_value<1)throw Error('Service frequency must be a positive whole number');
+   if(serviceValues.frequency_unit!==undefined&&!['year','month','quarter','week'].includes(serviceValues.frequency_unit))throw Error('Invalid service frequency unit');
+  }
+ }
+ const needsService=!!serviceValues?.service_name?.trim();
  const asset=await saveOriginalPassportEntry({...context,kind:'asset',values:assetValues});
- if(!serviceValues?.service_name)return {asset,service:null};
- // Validate the optional schedule before the equipment insert on the client side
- // in the form; this second guard protects callers outside that form.
+ if(!needsService)return {asset,service:null};
  try{
   const service=await saveOriginalPassportEntry({...context,kind:'service',values:{...serviceValues,asset_id:asset.id}});
   return {asset,service};
