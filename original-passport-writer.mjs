@@ -34,7 +34,7 @@ export async function savePassportSystemWithService({assetValues,serviceValues,.
   }
  }
  if(serviceValues?.asset_id!==undefined)throw Error('First service schedule equipment is assigned automatically');
- if(serviceValues?.service_name&&typeof serviceValues.service_name!=='string')throw Error('Invalid service name');
+ if(serviceValues?.service_name!==undefined&&typeof serviceValues.service_name!=='string')throw Error('Invalid service name');
  const needsService=!!serviceValues?.service_name?.trim();
  const asset=await saveOriginalPassportEntry({...context,kind:'asset',values:assetValues});
  if(!needsService)return {asset,service:null};
