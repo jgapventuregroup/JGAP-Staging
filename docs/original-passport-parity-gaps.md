@@ -5,6 +5,8 @@ Source: original `JGAP-Venture-Group/property-passport.js` compared with branch 
 ## Restored on feature branch
 - Open Passport from an existing saved deal, with company context checks.
 - Systems/equipment, service schedules, maintenance, improvements, entry forms, and print.
+- Original-style tabular displays for systems, service dates, maintenance history and improvements; refreshes after save.
+- Scoped equipment/service relationships and duplicate-record protection with regression tests.
 - Property operations sections for income, expenses, repairs and tasks, behind database/RLS gates.
 
 ## Missing original capabilities — do not claim full parity yet
@@ -17,4 +19,4 @@ Source: original `JGAP-Venture-Group/property-passport.js` compared with branch 
 ## Next implementation decisions
 1. Inspect existing `public.deals` columns before mapping financial fields. If fields are absent, draft additive columns or a company-scoped property detail table for review; never execute without approval.
 2. Reconcile equipment/service creation behavior and add browser tests for successful saves and refresh failures.
-3. Require a separate browser preview deployment plus isolated paid test entitlement and RLS acceptance before activating writes. Do not merge to `main` or modify the current staging deployment without explicit approval.
+3. Integrate and verify in the existing app workflow, with isolated paid test entitlement and RLS acceptance before activating writes. Do not merge to `main` or modify the current staging deployment without explicit approval.
