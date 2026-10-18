@@ -33,6 +33,7 @@ export async function savePassportSystemWithService({assetValues,serviceValues,.
    if(serviceValues.frequency_unit!==undefined&&!['year','month','quarter','week'].includes(serviceValues.frequency_unit))throw Error('Invalid service frequency unit');
   }
  }
+ if(serviceValues?.asset_id!==undefined)throw Error('First service schedule equipment is assigned automatically');
  const needsService=!!serviceValues?.service_name?.trim();
  const asset=await saveOriginalPassportEntry({...context,kind:'asset',values:assetValues});
  if(!needsService)return {asset,service:null};
