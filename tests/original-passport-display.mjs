@@ -1,0 +1,28 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {describePassportEntry,createPassportRecordsTable} from '../original-passport-display.mjs';
+test('equipment shows condition and warranty',()=>{assert.match(describePassportEntry('asset',{name:'Furnace',condition:'good',warranty_expiration:'2028-04-01'}),/Warranty until 2028-04-01/)});
+test('service shows next service date',()=>{assert.match(describePassportEntry('service',{service_name:'Filter',next_service_date:'2026-12-01'}),/Next 2026-12-01/)});
+test('maintenance formats zero cost',()=>{assert.match(describePassportEntry('maintenance',{title:'Inspection',cost:0}),/\$0\.00/)});
+test('unknown kind is rejected',()=>assert.throws(()=>describePassportEntry('other',{}),/Unknown/));
+
+test('equipment displays installed date from original Passport',()=>{assert.match(describePassportEntry('asset',{name:'Water heater',installed_date:'2024-03-10'}),/Installed 2024-03-10/)});
+test('service displays instructions',()=>{assert.match(describePassportEntry('service',{service_name:'Drain tank',notes:'Flush yearly'}),/Notes Flush yearly/)});
+test('maintenance displays description and contractor',()=>{const label=describePassportEntry('maintenance',{title:'Repair',description:'Replace valve',performed_by:'Plumber'});assert.match(label,/Replace valve/);assert.match(label,/By Plumber/)});
+test('improvement displays description',()=>{assert.match(describePassportEntry('improvement',{title:'New flooring',description:'Living room vinyl'}),/Living room vinyl/)});
+
+test('Passport tables retain original maintenance columns and descriptions',()=>{const old=globalThis.document;try{globalThis.document={createElement(tag){return {tag,children:[],attributes:{},textContent:'',append(...nodes){this.children.push(...nodes)},setAttribute(k,v){this.attributes[k]=v}}}};const table=createPassportRecordsTable('maintenance',[{title:'Valve',maintenance_date:'2026-01-02',status:'done',cost:75,due_date:'2026-01-03',description:'Replace valve',performed_by:'Plumber'}]);assert.equal(table.tag,'table');assert.deepEqual(table.children[1].children[0].children.map(c=>c.textContent),['Date','Item','Status','Cost','Due']);assert.match(table.children[2].children[1].children[0].textContent,/Replace valve/);}finally{globalThis.document=old}});
+test('service table joins equipment by id',()=>{const old=globalThis.document;try{globalThis.document={createElement(tag){return {tag,children:[],textContent:'',append(...nodes){this.children.push(...nodes)},setAttribute(){}}}};const table=createPassportRecordsTable('service',[{asset_id:'a1',service_name:'Flush'}],[{id:'a1',name:'Water heater'}]);assert.equal(table.children[2].children[0].children[0].textContent,'Water heater');}finally{globalThis.document=old}});
+
+test('systems table includes service schedules under the matching equipment',()=>{
+ const old=globalThis.document;
+ try{
+  globalThis.document={createElement(tag){return {tag,children:[],textContent:'',append(...nodes){this.children.push(...nodes)},setAttribute(){}}}};
+  const table=createPassportRecordsTable('asset',[{id:'a1',name:'Water heater'},{id:'a2',name:'Furnace'}],[],[
+   {asset_id:'a1',service_name:'Flush',frequency_value:1,frequency_unit:'year',next_service_date:'2027-03-01'},
+   {asset_id:'a2',service_name:'Filter',frequency_value:3,frequency_unit:'month'}
+  ]);
+  const rows=table.children[2].children;
+  assert.match(rows[1].children[0].textContent,/Flush every 1 year.*Next 2027-03-01/);
+  assert.doesNotMatch(rows[1].children[0].textContent,/Filter/);
+  assert.match(rows[3].children[0].textContent,/Filter every 3 month/);
+ }finally{globalThis.document=old}
+});

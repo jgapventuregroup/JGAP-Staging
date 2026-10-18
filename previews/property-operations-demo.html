@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Property Operations — Fictional Demo</title>
+<style>body{font:16px system-ui,sans-serif;background:#f4f7fb;color:#17334d;max-width:950px;margin:24px auto;padding:0 16px}main{background:white;border:1px solid #d5e1ea;border-radius:14px;padding:22px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}.metric{background:#f1f6fb;padding:16px;border:1px solid #d5e1ea;border-radius:10px}.metric strong{display:block;font-size:25px;margin-top:7px}button{font:inherit;background:#13548c;color:#fff;border:0;border-radius:8px;padding:10px 15px;cursor:pointer}section{margin-top:24px}table{border-collapse:collapse;width:100%}td,th{padding:10px;border-bottom:1px solid #d5e1ea;text-align:left}.notice{background:#fff1ce;padding:12px;border-radius:9px}.actions{display:flex;gap:10px;flex-wrap:wrap}</style></head>
+<body><main><h1>Property Passport — Operations Overview</h1>
+<p class="notice"><strong>Fictional preview only.</strong> No sign-in, live property records, payments or database writes. This is a sample of the future Investor screen.</p>
+<p><strong>Sample property:</strong> 123 Example Street — 2-unit rental</p>
+<div class="actions"><button id="load">Load example activity</button><button id="clear">Clear example activity</button></div>
+<section><h2>Financial performance</h2><div class="metrics">
+<div class="metric">Income<strong id="income">$0.00</strong></div>
+<div class="metric">Expenses<strong id="expenses">$0.00</strong></div>
+<div class="metric">Net cash flow<strong id="net">$0.00</strong></div>
+</div></section>
+<section><h2>Repairs</h2><div class="metrics">
+<div class="metric">Open repairs<strong id="openRepairs">0</strong></div>
+<div class="metric">Completed repairs<strong id="completedRepairs">0</strong></div>
+<div class="metric">Estimated cost<strong id="estimatedCost">$0.00</strong></div>
+<div class="metric">Actual cost<strong id="actualCost">$0.00</strong></div>
+</div></section>
+<section><h2>Tasks</h2><div class="metrics">
+<div class="metric">Open tasks<strong id="openTasks">0</strong></div>
+<div class="metric">Completed tasks<strong id="doneTasks">0</strong></div>
+<div class="metric">Overdue tasks<strong id="overdueTasks">0</strong></div>
+</div></section>
+<section><h2>Example work history</h2><table><thead><tr><th>Category</th><th>Item</th><th>Status</th></tr></thead><tbody id="history"></tbody></table></section>
+</main><script type="module">
+import {summarizePropertyOperations} from '../property-operations.mjs';
+const $=id=>document.getElementById(id);
+const usd=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
+const empty={ledger:[],repairs:[],tasks:[]};
+const example={ledger:[{entry_type:'income',amount:'1850.00'},{entry_type:'expense',amount:'425.00'},{entry_type:'expense',amount:'150.00'}],repairs:[{title:'Repair leaking faucet',status:'completed',estimated_cost:'125.00',actual_cost:'150.00'},{title:'Replace hallway lighting',status:'open',estimated_cost:'240.00',actual_cost:null}],tasks:[{title:'Schedule HVAC inspection',status:'open',due_on:'2026-10-10'},{title:'Review insurance renewal',status:'open',due_on:'2026-11-01'},{title:'Confirm rent payment',status:'done',due_on:'2026-10-05'}]};
+function render(data){
+ const result=summarizePropertyOperations({...data,asOfDate:'2026-10-18'});
+ for(const [id,value] of Object.entries({income:usd(result.cashFlow.income),expenses:usd(result.cashFlow.expenses),net:usd(result.cashFlow.net),openRepairs:result.repairs.open,completedRepairs:result.repairs.completed,estimatedCost:usd(result.repairs.estimatedCost),actualCost:usd(result.repairs.actualCost),openTasks:result.tasks.open,doneTasks:result.tasks.done,overdueTasks:result.tasks.overdue}))$(id).textContent=value;
+ $('history').replaceChildren();
+ for(const [kind,items] of [['Repair',data.repairs],['Task',data.tasks]]){
+  for(const item of items){const tr=document.createElement('tr');for(const value of [kind,item.title,item.status.replace('_',' ')]){const td=document.createElement('td');td.textContent=value;tr.append(td);}$('history').append(tr);}
+ }
+}
+$('load').onclick=()=>render(example);$('clear').onclick=()=>render(empty);render(empty);
+</script></body></html>
