@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node verify.mjs && node tests/customer-workflow.mjs && node tests/billing.mjs && node tests/stripe-signature.mjs && node tests/account-recovery.mjs && node tests/deal-intelligence.mjs && node tests/lenders.mjs && node --test tests/property-passport.mjs && node --test tests/property-passport-browser-logic.mjs && node --test tests/property-ledger.mjs && node --test tests/property-work.mjs && node --test tests/property-operations.mjs && node --test tests/property-operations-loader.mjs && node --test tests/property-activity-writer.mjs && node --test tests/original-passport-recovery.mjs",
+    "test": "node verify.mjs && node tests/customer-workflow.mjs && node tests/billing.mjs && node tests/stripe-signature.mjs && node tests/account-recovery.mjs && node tests/deal-intelligence.mjs && node tests/lenders.mjs && node --test tests/property-passport.mjs && node --test tests/property-passport-browser-logic.mjs && node --test tests/property-ledger.mjs && node --test tests/property-work.mjs && node --test tests/property-operations.mjs && node --test tests/property-operations-loader.mjs && node --test tests/property-activity-writer.mjs && node --test tests/original-passport-recovery.mjs && node --test tests/original-passport-loader.mjs",
     "check:edge": "deno check --config deno.json supabase/functions/billing-session/index.ts supabase/functions/billing-webhook/index.ts"
   },
   "devDependencies": {
