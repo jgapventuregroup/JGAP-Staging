@@ -62,6 +62,17 @@ test('Passport preview requires active entitlement and ignores stale company res
    preview.clear();
    assert.equal(accountChange.children[0].attributes['aria-expanded'],'false','Account reset collapses Passport');
    preview.setEligibility({companyId:'c1',enabled:true});
+   const firstSwitch=node('p');
+   preview.addAction({...options,line:firstSwitch});
+   await firstSwitch.children[0].onclick();
+   assert.equal(firstSwitch.children[0].attributes['aria-expanded'],'true');
+   const nextSwitch=node('p');
+   preview.addAction({...options,line:nextSwitch});
+   await nextSwitch.children[0].onclick();
+   assert.equal(firstSwitch.children[0].attributes['aria-expanded'],'false','Opening another property collapses the prior action');
+   assert.equal(nextSwitch.children[0].attributes['aria-expanded'],'true','Latest Passport action expands');
+   preview.clear();
+   preview.setEligibility({companyId:'c1',enabled:true});
    const wrong=node('p');
    preview.addAction({...options,line:wrong,fetchDeal:async()=>({id:'another-deal',company_id:'c1',name:'Wrong property'})});
    await wrong.children[0].onclick();
