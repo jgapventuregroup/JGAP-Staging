@@ -18,3 +18,33 @@ export function createOriginalPassportForm(kind,onSubmit,{assets=[]}={}){
  form.addEventListener('submit',async event=>{event.preventDefault();if(button.disabled)return;button.disabled=true;message.textContent='Saving…';try{const values={};for(const [key,,type] of fields){const raw=form.elements.namedItem(key)?.value?.trim();if(raw)values[key]=type==='number'?Number(raw):raw}await onSubmit(values);message.textContent='Saved';form.reset()}catch(error){message.textContent='Could not save: '+(error?.message||'Unknown error')}finally{button.disabled=kind==='service'&&!Array.from(form.elements.namedItem('asset_id')?.options||[]).some(option=>option.value)||false}});
  return form;
 }
+
+export function createPassportSystemForm(onSubmit){
+ if(typeof onSubmit!=='function')throw Error('Invalid system save handler');
+ let form;
+ form=createOriginalPassportForm('asset',async assetValues=>{
+  const serviceValues={};
+  for(const [key,,type] of passportEntryFields.service){
+   if(key==='asset_id')continue;
+   const raw=form.elements.namedItem(key)?.value?.trim();
+   if(raw)serviceValues[key]=type==='number'?Number(raw):raw;
+  }
+  if(serviceValues.service_name&&!serviceValues.frequency_value)throw Error('Service frequency is required when adding a service schedule');
+  await onSubmit({assetValues,serviceValues:serviceValues.service_name?serviceValues:null});
+ });
+ const title=form.querySelector('h4');if(title)title.textContent='Add system / equipment';
+ const button=form.querySelector('button[type="submit"]');if(button)button.textContent='Save system and optional schedule';
+ const group=document.createElement('fieldset');
+ const legend=document.createElement('legend');legend.textContent='Optional first service schedule';group.append(legend);
+ for(const [key,label,type] of passportEntryFields.service){
+  if(key==='asset_id')continue;
+  const wrap=document.createElement('label');wrap.textContent=label+' ';
+  const input=document.createElement(type==='select'?'select':'input');input.name=key;
+  if(type==='select'){for(const unit of ['year','month','quarter','week']){const option=document.createElement('option');option.value=unit;option.textContent=unit;input.append(option)}}
+  else input.type=type;
+  if(type==='number'){input.min='1';input.step='1'}
+  wrap.append(input);group.append(wrap);
+ }
+ form.insertBefore(group,button);
+ return form;
+}
