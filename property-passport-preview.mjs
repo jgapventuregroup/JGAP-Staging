@@ -65,8 +65,9 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         if(panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
         const printable=activePanel.cloneNode(true);
         printable.querySelectorAll('button,form,input,select,textarea').forEach(node=>node.remove());
-        const printWindow=window.open('','_blank','noopener,noreferrer');
+        const printWindow=window.open('','_blank');
         if(!printWindow){window.alert('Allow pop-ups to print the Passport');return;}
+        try{printWindow.opener=null;}catch{}
         const doc=printWindow.document;
         doc.title=p.name+' — Property Passport';
         const style=doc.createElement('style');style.textContent='body{font:15px system-ui,sans-serif;color:#172b42;max-width:760px;margin:35px auto;padding:0 18px}section{break-inside:avoid;margin:18px 0}h2,h3{color:#173b5c}p{margin:7px 0}';
