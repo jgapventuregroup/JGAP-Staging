@@ -139,7 +139,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         const date=financeForm.elements.namedItem('p_purchase_date').value;
         const currentValue=financeForm.elements.namedItem('p_current_value').value;
         const balance=financeForm.elements.namedItem('p_mortgage_balance').value;
-        const validMoney=value=>value===''||(/^(?:\\d+)(?:\\.\\d{1,2})?$/.test(value)&&Number.isFinite(Number(value)));
+        const validMoney=value=>value===''||(/^(?:\d+)(?:\.\d{1,2})?$/.test(value)&&Number.isFinite(Number(value)));
         if(!validMoney(currentValue)||!validMoney(balance)){financeStatus.textContent='Enter nonnegative dollar amounts with at most two decimals.';return;}
         financeSave.disabled=true;financeStatus.textContent='Saving…';
         try{
