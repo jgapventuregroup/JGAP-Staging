@@ -31,6 +31,28 @@ jobs:
           mkdir -p dist/previews
           cp index.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
           cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html dist/previews/
+      - name: Verify bundled Passport module imports resolve
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const root='dist';
+          const queue=['property-passport-preview.mjs'];
+          const visited=new Set();
+          while(queue.length){
+            const relative=queue.shift();
+            if(visited.has(relative))continue;
+            visited.add(relative);
+            const file=path.join(root,relative);
+            if(!fs.existsSync(file))throw Error('Missing preview module: '+relative);
+            const source=fs.readFileSync(file,'utf8');
+            for(const match of source.matchAll(/(?:import|export)\\s+(?:[^'\";]*?\\s+from\\s+)?['\"](\\.[^'\"]+)['\"]/g)){
+              const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(relative),match[1]));
+              if(!dependency.startsWith('../'))queue.push(dependency);
+            }
+          }
+          console.log('Verified '+visited.size+' bundled Passport modules');
+          NODE
       - uses: actions/upload-artifact@v4
         with:
           name: investor-preview-site
