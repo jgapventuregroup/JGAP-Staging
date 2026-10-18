@@ -22,3 +22,15 @@ export async function saveOriginalPassportEntry({kind,values,client,companyId,de
  if(!data?.id||data.company_id!==companyId||data.deal_id!==dealId)throw Error('Saved Passport entry did not match selected property');
  return data;
 }
+
+export async function savePassportSystemWithService({assetValues,serviceValues,...context}){
+ const asset=await saveOriginalPassportEntry({...context,kind:'asset',values:assetValues});
+ if(!serviceValues?.service_name)return {asset,service:null};
+ try{
+  const service=await saveOriginalPassportEntry({...context,kind:'service',values:{...serviceValues,asset_id:asset.id}});
+  return {asset,service};
+ }catch(error){
+  const failure=new Error('Equipment saved but service schedule failed: '+(error?.message||'Unknown error')+'. Add the schedule to the existing equipment; do not create equipment again.');
+  failure.assetId=asset.id;failure.partialSave=true;throw failure;
+ }
+}
