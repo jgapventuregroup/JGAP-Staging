@@ -1,8 +1,8 @@
 import {projectPropertyPassport} from './property-passport.mjs';
 import {loadOriginalPassportRecords} from './original-passport-loader.mjs';
 import {createPassportRecordsTable} from './original-passport-display.mjs';
-import {createOriginalPassportForm} from './original-passport-forms.mjs';
-import {saveOriginalPassportEntry} from './original-passport-writer.mjs';
+import {createOriginalPassportForm,createPassportSystemForm} from './original-passport-forms.mjs';
+import {saveOriginalPassportEntry,savePassportSystemWithService} from './original-passport-writer.mjs';
 import {summarizePropertyOperations} from './property-operations.mjs';
 import {fetchPropertyOperations} from './property-operations-loader.mjs';
 import {createPropertyActivityForm} from './property-activity-forms.mjs';
@@ -104,9 +104,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         }
         if(window.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true){
           const editor=document.createElement('section');const heading=document.createElement('h3');heading.textContent='Add Passport records';editor.append(heading);
-          for(const kind of ['asset','service','maintenance','improvement'])editor.append(createOriginalPassportForm(kind,async values=>{
+          for(const kind of ['asset','service','maintenance','improvement'])editor.append((kind==='asset'?createPassportSystemForm:createOriginalPassportForm)(kind==='asset'?async ({assetValues,serviceValues})=>{
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
-            await saveOriginalPassportEntry({kind,values,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+            if(kind==='asset')await savePassportSystemWithService({assetValues,serviceValues,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+            else await saveOriginalPassportEntry({kind,values,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
             let updated;
             try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});}
             catch(error){
@@ -117,6 +118,16 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after refresh');
             const equipmentSelector=editor.querySelector('select[name="asset_id"]');
             if(equipmentSelector){const selected=equipmentSelector.value;equipmentSelector.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Select equipment';equipmentSelector.append(empty);for(const asset of updated.assets){if(!asset?.id||!asset?.name)continue;const option=document.createElement('option');option.value=asset.id;option.textContent=asset.name;equipmentSelector.append(option)}equipmentSelector.value=selected;const serviceForm=equipmentSelector.closest?.('form');const saveService=serviceForm?.querySelector?.('button[type="submit"]');if(saveService)saveService.disabled=!updated.assets.some(asset=>asset?.id&&asset?.name);const guidance=serviceForm?.querySelector?.('[data-service-guidance]');if(guidance)guidance.hidden=updated.assets.some(asset=>asset?.id&&asset?.name);}
+            for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
+              const section=passportSections[key];if(!section)continue;
+              while(section.children.length>1)section.lastChild.remove();
+              section.append(createPassportRecordsTable(entryKind,updated[key],updated.assets,updated.services));
+            }
+          }:async values=>{
+            if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
+            await saveOriginalPassportEntry({kind,values,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+            const updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
+            if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after refresh');
             for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
               const section=passportSections[key];if(!section)continue;
               while(section.children.length>1)section.lastChild.remove();
