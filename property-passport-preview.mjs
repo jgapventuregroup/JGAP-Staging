@@ -256,6 +256,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       const note=document.createElement('small');
       note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Property activity entries save to the connected staging database.':'Operations data is read-only until secure write access is enabled.'):'Read-only preview. No changes are saved here.';
       panel.append(note);
+      if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       line.after(panel);
       panel.scrollIntoView?.({block:'nearest'});
     }catch(error){
