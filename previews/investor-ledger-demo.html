@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Investor Ledger — Local Demo (No Saving)</title>
+<style>body{font:16px system-ui,sans-serif;max-width:760px;margin:30px auto;padding:0 18px;background:#f5f8fc;color:#17334d}main{background:white;padding:24px;border-radius:14px;border:1px solid #d4dfeb}label{display:block;margin:12px 0 4px}input,select,button{font:inherit;padding:10px;border-radius:7px}input,select{width:100%;box-sizing:border-box;border:1px solid #8298aa}button{background:#155b96;color:#fff;border:0;cursor:pointer;margin-top:16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}.totals{display:flex;gap:18px;flex-wrap:wrap;margin:16px 0}.totals strong{font-size:21px}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:9px;border-bottom:1px solid #d5e1ea}.notice{background:#fff1cf;padding:12px;border-radius:8px}#errors{color:#a12222} @media(max-width:520px){.grid{display:block}}</style>
+</head>
+<body><main>
+<h1>Investor Income &amp; Expense Tracker</h1>
+<p class="notice"><strong>Development demo only.</strong> Uses fictional entries in browser memory. No sign-in, database, saved records, billing, or actual customer data. Refreshing clears your entries.</p>
+<form id="entry-form">
+<div class="grid"><div><label for="entryType">Type</label><select id="entryType"><option value="income">Income</option><option value="expense">Expense</option></select></div>
+<div><label for="entryDate">Date</label><input id="entryDate" type="date" required value="2026-10-18"></div>
+<div><label for="category">Category</label><input id="category" required maxlength="80" placeholder="Rent, Utilities, Repairs"></div>
+<div><label for="amount">Amount ($)</label><input id="amount" type="text" inputmode="decimal" required placeholder="1200.00"></div></div>
+<label for="description">Description</label><input id="description" maxlength="2000" placeholder="Optional details">
+<button type="submit">Add demo entry</button><p id="errors" role="alert"></p>
+</form>
+<h2>Cash flow summary</h2><div class="totals"><div>Income<br><strong id="income">$0.00</strong></div><div>Expenses<br><strong id="expenses">$0.00</strong></div><div>Net cash flow<br><strong id="net">$0.00</strong></div></div>
+<h2>Entries</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Amount</th></tr></thead><tbody id="entries"></tbody></table>
+</main><script type="module">
+import {validateLedgerEntry,summarizeLedger} from '../property-ledger.mjs';
+const rows=[];
+const $=id=>document.getElementById(id);
+const currency=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
+$('entry-form').addEventListener('submit',event=>{
+ event.preventDefault();
+ const result=validateLedgerEntry({entryType:$('entryType').value,entryDate:$('entryDate').value,category:$('category').value,amount:$('amount').value,description:$('description').value});
+ if(!result.ok){$('errors').textContent=result.errors.join('; ');return;}
+ try{
+  const next=[...rows,result.value];const totals=summarizeLedger(next);
+  rows.push(result.value);
+  $('income').textContent=currency(totals.income);$('expenses').textContent=currency(totals.expenses);$('net').textContent=currency(totals.net);
+  const tr=document.createElement('tr');
+  for(const value of [result.value.entry_date,result.value.entry_type,result.value.category,currency(Number(result.value.amount))]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
+  $('entries').prepend(tr);$('errors').textContent='';$('amount').value='';$('description').value='';
+ }catch(error){$('errors').textContent=error.message;}
+});
+</script></body></html>
