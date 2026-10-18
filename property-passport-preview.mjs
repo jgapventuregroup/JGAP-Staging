@@ -27,8 +27,8 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
   if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
   const button=document.createElement('button');
   button.type='button';
-  button.textContent='Passport preview';
-  button.setAttribute('aria-label','Preview property passport for '+deal.name);
+  button.textContent='Open Property Passport';
+  button.setAttribute('aria-label','Open property passport for '+deal.name);
   button.onclick=async()=>{
     const current=++requestId;
     button.disabled=true;
@@ -49,9 +49,9 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel?.remove();
       panel=document.createElement('section');
       const activePanel=panel;
-      panel.setAttribute('aria-label','Property Passport preview');
+      panel.setAttribute('aria-label','Property Passport');
       const heading=document.createElement('h2');
-      heading.textContent=p.name+' — Passport preview';
+      heading.textContent=p.name+' — Property Passport';
       panel.append(heading);
       const close=document.createElement('button');
       close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
