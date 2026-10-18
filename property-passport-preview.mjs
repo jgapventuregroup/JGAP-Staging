@@ -141,6 +141,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
                   }
                 }catch(refreshError){
                   if(refreshError?.message==='Passport context changed after partial save')throw refreshError;
+                  if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after partial save');
                   const warning=document.createElement('p');warning.setAttribute('role','alert');
                   warning.textContent='Equipment saved, but Passport could not refresh. Reopen it before adding a service schedule.';editor.prepend(warning);
                 }
