@@ -15,7 +15,7 @@ let resolveLoad = null, delay = false;
 const context = { document: { getElementById: el, createElement: tag => new Element(tag) }, window: { JGAPLenderContext: { scope: () => scope, load: async company => { if (delay) return new Promise(resolve => { resolveLoad = resolve; }); return { rows }; }, save: async (fields, id, company) => { writes.push({ fields, id, company }); return { saved: true }; }, archive: async (id, archived, company) => { archiveWrites.push({ id, archived, company }); rows = rows.map(row => row.id === id ? { ...row, archived } : row); return { saved: true }; } } }, URL, Date };
 vm.runInNewContext(fs.readFileSync(new URL('../lenders.js', import.meta.url), 'utf8'), context);
 const lenders = context.window.JGAPLenders;
-await lenders.load(); assert.equal(el('lender-form').hidden, false);
+await lenders.load(); assert.equal(el('lender-form').hidden, true); assert.equal(el('l_toggle_form').hidden, false); el('l_toggle_form').onclick(); assert.equal(el('lender-form').hidden, false);
 el('l_inst').value = 'Synthetic Credit Union'; el('l_min').value = '0'; el('l_max').value = '100000';
 await el('lender-form').onsubmit({ preventDefault() {} });
 assert.equal(writes.length, 1); assert.equal(writes[0].company, 'a'); assert.equal(writes[0].fields.minimum_loan_amount, 0); assert.equal(writes[0].fields.typical_ltv, null, 'Unknown lender terms must remain null');
