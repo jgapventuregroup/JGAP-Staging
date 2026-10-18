@@ -287,6 +287,9 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
     }catch(error){
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       panel?.remove();
+      expandedButton?.setAttribute('aria-expanded','false');
+      expandedButton=null;
+      button.setAttribute('aria-expanded','false');
       panel=document.createElement('p');
       panel.setAttribute('role','alert');
       panel.textContent='Could not open Property Passport: '+(error?.message||'Unknown error');
