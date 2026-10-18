@@ -109,3 +109,20 @@ test('combined Passport writer rejects invalid calendar dates before any equipme
  }
  assert.equal(calls,0);
 });
+
+test('all Passport record date fields reject impossible dates before database writes',async()=>{
+ let calls=0;
+ const client={from(){calls++;throw Error('Unexpected database access')}};
+ const base={client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client};
+ const scenarios=[
+  ['asset',{name:'Boiler',installed_date:'2026-02-30'}],
+  ['asset',{name:'Boiler',warranty_expiration:'2026-13-01'}],
+  ['asset',{name:'Boiler',next_service_date:'2026-00-01'}],
+  ['service',{asset_id:'a1',service_name:'Inspect',frequency_value:1,last_service_date:'2026-02-30'}],
+  ['maintenance',{title:'Repair',maintenance_date:'2026-02-30'}],
+  ['maintenance',{title:'Repair',maintenance_date:'2026-10-18',due_date:'2026-13-01'}],
+  ['improvement',{title:'Upgrade',improvement_date:'2026-02-30'}]
+ ];
+ for(const [kind,values] of scenarios)await assert.rejects(saveOriginalPassportEntry({...base,kind,values}),/Invalid Passport date/);
+ assert.equal(calls,0);
+});
