@@ -28,7 +28,13 @@ test('Passport preview requires active entitlement and ignores stale company res
      fetchDeal:async()=>({id:'deal-1',company_id:'c1',name:'Duplex',monthly_rent:1200})};
    preview.addAction(options);
    assert.equal(line.children.length,0,'No Passport action on Free or unverified plan');
+   preview.setEligibility(null);
+   preview.addAction(options);
+   assert.equal(line.children.length,0,'Missing entitlement cannot expose Passport');
    preview.setEligibility({companyId:'c1',enabled:true});
+   const incomplete=node('p');
+   preview.addAction({...options,line:incomplete,deal:{name:'No identity'}});
+   assert.equal(incomplete.children.length,0,'Property without ID cannot expose Passport');
    preview.addAction(options);
    assert.equal(line.children.length,1,'Paid workspace gets Passport action');
    await line.children[0].onclick();
