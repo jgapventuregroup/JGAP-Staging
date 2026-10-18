@@ -9,3 +9,40 @@ export function describePassportEntry(kind,item){
  }[kind];if(!parts)throw Error('Unknown Passport entry');
  return parts.filter(value=>value!==null&&value!==undefined&&value!=='').join(' · ')||'Untitled record';
 }
+
+const passportColumns={
+ asset:[['System','name'],['Installed','installed_date'],['Condition','condition'],['Warranty','warranty_expiration']],
+ service:[['Equipment','equipment'],['Service','service_name'],['Frequency','frequency'],['Last service','last_service_date'],['Next service','next_service_date']],
+ maintenance:[['Date','maintenance_date'],['Item','title'],['Status','status'],['Cost','cost'],['Due','due_date']],
+ improvement:[['Date','improvement_date'],['Improvement','title'],['Category','category'],['Cost','cost']]
+};
+export function createPassportRecordsTable(kind,records,assets=[]){
+ const columns=passportColumns[kind];
+ if(!columns)throw Error('Unknown Passport entry');
+ if(!Array.isArray(records))throw Error('Invalid Passport records');
+ const table=document.createElement('table');
+ const caption=document.createElement('caption');caption.textContent=({asset:'Systems & equipment',service:'Service schedules',maintenance:'Maintenance history',improvement:'Improvements'})[kind];table.append(caption);
+ const head=document.createElement('thead');const heading=document.createElement('tr');
+ for(const [label] of columns){const th=document.createElement('th');th.textContent=label;th.setAttribute('scope','col');heading.append(th);}
+ head.append(heading);table.append(head);
+ const body=document.createElement('tbody');
+ const money=value=>value===null||value===undefined||value===''?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(value));
+ for(const record of records){
+  const tr=document.createElement('tr');
+  const asset=kind==='service'?(Array.isArray(assets)?assets:[]).find(item=>item.id===record.asset_id):null;
+  for(const [,key] of columns){
+   let value=key==='equipment'?(asset?.name||'Equipment not found'):key==='frequency'?(record.frequency_value?record.frequency_value+' '+(record.frequency_unit||'period'):'—'):key==='cost'?money(record.cost):record[key];
+   const td=document.createElement('td');td.textContent=value===null||value===undefined||value===''?'—':String(value);tr.append(td);
+  }
+  body.append(tr);
+  if(kind==='asset'){
+   const details=[record.asset_type,record.purchase_cost!==null&&record.purchase_cost!==undefined?'Cost '+money(record.purchase_cost):null,record.expected_life_years?'Expected life '+record.expected_life_years+' years':null].filter(Boolean);
+   if(details.length){const detail=document.createElement('tr');const cell=document.createElement('td');cell.setAttribute('colspan',String(columns.length));cell.textContent=details.join(' · ');detail.append(cell);body.append(detail);}
+  }
+  if(kind==='service'&&record.notes||kind==='maintenance'&&(record.description||record.performed_by)||kind==='improvement'&&record.description){
+   const detail=document.createElement('tr');const cell=document.createElement('td');cell.setAttribute('colspan',String(columns.length));cell.textContent=kind==='service'?'Notes: '+record.notes:kind==='maintenance'?[record.description,record.performed_by&&'Performed by '+record.performed_by].filter(Boolean).join(' · '):record.description;detail.append(cell);body.append(detail);
+  }
+ }
+ if(!records.length){const tr=document.createElement('tr');const td=document.createElement('td');td.setAttribute('colspan',String(columns.length));td.textContent='No records yet';tr.append(td);body.append(tr);}
+ table.append(body);return table;
+}
