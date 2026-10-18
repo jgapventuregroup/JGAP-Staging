@@ -92,7 +92,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         for(const [kind,title,key] of [['asset','Systems & equipment','assets'],['service','Service schedules','services'],['maintenance','Maintenance history','maintenance'],['improvement','Improvements','improvements']]){
           const section=document.createElement('section');const h=document.createElement('h3');h.textContent=title;section.append(h);
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
-          section.append(createPassportRecordsTable(kind,records,legacy.assets));
+          section.append(createPassportRecordsTable(kind,records,legacy.assets,legacy.services));
           passportSections[key]=section;
           panel.append(section);
         }
@@ -114,7 +114,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
               const section=passportSections[key];if(!section)continue;
               while(section.children.length>1)section.lastChild.remove();
-              section.append(createPassportRecordsTable(entryKind,updated[key],updated.assets));
+              section.append(createPassportRecordsTable(entryKind,updated[key],updated.assets,updated.services));
             }
           },{assets:legacy.assets}));
           panel.append(editor);
