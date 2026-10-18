@@ -21,6 +21,7 @@ export function summarizeLedger(entries){
     if(!['income','expense'].includes(type)||!Number.isFinite(amount)||amount<=0||amount>9999999999.99||!Number.isSafeInteger(Math.round(amount*100))||Math.abs(amount*100-Math.round(amount*100))>0.00001)throw Error('Invalid ledger entry');
     const cents=Math.round(amount*100);
     if(type==='income')incomeCents+=cents;else expenseCents+=cents;
+    if(!Number.isSafeInteger(incomeCents)||!Number.isSafeInteger(expenseCents)||!Number.isSafeInteger(incomeCents-expenseCents))throw Error('Ledger total exceeds safe precision');
   }
   return {income:incomeCents/100,expenses:expenseCents/100,net:(incomeCents-expenseCents)/100};
 }
