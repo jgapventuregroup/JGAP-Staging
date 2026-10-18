@@ -259,6 +259,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       line.after(panel);
       panel.scrollIntoView?.({block:'nearest'});
+      button.setAttribute('aria-expanded','true');
     }catch(error){
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       panel?.remove();
