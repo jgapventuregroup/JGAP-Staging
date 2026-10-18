@@ -66,10 +66,12 @@ test('Passport preview requires active entitlement and ignores stale company res
    preview.addAction({...options,line:wrong,fetchDeal:async()=>({id:'another-deal',company_id:'c1',name:'Wrong property'})});
    await wrong.children[0].onclick();
    assert.match(wrong.afterNode?.textContent||'',/did not match the selected company and property/,'Mismatched property cannot display Passport');
+   assert.equal(wrong.children[0].attributes['aria-expanded'],'false','Rejected property must remain collapsed');
    const wrongCompany=node('p');
    preview.addAction({...options,line:wrongCompany,fetchDeal:async()=>({id:'deal-1',company_id:'c2',name:'Other company'})});
    await wrongCompany.children[0].onclick();
    assert.match(wrongCompany.afterNode?.textContent||'',/did not match the selected company and property/,'A matching property ID with the wrong company cannot display Passport');
+   assert.equal(wrongCompany.children[0].attributes['aria-expanded'],'false','Rejected company must remain collapsed');
    let release;
    options.fetchDeal=()=>new Promise(resolve=>{release=resolve});
    const second=node('p');
