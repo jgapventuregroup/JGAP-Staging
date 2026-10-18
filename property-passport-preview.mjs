@@ -1,6 +1,6 @@
 import {projectPropertyPassport} from './property-passport.mjs';
 import {loadOriginalPassportRecords} from './original-passport-loader.mjs';
-import {describePassportEntry} from './original-passport-display.mjs';
+import {createPassportRecordsTable} from './original-passport-display.mjs';
 import {createOriginalPassportForm} from './original-passport-forms.mjs';
 import {saveOriginalPassportEntry} from './original-passport-writer.mjs';
 import {summarizePropertyOperations} from './property-operations.mjs';
@@ -22,12 +22,6 @@ function setEligibility(next){
   panel?.remove();
   panel=null;
   eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true};
-}
-function passportRecordLabel(kind,entry,assets){
-  const label=describePassportEntry(kind,entry);
-  if(kind!=='service')return label;
-  const asset=(Array.isArray(assets)?assets:[]).find(item=>item.id===entry.asset_id);
-  return (asset?.name?asset.name+' — ':'Unlinked equipment — ')+label;
 }
 function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
   if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
@@ -98,10 +92,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         for(const [kind,title,key] of [['asset','Systems & equipment','assets'],['service','Service schedules','services'],['maintenance','Maintenance history','maintenance'],['improvement','Improvements','improvements']]){
           const section=document.createElement('section');const h=document.createElement('h3');h.textContent=title;section.append(h);
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
-          for(const entry of records){
-            const row=document.createElement('p');row.textContent=passportRecordLabel(kind,entry,legacy.assets);section.append(row);
-          }
-          if(!records.length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty);}
+          section.append(createPassportRecordsTable(kind,records,legacy.assets));
           passportSections[key]=section;
           panel.append(section);
         }
@@ -123,8 +114,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
               const section=passportSections[key];if(!section)continue;
               while(section.children.length>1)section.lastChild.remove();
-              for(const item of updated[key]){const row=document.createElement('p');row.textContent=passportRecordLabel(entryKind,item,updated.assets);section.append(row)}
-              if(!updated[key].length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty)}
+              section.append(createPassportRecordsTable(entryKind,updated[key],updated.assets));
             }
           },{assets:legacy.assets}));
           panel.append(editor);
