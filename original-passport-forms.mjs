@@ -30,7 +30,7 @@ export function createPassportSystemForm(onSubmit){
    if(raw)serviceValues[key]=type==='number'?Number(raw):raw;
   }
   if(!serviceValues.service_name&&Object.keys(serviceValues).some(key=>key!=='frequency_unit'))throw Error('Enter a service name when adding service schedule details');
-  if(serviceValues.service_name&&!Number.isInteger(serviceValues.frequency_value))throw Error('Service frequency is required when adding a service schedule');
+  if(serviceValues.service_name&&(!Number.isInteger(serviceValues.frequency_value)||serviceValues.frequency_value<1))throw Error('Service frequency must be a positive whole number');
   await onSubmit({assetValues,serviceValues:serviceValues.service_name?serviceValues:null});
  });
  const title=form.querySelector('h4');if(title)title.textContent='Add system / equipment';
