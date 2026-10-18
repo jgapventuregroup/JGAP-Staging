@@ -22,3 +22,8 @@ test('overdue tasks require an explicit as-of date and ignore completed tasks',(
  assert.deepEqual(summarizePropertyOperations({tasks,asOfDate:'2026-10-18'}).tasks,{open:2,done:1,overdue:1});
  assert.deepEqual(summarizePropertyOperations({tasks}).tasks,{open:2,done:1});
 });
+
+test('overdue reporting rejects impossible dates',()=>{
+ assert.throws(()=>summarizePropertyOperations({asOfDate:'2026-02-30'}),/Invalid reference date/);
+ assert.throws(()=>summarizePropertyOperations({asOfDate:'2026-10-18',tasks:[{status:'open',due_on:'2026-02-30'}]}),/Invalid task due date/);
+});
