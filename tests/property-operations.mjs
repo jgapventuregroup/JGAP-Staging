@@ -16,3 +16,9 @@ test('property operations rejects invalid repair and task data',()=>{
  assert.throws(()=>summarizePropertyOperations({repairs:[{status:'open',actual_cost:'1.001'}]}),/Invalid repair cost/);
  assert.throws(()=>summarizePropertyOperations({tasks:[{status:'invalid'}]}),/Invalid task status/);
 });
+
+test('overdue tasks require an explicit as-of date and ignore completed tasks',()=>{
+ const tasks=[{status:'open',due_on:'2026-10-10'},{status:'open',due_on:'2026-10-18'},{status:'done',due_on:'2026-10-01'}];
+ assert.deepEqual(summarizePropertyOperations({tasks,asOfDate:'2026-10-18'}).tasks,{open:2,done:1,overdue:1});
+ assert.deepEqual(summarizePropertyOperations({tasks}).tasks,{open:2,done:1});
+});
