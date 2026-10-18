@@ -29,6 +29,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
   button.type='button';
   button.textContent='Open Property Passport';
   button.setAttribute('aria-label','Open property passport for '+deal.name);
+  button.setAttribute('aria-expanded','false');
   button.onclick=async()=>{
     const current=++requestId;
     button.disabled=true;
@@ -57,7 +58,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel.append(heading);
       const close=document.createElement('button');
       close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
-      close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;}};
+      close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;button.setAttribute('aria-expanded','false');}};
       panel.append(close);
       // Recovered from the original Passport: browser print of the open record.
       // Print only this Passport, not the rest of the app workspace.
