@@ -51,3 +51,16 @@ test('combined equipment workflow saves its first schedule using new equipment I
  assert.equal(inserted[1].row.asset_id,'asset-new');
  assert.equal(inserted.filter(x=>x.table==='property_assets').length,1);
 });
+
+test('combined Passport save reports partial success and never duplicates equipment',async()=>{
+ let equipmentInserts=0;
+ const client={from(table){return {insert(){if(table==='property_assets')equipmentInserts++;return this},select(){return this},eq(){return this},async single(){
+  if(table==='property_asset_services')return {data:null,error:{message:'Service insert blocked'}};
+  return {data:{id:'asset-new',company_id:'c1',deal_id:'d1'},error:null};
+ }}}};
+ const context={client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client};
+ await assert.rejects(savePassportSystemWithService({...context,assetValues:{name:'Furnace'},serviceValues:{service_name:'Filter',frequency_value:1,frequency_unit:'year'}}),error=>{
+  assert.equal(error.partialSave,true);assert.equal(error.assetId,'asset-new');assert.match(error.message,/Equipment saved but service schedule failed/);return true;
+ });
+ assert.equal(equipmentInserts,1);
+});
