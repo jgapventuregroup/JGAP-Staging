@@ -13,3 +13,14 @@ test('loader rejects records from another company',async()=>{
  const client={from(){return {select(){return this},eq(){return this},then(resolve){resolve({data:[{id:'a',company_id:'other',deal_id:'p1'}],error:null})}}}};
  await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1'}),/outside selected property/);
 });
+
+test('loader rejects a service schedule attached to equipment outside the property',async()=>{
+ const rows={property_assets:[{id:'a1',company_id:'c1',deal_id:'p1',name:'Boiler'}],property_asset_services:[{id:'s1',company_id:'c1',deal_id:'p1',asset_id:'foreign',service_name:'Inspection'}],property_maintenance:[],property_improvements:[]};
+ const client={from(table){return {select(){return this},eq(){return this},then(resolve){resolve({data:rows[table],error:null})}}}};
+ await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1'}),/outside the selected property/);
+});
+test('loader rejects duplicate equipment identifiers',async()=>{
+ const asset={id:'a1',company_id:'c1',deal_id:'p1',name:'Boiler'};
+ const client={from(table){return {select(){return this},eq(){return this},then(resolve){resolve({data:table==='property_assets'?[asset,asset]:[],error:null})}}}};
+ await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1'}),/Duplicate assets/);
+});
