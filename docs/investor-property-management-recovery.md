@@ -38,3 +38,17 @@ Status: inspection and dependency review; no feature activated.
 - A user in another company cannot read or modify these records.
 - Free remains unchanged; no paid feature is shown as active until entitlement verification works.
 - Existing analyzer, pipeline, five lifetime Free slots and workspace switching still pass their existing tests.
+
+## Verified staging database inspection (read-only, 2026-10-17)
+- Confirmed Supabase staging project `qfszapteuxuogoselprp`; separate original project `sfsyphmnzxaplundaljy` was **not modified**.
+- Staging stores saved investment records in `public.deals`, keyed by `id` and `company_id`. Relevant existing columns include `name`, `property_type`, `property_address`, `notes`, `monthly_rent`, `monthly_operating_expenses`, `follow_up_date`, `created_at`.
+- Staging `public.companies` has `id`, `name`, `created_at`.
+- None of the queried original-style `properties`, `repairs`, `tasks`, `transactions` tables exists in the inspected staging schema.
+- Original repairs and finance pages query `sb.from("properties")`, and original tasks use `create_current_user_task` RPC. These cannot be copied directly to staging.
+- Therefore use staging `deals.id` + `company_id` as the foreign-key and authorization basis for new property management records. Confirm company membership authorization functions and paid entitlement enforcement before designing write policies.
+- User explicitly deferred the Laundromat Division. Do not port its code or dependencies in this release.
+
+## Immediate next technical work
+1. Read staging membership/entitlement functions and existing deal RLS policies.
+2. Draft additive staging-only schema for property ledger, repairs and tasks with company isolation and secure entitlement enforcement.
+3. Build Investor UI against that schema on this branch; no main branch changes until tested.
