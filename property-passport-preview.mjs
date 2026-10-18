@@ -62,7 +62,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         for(const [label,value] of [['Income',money(operations.cashFlow.income)],['Expenses',money(operations.cashFlow.expenses)],['Net cash flow',money(operations.cashFlow.net)],['Open repairs',operations.repairs.open],['Completed repairs',operations.repairs.completed],['Open tasks',operations.tasks.open],['Overdue tasks',operations.tasks.overdue]]){
           const row=document.createElement('p');
           const strong=document.createElement('strong');strong.textContent=label+': ';
-          row.append(strong,document.createTextNode(String(value)));if(label==='Income'||label==='Expenses'||label==='Net cash flow'){const span=document.createElement('span');span.dataset.activityTotal=label==='Net cash flow'?'net':label.toLowerCase();span.textContent=String(value);row.replaceChildren(strong,span);}panel.append(row);
+          row.append(strong,document.createTextNode(String(value)));{const span=document.createElement('span');span.dataset.activityTotal=({'Income':'income','Expenses':'expenses','Net cash flow':'net','Open repairs':'repairsOpen','Completed repairs':'repairsCompleted','Open tasks':'tasksOpen','Overdue tasks':'tasksOverdue'})[label];span.textContent=String(value);row.replaceChildren(strong,span);}panel.append(row);
         }
       }else{
         const unavailable=document.createElement('p');
@@ -77,15 +77,15 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           const fresh=await fetchOperations();
           if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client)return;
           const summary=summarizePropertyOperations({...fresh,asOfDate:new Date().toISOString().slice(0,10)});
-          for(const [key,value] of Object.entries({income:summary.cashFlow.income,expenses:summary.cashFlow.expenses,net:summary.cashFlow.net})){
+          for(const [key,value] of Object.entries({income:summary.cashFlow.income,expenses:summary.cashFlow.expenses,net:summary.cashFlow.net,repairsOpen:summary.repairs.open,repairsCompleted:summary.repairs.completed,tasksOpen:summary.tasks.open,tasksOverdue:summary.tasks.overdue})){
             const target=panel?.querySelector('[data-activity-total="'+key+'"]');
-            if(target)target.textContent=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value);
+            if(target)target.textContent=['income','expenses','net'].includes(key)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value):String(value);
           }
         }}));
         panel.append(forms);
       }
       const note=document.createElement('small');
-      note.textContent='Read-only preview. No changes are saved here.';
+      note.textContent=operations?'Property activity entries save to the connected staging database.':'Read-only preview. No changes are saved here.';
       panel.append(note);
       line.after(panel);
       panel.scrollIntoView?.({block:'nearest'});
