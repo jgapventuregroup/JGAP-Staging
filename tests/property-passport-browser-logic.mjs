@@ -52,7 +52,7 @@ test('Passport preview requires active entitlement and ignores stale company res
    const wrong=node('p');
    preview.addAction({...options,line:wrong,fetchDeal:async()=>({id:'another-deal',company_id:'c1',name:'Wrong property'})});
    await wrong.children[0].onclick();
-   assert.match(wrong.afterNode?.textContent||'',/did not match the selected property/,'Mismatched property cannot display Passport');
+   assert.match(wrong.afterNode?.textContent||'',/did not match the selected company and property/,'Mismatched property cannot display Passport');
    let release;
    options.fetchDeal=()=>new Promise(resolve=>{release=resolve});
    const second=node('p');
