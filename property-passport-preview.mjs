@@ -39,7 +39,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       if(typeof fetchOperations==='function'){
         const activity=await fetchOperations();
         if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
-        operations=summarizePropertyOperations({...activity,asOfDate:new Date().toISOString().slice(0,10)});
+        operations=summarizePropertyOperations({...activity,asOfDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-')});
       }
       panel?.remove();
       panel=document.createElement('section');
@@ -62,7 +62,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         for(const [label,value] of [['Income',money(operations.cashFlow.income)],['Expenses',money(operations.cashFlow.expenses)],['Net cash flow',money(operations.cashFlow.net)],['Open repairs',operations.repairs.open],['Completed repairs',operations.repairs.completed],['Open tasks',operations.tasks.open],['Overdue tasks',operations.tasks.overdue]]){
           const row=document.createElement('p');
           const strong=document.createElement('strong');strong.textContent=label+': ';
-          row.append(strong,document.createTextNode(String(value)));{const span=document.createElement('span');span.dataset.activityTotal=({'Income':'income','Expenses':'expenses','Net cash flow':'net','Open repairs':'repairsOpen','Completed repairs':'repairsCompleted','Open tasks':'tasksOpen','Overdue tasks':'tasksOverdue'})[label];span.textContent=String(value);row.replaceChildren(strong,span);}panel.append(row);
+          const span=document.createElement('span');span.dataset.activityTotal=({'Income':'income','Expenses':'expenses','Net cash flow':'net','Open repairs':'repairsOpen','Completed repairs':'repairsCompleted','Open tasks':'tasksOpen','Overdue tasks':'tasksOverdue'})[label];span.textContent=String(value);row.append(strong,span);panel.append(row);
         }
       }else{
         const unavailable=document.createElement('p');
