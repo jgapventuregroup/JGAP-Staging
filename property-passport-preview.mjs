@@ -23,6 +23,12 @@ function setEligibility(next){
   panel=null;
   eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true};
 }
+function passportRecordLabel(kind,entry,assets){
+  const label=describePassportEntry(kind,entry);
+  if(kind!=='service')return label;
+  const asset=assets.find(item=>item.id===entry.asset_id);
+  return (asset?.name?asset.name+' — ':'Unlinked equipment — ')+label;
+}
 function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
   if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
   const button=document.createElement('button');
@@ -93,7 +99,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           const section=document.createElement('section');const h=document.createElement('h3');h.textContent=title;section.append(h);
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
           for(const entry of records){
-            const row=document.createElement('p');row.textContent=describePassportEntry(kind,entry);section.append(row);
+            const row=document.createElement('p');row.textContent=passportRecordLabel(kind,entry,legacy.assets);section.append(row);
           }
           if(!records.length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty);}
           passportSections[key]=section;
@@ -117,7 +123,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
               const section=passportSections[key];if(!section)continue;
               while(section.children.length>1)section.lastChild.remove();
-              for(const item of updated[key]){const row=document.createElement('p');row.textContent=describePassportEntry(entryKind,item);section.append(row)}
+              for(const item of updated[key]){const row=document.createElement('p');row.textContent=passportRecordLabel(entryKind,item,updated.assets);section.append(row)}
               if(!updated[key].length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty)}
             }
           },{assets:legacy.assets}));
