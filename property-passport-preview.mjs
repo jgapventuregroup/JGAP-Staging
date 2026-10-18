@@ -102,6 +102,8 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             await saveOriginalPassportEntry({kind,values,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
             const updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after refresh');
+            const equipmentSelector=editor.querySelector('select[name="asset_id"]');
+            if(equipmentSelector){const selected=equipmentSelector.value;equipmentSelector.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Select equipment';equipmentSelector.append(empty);for(const asset of updated.assets){const option=document.createElement('option');option.value=asset.id;option.textContent=asset.name||'Unnamed equipment';equipmentSelector.append(option)}equipmentSelector.value=selected;}
             for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
               const section=passportSections[key];if(!section)continue;
               while(section.children.length>1)section.lastChild.remove();
