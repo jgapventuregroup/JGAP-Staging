@@ -110,10 +110,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
               await savePassportSystemWithService({assetValues,serviceValues,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
             }catch(error){
               if(error?.partialSave){
-                if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after partial save');
+                if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after partial save');
                 try{
                   const saved=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
-                  if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after partial save');
+                  if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after partial save');
                   const selector=editor.querySelector('select[name="asset_id"]');
                   if(selector){
                     selector.replaceChildren();
