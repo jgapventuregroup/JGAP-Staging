@@ -44,6 +44,16 @@ test('Passport preview requires active entitlement and ignores stale company res
    release({id:'deal-1',company_id:'c1',name:'Private'});
    await pending;
    assert.equal(second.afterNode,undefined,'Stale result must not render');
+   company='c1';
+   preview.setEligibility({companyId:'c1',enabled:true});
+   let rejectRequest;
+   const third=node('p');
+   preview.addAction({...options,line:third,fetchDeal:()=>new Promise((_,reject)=>{rejectRequest=reject})});
+   const failed=third.children[0].onclick();
+   preview.setEligibility({companyId:'c1',enabled:false});
+   rejectRequest(new Error('Private server error'));
+   await failed;
+   assert.equal(third.afterNode,undefined,'Revoked entitlement must suppress stale errors');
  }finally{
    globalThis.document=previousDocument;
    globalThis.window=previousWindow;
