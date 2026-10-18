@@ -84,6 +84,31 @@ create policy property_improvements_paid_update on public.property_improvements
    where s.company_id=public.property_improvements.company_id and s.plan in ('investor','pro')
    and s.billing_status='active'));
 
+-- Identity-scope update protection proposal: reject any attempt to move a
+-- Passport child row between companies, deals, or equipment owners.
+-- Run only after review and with an authorized migration window.
+create or replace function public.jgap_passport_reject_scope_change()
+returns trigger language plpgsql set search_path = '' as $
+begin
+ if new.company_id is distinct from old.company_id
+    or new.deal_id is distinct from old.deal_id then
+  raise exception 'Passport record ownership cannot be changed';
+ end if;
+ if tg_table_name='property_asset_services'
+    and new.asset_id is distinct from old.asset_id then
+  raise exception 'Service equipment cannot be reassigned';
+ end if;
+ return new;
+end $;
+create trigger property_assets_scope_guard before update on public.property_assets
+for each row execute function public.jgap_passport_reject_scope_change();
+create trigger property_asset_services_scope_guard before update on public.property_asset_services
+for each row execute function public.jgap_passport_reject_scope_change();
+create trigger property_maintenance_scope_guard before update on public.property_maintenance
+for each row execute function public.jgap_passport_reject_scope_change();
+create trigger property_improvements_scope_guard before update on public.property_improvements
+for each row execute function public.jgap_passport_reject_scope_change();
+
 -- IMPORTANT: Before any deployment, enforce immutable company_id/deal_id/creator on UPDATE, and
 -- validate service asset FK and user roles under actual JWTs.
 -- Deliberately no GRANT statements: remains inaccessible to clients.
