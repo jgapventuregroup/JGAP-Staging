@@ -5,6 +5,8 @@ import {createOriginalPassportForm,createPassportSystemForm} from '../original-p
 function fakeElement(tag){
  const node={tag,children:[],attributes:{},disabled:false,value:'',name:'',options:[],
  append(child){this.children.push(child);if(this.tag==='select'&&child.tag==='option')this.options.push(child);child.parentNode=this},
+ insertBefore(child,before){const index=this.children.indexOf(before);if(index<0)this.append(child);else{this.children.splice(index,0,child);child.parentNode=this}},
+ querySelector(selector){if(selector==='h4')return this.children.find(n=>n.tag==='h4')||null;if(selector==='button[type="submit"]')return this.children.find(n=>n.tag==='button'&&n.type==='submit')||null;return null},
  setAttribute(name,value){this.attributes[name]=value},
  addEventListener(name,fn){this.listeners??={};this.listeners[name]=fn},
  get elements(){return {namedItem:name=>{const inputs=[];const visit=n=>{if(n.name===name)inputs.push(n);for(const c of n.children)visit(c)};visit(this);return inputs[0]??null}}},
