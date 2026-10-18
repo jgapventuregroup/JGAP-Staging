@@ -114,3 +114,17 @@ test('equipment-only Passport entry leaves optional service empty',async()=>{
   assert.equal(saved.serviceValues,null);
  }finally{globalThis.document=old}
 });
+
+test('combined Passport form rejects a zero service frequency',async()=>{
+ const previous=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  let writes=0;
+  const form=createPassportSystemForm(async()=>{writes++});
+  form.elements.namedItem('name').value='Heating system';
+  form.elements.namedItem('service_name').value='Inspect';
+  form.elements.namedItem('frequency_value').value='0';
+  await form.listeners.submit({preventDefault(){}});
+  assert.equal(writes,0);
+  assert.match(form.children.find(n=>n.attributes.role==='status').textContent,/positive whole number/);
+ }finally{globalThis.document=previous}
+});
