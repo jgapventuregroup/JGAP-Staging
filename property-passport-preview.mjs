@@ -67,6 +67,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true){
         const legacy=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
         if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
+        const passportSections={};
         for(const [kind,title,key] of [['asset','Systems & equipment','assets'],['service','Service schedules','services'],['maintenance','Maintenance history','maintenance'],['improvement','Improvements','improvements']]){
           const section=document.createElement('section');const h=document.createElement('h3');h.textContent=title;section.append(h);
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
@@ -74,6 +75,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             const row=document.createElement('p');row.textContent=describePassportEntry(kind,record);section.append(row);
           }
           if(!records.length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty);}
+          passportSections[key]=section;
           panel.append(section);
         }
         if(window.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true){
@@ -81,6 +83,14 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           for(const kind of ['asset','service','maintenance','improvement'])editor.append(createOriginalPassportForm(kind,async values=>{
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
             await saveOriginalPassportEntry({kind,values,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+            const updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
+            if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Passport context changed after refresh');
+            for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
+              const section=passportSections[key];if(!section)continue;
+              while(section.children.length>1)section.lastChild.remove();
+              for(const item of updated[key]){const row=document.createElement('p');row.textContent=describePassportEntry(entryKind,item);section.append(row)}
+              if(!updated[key].length){const empty=document.createElement('p');empty.textContent='No records yet';section.append(empty)}
+            }
           }));
           panel.append(editor);
         }
