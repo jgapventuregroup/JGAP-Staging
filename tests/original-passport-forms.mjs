@@ -62,6 +62,22 @@ test('combined Passport form collects equipment and optional first service sched
   assert.equal(submitted.serviceValues.frequency_value,1);
  }finally{globalThis.document=old}
 });
+test('combined Passport form keeps equipment and service due dates separate',async()=>{
+ const previous=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  let submitted;
+  const form=createPassportSystemForm(async values=>{submitted=values});
+  form.elements.namedItem('name').value='Boiler';
+  form.elements.namedItem('next_service_date').value='2026-11-01';
+  form.elements.namedItem('service_name').value='Annual inspection';
+  form.elements.namedItem('frequency_value').value='1';
+  form.elements.namedItem('service_next_service_date').value='2026-12-01';
+  await form.listeners.submit({preventDefault(){}});
+  assert.equal(submitted.assetValues.next_service_date,'2026-11-01');
+  assert.equal(submitted.serviceValues.next_service_date,'2026-12-01');
+ }finally{globalThis.document=previous}
+});
+
 test('combined Passport form blocks resubmission after partial equipment save',async()=>{
  const old=globalThis.document;globalThis.document={createElement:fakeElement};
  try{
