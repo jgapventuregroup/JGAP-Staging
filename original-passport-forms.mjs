@@ -1,6 +1,6 @@
 // Original Passport entry forms remain disabled until server-side paid-write RLS is verified.
 export const passportEntryFields=Object.freeze({
- asset:[['name','Equipment name','text'],['asset_type','Type','text'],['installed_date','Installed','date'],['purchase_cost','Cost','number'],['expected_life_years','Expected life (years)','number'],['warranty_expiration','Warranty expires','date'],['condition','Condition','text']],
+ asset:[['name','Equipment name','text'],['asset_type','Type','text'],['installed_date','Installed','date'],['purchase_cost','Cost','number'],['expected_life_years','Expected life (years)','number'],['warranty_expiration','Warranty expires','date'],['condition','Condition','text'],['next_service_date','Next service due','date']],
  service:[['asset_id','Equipment','select'],['service_name','Service name','text'],['frequency_value','Frequency','number'],['frequency_unit','Frequency unit','select'],['last_service_date','Last service','date'],['next_service_date','Next service','date'],['notes','Instructions','text']],
  maintenance:[['title','Work performed','text'],['maintenance_date','Date','date'],['description','Description','text'],['cost','Cost','number'],['status','Status','select'],['due_date','Next due','date'],['performed_by','Performed by','text']],
  improvement:[['title','Improvement','text'],['improvement_date','Date','date'],['description','Description','text'],['cost','Cost','number'],['category','Category','text']]
