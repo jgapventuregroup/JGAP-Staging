@@ -161,6 +161,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           const saved=Array.isArray(refreshed)?refreshed[0]:refreshed;
           if(!saved||saved.id!==record.id||saved.company_id!==companyId)throw Error('Could not verify saved property.');
           const next=projectPropertyPassport(saved,companyId);
+          const expectedDate=date||null;
+          const expectedValue=currentValue===''?null:Number(currentValue);
+          const expectedBalance=balance===''?null:Number(balance);
+          if(next.purchaseDate!==expectedDate||next.currentValue!==expectedValue||next.mortgageBalance!==expectedBalance)throw Error('Saved financial values could not be verified. Reopen the Passport and check the record.');
           for(const [group,label,value] of [['Property details','Purchase date',next.purchaseDate],['Financial snapshot','Current market value',next.currentValue],['Financial snapshot','Mortgage balance',next.mortgageBalance],['Financial snapshot','Estimated equity',next.equity]]){
             const section=Array.from(activePanel.querySelectorAll('section')).find(el=>el.getAttribute('aria-label')===group);
             const row=Array.from(section?.querySelectorAll('p')||[]).find(el=>el.querySelector('strong')?.textContent===label+': ');
