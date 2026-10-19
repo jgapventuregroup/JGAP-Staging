@@ -26,7 +26,7 @@ export function createPassportSystemForm(onSubmit){
   const serviceValues={};
   for(const [key,,type] of passportEntryFields.service){
    if(key==='asset_id')continue;
-   const raw=form.elements.namedItem(key)?.value?.trim();
+   const raw=form.elements.namedItem(key==='next_service_date'?'service_next_service_date':key)?.value?.trim();
    if(raw)serviceValues[key]=type==='number'?Number(raw):raw;
   }
   if(!serviceValues.service_name&&Object.keys(serviceValues).some(key=>key!=='frequency_unit'))throw Error('Enter a service name when adding service schedule details');
@@ -40,7 +40,7 @@ export function createPassportSystemForm(onSubmit){
  for(const [key,label,type] of passportEntryFields.service){
   if(key==='asset_id')continue;
   const wrap=document.createElement('label');wrap.textContent=label+' ';
-  const input=document.createElement(type==='select'?'select':'input');input.name=key;
+  const input=document.createElement(type==='select'?'select':'input');input.name=key==='next_service_date'?'service_next_service_date':key;
   if(type==='select'){for(const unit of ['year','month','quarter','week']){const option=document.createElement('option');option.value=unit;option.textContent=unit;input.append(option)}}
   else input.type=type;
   if(type==='number'){input.min='1';input.step='1'}
