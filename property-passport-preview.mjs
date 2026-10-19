@@ -141,6 +141,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         const balance=financeForm.elements.namedItem('p_mortgage_balance').value;
         const validMoney=value=>value===''||(/^(?:\d+)(?:\.\d{1,2})?$/.test(value)&&Number.isFinite(Number(value)));
         if(!validMoney(currentValue)||!validMoney(balance)){financeStatus.textContent='Enter nonnegative dollar amounts with at most two decimals.';return;}
+        if(date&&(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(Date.parse(date+'T00:00:00Z'))||new Date(date+'T00:00:00Z').toISOString().slice(0,10)!==date)){financeStatus.textContent='Enter a valid purchase date.';return;}
         financeSave.disabled=true;financeStatus.textContent='Saving…';
         try{
           const {data,error}=await client.rpc('update_passport_financials',{
