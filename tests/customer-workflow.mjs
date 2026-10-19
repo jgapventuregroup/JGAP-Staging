@@ -94,7 +94,7 @@ assert.match(el('celoc-results').textContent, /Inputs changed/);
 companies[0].member_role='owner';
 await el('login').onclick(); // Refresh the app's membership snapshot; fixture mutation alone does not change cached permissions.
 el('company').value='a';await el('company').onchange();
-const editable=el('deals').children[0].children.find(x=>x.tagName==='button');
+const editable=el('deals').children[0].children.flatMap(x=>x.children || []).find(x=>x.tagName==='button');
 await editable.onclick();
 el('offer').value='165000';
 el('offer').listeners.input();
