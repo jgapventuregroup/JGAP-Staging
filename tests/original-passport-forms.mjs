@@ -98,7 +98,7 @@ test('combined Passport form refuses incomplete schedule before saving equipment
   let saves=0;
   const form=createPassportSystemForm(async()=>{saves++});
   form.elements.namedItem('name').value='Furnace';
-  form.elements.namedItem('next_service_date').value='2026-11-01';
+  form.elements.namedItem('service_next_service_date').value='2026-11-01';
   await form.listeners.submit({preventDefault(){}});
   assert.equal(saves,0);
   const status=form.children.find(n=>n.attributes.role==='status');
