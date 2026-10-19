@@ -15,6 +15,7 @@ export async function saveOriginalPassportEntry({kind,values,client,companyId,de
   const value=row[key];
   if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value)||Number.isNaN(Date.parse(value+'T00:00:00Z'))||new Date(value+'T00:00:00Z').toISOString().slice(0,10)!==value)throw Error('Invalid Passport date: '+key);
  }
+ if(kind==='service'&&row.frequency_value!==undefined&&(!Number.isInteger(row.frequency_value)||row.frequency_value<1))throw Error('Invalid service frequency value');
  if(kind==='service'&&row.frequency_unit!==undefined&&!['year','month','quarter','week'].includes(row.frequency_unit))throw Error('Invalid service frequency unit');
  if(kind==='maintenance'&&row.status!==undefined&&!['completed','planned','open','cancelled'].includes(row.status))throw Error('Invalid maintenance status');
  if(kind==='service'){
