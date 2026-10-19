@@ -126,3 +126,10 @@ test('all Passport record date fields reject impossible dates before database wr
  for(const [kind,values] of scenarios)await assert.rejects(saveOriginalPassportEntry({...base,kind,values}),/Invalid Passport date/);
  assert.equal(calls,0);
 });
+
+
+test('writer detects company switch while insert is in flight',async()=>{
+ let currentCompany='c1';
+ const client={from(table){assert.equal(table,'property_assets');return {insert(){return this},select(){return this},async single(){currentCompany='c2';return {data:{id:'asset-new',company_id:'c1',deal_id:'d1'},error:null}}}}};
+ await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=>currentCompany,getCurrentClient:()=>client}),/Company session changed after save/);
+});
