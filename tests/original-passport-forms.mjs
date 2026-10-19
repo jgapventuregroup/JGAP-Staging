@@ -62,6 +62,19 @@ test('combined Passport form collects equipment and optional first service sched
   assert.equal(submitted.serviceValues.frequency_value,1);
  }finally{globalThis.document=old}
 });
+test('equipment due date alone does not create an optional service schedule',async()=>{
+ const previous=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  let saved;
+  const form=createPassportSystemForm(async value=>{saved=value});
+  form.elements.namedItem('name').value='Water heater';
+  form.elements.namedItem('next_service_date').value='2026-11-15';
+  await form.listeners.submit({preventDefault(){}});
+  assert.equal(saved.assetValues.next_service_date,'2026-11-15');
+  assert.equal(saved.serviceValues,null);
+ }finally{globalThis.document=previous}
+});
+
 test('combined Passport form keeps equipment and service due dates separate',async()=>{
  const previous=globalThis.document;globalThis.document={createElement:fakeElement};
  try{
