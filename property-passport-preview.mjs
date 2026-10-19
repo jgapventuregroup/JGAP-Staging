@@ -136,8 +136,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       }
       const financeSave=document.createElement('button');financeSave.type='submit';financeSave.textContent='Save financial details';financeForm.append(financeSave);
       const financeStatus=document.createElement('p');financeStatus.setAttribute('role','status');financeForm.append(financeStatus);
+      let financeSaveInFlight=false;
       financeForm.onsubmit=async event=>{
         event.preventDefault();
+        if(financeSaveInFlight)return;
         const isCurrent=()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId;
         if(!isCurrent())return;
         const date=financeForm.elements.namedItem('p_purchase_date').value;
@@ -146,7 +148,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         const validMoney=value=>value===''||(/^(?:\d+)(?:\.\d{1,2})?$/.test(value)&&Number.isFinite(Number(value)));
         if(!validMoney(currentValue)||!validMoney(balance)){financeStatus.textContent='Enter nonnegative dollar amounts with at most two decimals.';return;}
         if(!validPassportPurchaseDate(date)){financeStatus.textContent='Enter a valid purchase date.';return;}
-        financeSave.disabled=true;financeStatus.textContent='Saving…';
+        financeSaveInFlight=true;financeSave.disabled=true;financeStatus.textContent='Saving…';
         try{
           const {data,error}=await client.rpc('update_passport_financials',{
             p_company_id:companyId,p_deal_id:record.id,p_purchase_date:date||null,
@@ -172,7 +174,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           }
           financeStatus.textContent='Financial details saved and verified from staging.';
         }catch(error){if(isCurrent())financeStatus.textContent='Could not save financial details: '+(error?.message||'Unknown error');}
-        finally{if(isCurrent())financeSave.disabled=false;}
+        finally{financeSaveInFlight=false;if(isCurrent())financeSave.disabled=false;}
       };
       panel.append(financeForm);
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY!==true){
