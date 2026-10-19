@@ -75,7 +75,7 @@ assert.equal(el('metric-count').textContent, '1');
 assert.equal(el('new-deal-form').hidden, true, 'Viewers cannot add properties');
 assert.match(el('new-deal-limit-notice').textContent, /read-only/);
 assert.equal(el('deals').children.length, 1);
-const analyze = el('deals').children[0].children.find(x => x.tagName === 'button');
+const analyze = el('deals').children[0].children.flatMap(x => x.children || []).find(x => x.tagName === 'button');
 await analyze.onclick();
 assert.match(el('selected').textContent, /Fictional Duplex A/);
 assert.equal(el('save-analysis').disabled, true, 'Viewers can analyze but not save');
