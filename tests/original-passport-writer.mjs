@@ -17,6 +17,12 @@ test('writer rejects invalid service schedule before database access',async()=>{
  await assert.rejects(saveOriginalPassportEntry({...context,values:{asset_id:'a1',service_name:'Filter',frequency_value:1,frequency_unit:'decade'}}),/frequency unit/);
  assert.equal(called,false);
 });
+test('service writer rejects fractional frequency without database access',async()=>{
+ let called=false;const client={from(){called=true;throw Error('Database should not be accessed')}};
+ await assert.rejects(saveOriginalPassportEntry({kind:'service',values:{asset_id:'a1',service_name:'Inspect',frequency_value:1.5},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/positive whole-number|Invalid service frequency value/);
+ assert.equal(called,false);
+});
+
 test('writer rejects invalid maintenance status before database access',async()=>{
  let called=false;const client={from(){called=true}};
  await assert.rejects(saveOriginalPassportEntry({kind:'maintenance',values:{title:'Repair',maintenance_date:'2026-10-18',status:'unknown'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/maintenance status/);
