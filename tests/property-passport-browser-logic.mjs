@@ -111,3 +111,10 @@ test('Passport preview requires active entitlement and ignores stale company res
    globalThis.window=previousWindow;
  }
 });
+
+
+test('Passport financial purchase dates reject impossible and malformed dates',async()=>{
+ const {validPassportPurchaseDate}=await import('../property-passport-preview.mjs');
+ for(const date of ['', '2026-10-19', '2024-02-29'])assert.equal(validPassportPurchaseDate(date),true,date);
+ for(const date of ['2026-02-30','2026-13-01','2026-1-01','not-a-date',null,123])assert.equal(validPassportPurchaseDate(date),false,String(date));
+});
