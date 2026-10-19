@@ -133,3 +133,11 @@ test('writer detects company switch while insert is in flight',async()=>{
  const client={from(table){assert.equal(table,'property_assets');return {insert(){return this},select(){return this},async single(){currentCompany='c2';return {data:{id:'asset-new',company_id:'c1',deal_id:'d1'},error:null}}}}};
  await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=>currentCompany,getCurrentClient:()=>client}),/Company session changed after save/);
 });
+
+
+test('writer rejects a changed client while insert is in flight',async()=>{
+ let currentClient;
+ const client={from(table){assert.equal(table,'property_assets');return {insert(){return this},select(){return this},async single(){currentClient={};return {data:{id:'asset-new',company_id:'c1',deal_id:'d1'},error:null}}}}};
+ currentClient=client;
+ await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>currentClient}),/Company session changed after save/);
+});
