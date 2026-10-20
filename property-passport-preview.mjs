@@ -344,8 +344,15 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Property activity entries save to the connected staging database.':'Operations data is read-only until secure write access is enabled.'):'Read-only preview. No changes are saved here.';
       panel.append(note);
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
-      line.after(panel);
-      panel.scrollIntoView?.({block:'nearest'});
+      const propertyList=line.parentElement;
+      if(propertyList?.parentElement){
+        propertyList.parentElement.insertBefore(panel,propertyList);
+      }else{
+        line.after(panel);
+      }
+      panel.setAttribute('tabindex','-1');
+      panel.scrollIntoView?.({block:'start',behavior:'smooth'});
+      panel.focus?.({preventScroll:true});
       button.setAttribute('aria-expanded','true');
       expandedButton=button;
     }catch(error){
@@ -357,7 +364,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel=document.createElement('p');
       panel.setAttribute('role','alert');
       panel.textContent='Could not open Property Passport: '+(error?.message||'Unknown error');
-      line.after(panel);
+      const propertyList=line.parentElement;
+      if(propertyList?.parentElement)propertyList.parentElement.insertBefore(panel,propertyList);
+      else line.after(panel);
+      panel.scrollIntoView?.({block:'start'});
     }finally{if(pendingButton===button){button.disabled=false;pendingButton=null;}}
   };
   line.append(button);
