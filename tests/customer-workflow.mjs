@@ -102,6 +102,15 @@ await el('login').onclick(); // Refresh the app's membership snapshot; fixture m
 el('company').value='a';await el('company').onchange();
 const editable=el('deals').children[0].children.flatMap(x=>x.children||[]).find(x=>x.tagName==='button');
 await editable.onclick();
+// Incomplete saved deals must open for editing without displaying a calculation failure.
+const previousRent=deal.monthly_rent;
+deal.monthly_rent=null;
+await editable.onclick();
+assert.equal(el('rent').value,'','Missing rent must remain blank');
+assert.match(el('results').textContent,/Complete missing fields/,'Incomplete deal must prompt for values instead of calculating');
+assert.match(el('warning').textContent,/Missing saved values/,'Incomplete deal must identify missing fields');
+deal.monthly_rent=previousRent;
+await editable.onclick();
 el('offer').value='165000';
 el('offer').listeners.input();
 assert.match(el('save-analysis-status').textContent, /Unsaved changes/, 'Editing a saved property must warn that changes are not persisted');
