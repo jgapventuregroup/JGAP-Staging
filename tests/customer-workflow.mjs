@@ -4,6 +4,12 @@ import assert from 'node:assert/strict';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const script = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(x => x[1]).find(Boolean);
+// Regression checks for shared app navigation and responsive visibility.
+assert.match(html, /const showPage=page=>[\s\S]*?target\.focus\?\.\(\{preventScroll:true\}\)/, 'Navigation should focus the destination page');
+assert.match(html, /el\.setAttribute\?\.\('aria-current','page'\)/, 'Active sidebar destination should be announced');
+assert.match(html, /\[hidden\]\{display:none!important\}/, 'Hidden content must remain hidden throughout the app');
+assert.match(html, /@media\(prefers-reduced-motion:reduce\)/, 'Navigation must respect reduced-motion preferences');
+
 class Element {
   constructor(tag = 'div') { this.tagName = tag; this.children = []; this.value = ''; this.textContent = ''; this.dataset = {}; this.listeners = {}; this.disabled = false; this.hidden = false; const classes = new Set(); this.classList = { add: x => classes.add(x), remove: x => classes.delete(x), contains: x => classes.has(x), toggle: (x, on) => { on ??= !classes.has(x); on ? classes.add(x) : classes.delete(x); } }; }
   get options() { return this.children; }
