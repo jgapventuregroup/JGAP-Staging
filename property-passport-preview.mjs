@@ -385,7 +385,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           if(title.startsWith('Systems & equipment')||title.startsWith('Service schedules'))groups.Systems.push(node);
           else if(title.startsWith('Maintenance history'))groups.Maintenance.push(node);
           else if(title.startsWith('Improvements'))groups.Improvements.push(node);
-          else if(title.startsWith('Add Passport records'))groups.Systems.push(node);
+          else if(title.startsWith('Add Passport records')){
+            // Show the relevant editor only on its matching Passport tab.
+            for(const name of ['Systems','Maintenance','Improvements'])groups[name].push(node);
+          }
           else if(sectionGroup==='Operations')groups.Operations.push(node);
         }
         if(sectionGroup==='Operations'&&(node.tagName==='P'||node.tagName==='SMALL'))groups.Operations.push(node);
@@ -395,7 +398,16 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       const controlled=new Set(Object.values(groups).flat());
       const showGroup=name=>{
         activeGroup=name;
-        for(const item of controlled)item.hidden=!groups[name].includes(item);
+        for(const item of controlled){
+          item.hidden=!groups[name].includes(item);
+          if(item.querySelector?.('h3')?.textContent==='Add Passport records'){
+            for(const form of item.querySelectorAll('form')){
+              const heading=form.querySelector('h4')?.textContent||'';
+              const kind=heading.startsWith('Add system')||heading==='Add service'?'Systems':heading==='Add maintenance'?'Maintenance':heading==='Add improvement'?'Improvements':null;
+              form.hidden=kind!==name;
+            }
+          }
+        }
         for(const tab of Array.from(tabs.children)){
           const selected=tab.textContent===name;
           tab.setAttribute('aria-selected',String(selected));
