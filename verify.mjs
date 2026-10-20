@@ -66,8 +66,9 @@ element('offer').value='';element('calculate').onclick();assert.match(element('r
 console.log('PASS: real application calculation handlers, invalid input, all-cash scenario');
 function offerTest(values,targets){for(const [id,value] of Object.entries({...fields,...values}))element(id).value=String(value);for(const [id,value] of Object.entries({'target-flow':300,'target-coc':8,'reserve-cash':5000,...targets}))element(id).value=String(value);element('solve-offer').onclick();return element('offer-guidance').textContent;}
 // A missing proposed offer is not a $0 offer in the comparison.
-element('offer').value='';
 offerTest({down:20,rate:7,years:30,rent:1800,expenses:600,vacancy:5,costs:5000},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
+element('offer').value='';
+element('solve-offer').onclick();
 assert.equal(element('price-comparison').children[1].children[1].textContent,'Not entered','Blank proposed offer must not display $0');
 const standard=offerTest({down:20,rate:7,years:30,rent:1800,expenses:600,vacancy:5,costs:5000},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
 assert.match(standard,/Maximum offer meeting both targets:/);assert.ok(standard.includes('\nLimiting requirement:'),'Maximum offer must render real line breaks');assert.ok(!standard.includes('\\\\n'),'Maximum offer must not display literal backslash-n');assert.equal(element('maximum-feedback').textContent,'Maximum offer calculated','Maximum offer button must confirm click');assert.equal(element('price-comparison').children.length,4,'Comparison must show three prices and offer guidance');assert.match(element('price-comparison').children[0].children[1].textContent,/\$200,000/,'Asking price must match current input');assert.match(element('price-comparison').children[1].children[1].textContent,/\$180,000/,'Proposed offer must match current input');
