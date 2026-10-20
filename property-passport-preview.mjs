@@ -104,7 +104,10 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       print.onclick=()=>{
         if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
         const printable=activePanel.cloneNode(true);
-        printable.querySelectorAll('button,form,input,select,textarea').forEach(node=>node.remove());
+        // The on-screen tabs hide inactive sections. Printing must include the complete Passport.
+        printable.querySelectorAll('[hidden]').forEach(node=>node.removeAttribute('hidden'));
+        printable.querySelectorAll('[aria-hidden="true"]').forEach(node=>node.removeAttribute('aria-hidden'));
+        printable.querySelectorAll('button,form,input,select,textarea,.passport-tabs').forEach(node=>node.remove());
         const printWindow=window.open('','_blank');
         if(!printWindow){window.alert('Allow pop-ups to print the Passport');return;}
         try{printWindow.opener=null;}catch{}
