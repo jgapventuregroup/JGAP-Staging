@@ -421,7 +421,17 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         const tab=document.createElement('button');
         tab.type='button';tab.className='passport-tab';tab.textContent=name;
         tab.setAttribute('role','tab');
+        tab.setAttribute('aria-controls','property-passport-panel');
         tab.onclick=()=>showGroup(name);
+        tab.onkeydown=event=>{
+          if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+          event.preventDefault();
+          const available=Array.from(tabs.children);
+          const position=available.indexOf(tab);
+          const next=event.key==='Home'?0:event.key==='End'?available.length-1:(position+(event.key==='ArrowRight'?1:-1)+available.length)%available.length;
+          available[next]?.click();
+          available[next]?.focus();
+        };
         tabs.append(tab);
       }
       tabs.setAttribute('role','tablist');
