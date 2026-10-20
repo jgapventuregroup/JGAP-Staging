@@ -357,6 +357,59 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       note.setAttribute('role','status');
       note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Property activity entries save to the connected staging database.':'Operations data is read-only until secure write access is enabled.'):'Read-only preview. No changes are saved here.';
       panel.append(note);
+      // Compact property workspace: one focused area at a time, without removing any data.
+      const tabs=document.createElement('nav');
+      tabs.className='passport-tabs';
+      tabs.setAttribute('aria-label','Property Passport sections');
+      const sections=Array.from(panel.children);
+      const groups={
+        Overview:sections.filter(node=>node.tagName==='SECTION'&&['Property details','Financial snapshot','Notes & next steps'].includes(node.getAttribute?.('aria-label'))),
+        Financials:sections.filter(node=>node.tagName==='FORM'&&node.getAttribute?.('aria-label')==='Edit Passport financials'),
+        Systems:[],
+        Maintenance:[],
+        Improvements:[],
+        Operations:[]
+      };
+      let activeGroup='Overview';
+      let sectionGroup='Overview';
+      for(const node of sections){
+        if(node.tagName==='H3'){
+          if(node.textContent==='Property operations')sectionGroup='Operations';
+          continue;
+        }
+        if(node.tagName==='SECTION'&&!node.getAttribute?.('aria-label')){
+          const title=node.querySelector?.('h3')?.textContent||node.children?.[0]?.textContent||'';
+          if(title.startsWith('Systems & equipment')||title.startsWith('Service schedules'))groups.Systems.push(node);
+          else if(title.startsWith('Maintenance history'))groups.Maintenance.push(node);
+          else if(title.startsWith('Improvements'))groups.Improvements.push(node);
+          else if(title.startsWith('Add Passport records'))groups.Systems.push(node);
+          else if(sectionGroup==='Operations')groups.Operations.push(node);
+        }
+        if(sectionGroup==='Operations'&&(node.tagName==='P'||node.tagName==='SMALL'))groups.Operations.push(node);
+      }
+      const operationalHeading=sections.find(node=>node.tagName==='H3'&&node.textContent==='Property operations');
+      if(operationalHeading)groups.Operations.unshift(operationalHeading);
+      const controlled=new Set(Object.values(groups).flat());
+      const showGroup=name=>{
+        activeGroup=name;
+        for(const item of controlled)item.hidden=!groups[name].includes(item);
+        for(const tab of Array.from(tabs.children)){
+          const selected=tab.textContent===name;
+          tab.setAttribute('aria-selected',String(selected));
+          tab.tabIndex=selected?0:-1;
+        }
+      };
+      for(const name of Object.keys(groups)){
+        if(name==='Financials'&&!groups.Financials.length)continue;
+        const tab=document.createElement('button');
+        tab.type='button';tab.className='passport-tab';tab.textContent=name;
+        tab.setAttribute('role','tab');
+        tab.onclick=()=>showGroup(name);
+        tabs.append(tab);
+      }
+      tabs.setAttribute('role','tablist');
+      panel.append(tabs);
+      showGroup(activeGroup);
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       const propertyList=line.parentElement;
       if(propertyList?.parentElement){
