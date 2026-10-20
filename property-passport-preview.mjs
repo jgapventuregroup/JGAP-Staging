@@ -17,6 +17,12 @@ let requestId=0;
 let panel=null;
 let expandedButton=null;
 let pendingButton=null;
+function markPassportButton(button,open){
+  if(!button)return;
+  button.textContent=open?'Close Passport':'Open Property Passport';
+  button.setAttribute('aria-expanded',String(open));
+  button.setAttribute('aria-label',(open?'Close':'Open')+' property passport');
+}
 function releasePendingButton(){
   if(pendingButton)pendingButton.disabled=false;
   pendingButton=null;
@@ -27,7 +33,7 @@ function clear(){
   eligibility={companyId:null,enabled:false};
   panel?.remove();
   panel=null;
-  expandedButton?.setAttribute('aria-expanded','false');
+  markPassportButton(expandedButton,false);
   expandedButton=null;
 }
 function setEligibility(next){
@@ -35,7 +41,7 @@ function setEligibility(next){
   releasePendingButton();
   panel?.remove();
   panel=null;
-  expandedButton?.setAttribute('aria-expanded','false');
+  markPassportButton(expandedButton,false);
   expandedButton=null;
   eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true};
 }
@@ -49,6 +55,14 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
   button.setAttribute('aria-expanded','false');
   button.setAttribute('aria-controls','property-passport-panel');
   button.onclick=async()=>{
+    if(expandedButton===button&&panel){
+      requestId++;
+      panel.remove();
+      panel=null;
+      markPassportButton(button,false);
+      expandedButton=null;
+      return;
+    }
     releasePendingButton();
     const current=++requestId;
     pendingButton=button;
@@ -70,7 +84,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       }
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       panel?.remove();
-      expandedButton?.setAttribute('aria-expanded','false');
+      markPassportButton(expandedButton,false);
       expandedButton=null;
       panel=document.createElement('section');
       const activePanel=panel;
@@ -81,7 +95,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel.append(heading);
       const close=document.createElement('button');
       close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
-      close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;button.setAttribute('aria-expanded','false');if(expandedButton===button)expandedButton=null;}};
+      close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;markPassportButton(button,false);if(expandedButton===button)expandedButton=null;}};
       panel.append(close);
       // Recovered from the original Passport: browser print of the open record.
       // Print only this Passport, not the rest of the app workspace.
@@ -353,14 +367,14 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       panel.setAttribute('tabindex','-1');
       panel.scrollIntoView?.({block:'start',behavior:'smooth'});
       panel.focus?.({preventScroll:true});
-      button.setAttribute('aria-expanded','true');
+      markPassportButton(button,true);
       expandedButton=button;
     }catch(error){
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       panel?.remove();
-      expandedButton?.setAttribute('aria-expanded','false');
+      markPassportButton(expandedButton,false);
       expandedButton=null;
-      button.setAttribute('aria-expanded','false');
+      markPassportButton(button,false);
       panel=document.createElement('p');
       panel.setAttribute('role','alert');
       panel.textContent='Could not open Property Passport: '+(error?.message||'Unknown error');
