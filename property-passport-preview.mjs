@@ -230,7 +230,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
           panel.append(section);
         }
         if(window.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true){
-          const editor=document.createElement('section');const heading=document.createElement('h3');heading.textContent='Add Passport records';editor.append(heading);
+          const editor=document.createElement('section');editor.dataset.passportEditor='true';const heading=document.createElement('h3');heading.textContent='Add Passport records';editor.append(heading);
           for(const kind of ['asset','service','maintenance','improvement'])editor.append((kind==='asset'?createPassportSystemForm:createOriginalPassportForm)(kind==='asset'?async ({assetValues,serviceValues})=>{
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
             try{
@@ -400,7 +400,9 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         activeGroup=name;
         for(const item of controlled){
           item.hidden=!groups[name].includes(item);
-          if(item.querySelector?.('h3')?.textContent==='Add Passport records'){
+          if(item.dataset?.passportEditor==='true'){
+            const editorHeading=item.querySelector('h3');
+            if(editorHeading)editorHeading.textContent=name==='Systems'?'Add systems & service schedules':name==='Maintenance'?'Add maintenance record':'Add improvement';
             for(const form of item.querySelectorAll('form')){
               const heading=form.querySelector('h4')?.textContent||'';
               const kind=heading.startsWith('Add system')||heading==='Add service'?'Systems':heading==='Add maintenance'?'Maintenance':heading==='Add improvement'?'Improvements':null;
