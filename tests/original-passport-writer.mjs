@@ -1,4 +1,11 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {saveOriginalPassportEntry,savePassportSystemWithService} from '../original-passport-writer.mjs';
+// Exercise the writer's validation with mocked clients; staging itself remains read-only.
+globalThis.JGAP_ORIGINAL_PASSPORT_WRITES_READY=true;
+test('writer fails closed when Passport record editing is disabled',async()=>{
+ globalThis.JGAP_ORIGINAL_PASSPORT_WRITES_READY=false;
+ try{await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace'},client:{},companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>({})}),/not enabled/)}
+ finally{globalThis.JGAP_ORIGINAL_PASSPORT_WRITES_READY=true}
+});
 test('writer pins company and deal and ignores injected identity',async()=>{
  let written;const client={from(table){assert.equal(table,'property_assets');return {insert(row){written=row;return this},select(){return this},async single(){return {data:{id:'new',company_id:'c1',deal_id:'d1'},error:null}}}}};
  await saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace',company_id:'other',deal_id:'other'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client});
