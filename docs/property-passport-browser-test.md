@@ -13,6 +13,18 @@
 8. Verify Print Passport shows only the selected property's records; then try blank values, zero, a long note, and an invalid date. Check for clear error messages and no duplicate saves.
 9. Check mobile and desktop layout, dark mode, and browser Back navigation.
 
+## Live authenticated two-company release gate
+Use two legitimate staging accounts belonging to **different companies**. Both accounts must be signed in normally; SQL editor impersonation or an administrator session is not sufficient. The existing read-only SQL audit cannot prove write isolation, particularly while Passport tables are empty.
+
+1. Confirm Account A and Account B are members of distinct companies, each with its own saved test property. Do not use the production project or share passwords.
+2. With the approved test editor enabled **only in a controlled staging test environment**, create one equipment record in Company A and one in Company B. Verify each owner can read their own record after refresh and sign-out/in.
+3. Using Account A, attempt to read Company B’s equipment by exact record ID and by company-scoped listing. Both must return no foreign data. Repeat B against A.
+4. Using each account, attempt to insert equipment with the other company’s ID and deal ID. Both requests must be rejected, with no rows created.
+5. Using each account, attempt to update the other company’s equipment record, including attempts to change company_id and deal_id. Both must fail or affect zero rows, and the original data must remain unchanged.
+6. Repeat own-company create/read and foreign-company denial tests for service schedules, maintenance, and improvements; verify that a service schedule cannot reference equipment belonging to another company or property.
+7. Confirm anonymous requests cannot read or write any original Passport table or invoke the two Passport helper RPCs.
+8. Record actual requests, status/error, company context and resulting rows for each case. Only then approve setting JGAP_ORIGINAL_PASSPORT_WRITES_READY=true in staging.
+
 ## Release gates
 - All current GitHub Actions checks must pass on the deployment commit; older passing commits do not count.
 - New tables/RPCs have verified company-level RLS and paid entitlements on writes.
