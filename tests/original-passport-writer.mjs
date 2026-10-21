@@ -184,3 +184,21 @@ test('writer rejects malformed optional text fields without accessing the databa
  await assert.rejects(saveOriginalPassportEntry({...context,kind:'improvement',values:{title:'Roof',improvement_date:'2026-10-18',category:[]}}),/Invalid Passport text/);
  assert.equal(called,false);
 });
+
+test('all four Passport writers pin the active property and reject mismatched returned ownership',async()=>{
+ const cases=[
+  ['asset','property_assets',{name:'Water heater'}],
+  ['maintenance','property_maintenance',{title:'Inspection',maintenance_date:'2026-10-21'}],
+  ['improvement','property_improvements',{title:'Roof replacement',improvement_date:'2026-10-21'}]
+ ];
+ for(const [kind,table,values] of cases){
+  let inserted;
+  const client={from(name){assert.equal(name,table);return {insert(row){inserted=row;return this},select(){return this},async single(){return {data:{id:'record',company_id:'foreign-company',deal_id:'d1'},error:null}}}}};
+  await assert.rejects(saveOriginalPassportEntry({kind,values,client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/did not match selected property/);
+  assert.equal(inserted.company_id,'c1');assert.equal(inserted.deal_id,'d1');
+ }
+});
+test('Passport writer reports database rejection without claiming a save',async()=>{
+ const client={from(name){assert.equal(name,'property_improvements');return {insert(){return this},select(){return this},async single(){return {data:null,error:{message:'row-level security denied'}}}}}};
+ await assert.rejects(saveOriginalPassportEntry({kind:'improvement',values:{title:'Roof',improvement_date:'2026-10-21'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/row-level security denied/);
+});
