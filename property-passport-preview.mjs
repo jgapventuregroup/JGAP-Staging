@@ -139,7 +139,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       // Financial edits are routed through the staging RPC; never update deals directly.
       const financeForm=document.createElement('form');
       financeForm.setAttribute('aria-label','Edit Passport financials');
-      const financeTitle=document.createElement('h3');financeTitle.textContent='Update financial snapshot';financeForm.append(financeTitle);
+      const financeTitle=document.createElement('h3');financeTitle.textContent='Update financial snapshot';financeForm.append(financeTitle);const financeHelp=document.createElement('p');financeHelp.textContent='Financial snapshot updates use a separate, verified save function. The read-only notice below applies only to Systems, Service Schedules, Maintenance, and Improvements records.';financeForm.append(financeHelp);
       const financeFields=[
         ['p_purchase_date','Purchase date','date',p.purchaseDate],
         ['p_current_value','Current market value ($)','number',p.currentValue],
