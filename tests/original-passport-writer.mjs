@@ -154,3 +154,21 @@ test('writer rejects a changed client while insert is in flight',async()=>{
  currentClient=client;
  await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>currentClient}),/Company session changed after save/);
 });
+
+
+test('writer never touches database when a caller supplies an unsupported Passport field',async()=>{
+ let calls=0;const client={from(){calls++;throw Error('Unexpected database access')}};
+ const base={client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client};
+ for(const [kind,values] of [
+  ['asset',{name:'Furnace',owner_id:'another-user'}],
+  ['service',{asset_id:'a1',service_name:'Inspect',frequency_value:1,company_owner:'other'}],
+  ['maintenance',{title:'Repair',maintenance_date:'2026-10-18',user_id:'other'}],
+  ['improvement',{title:'Upgrade',improvement_date:'2026-10-18',deal_owner:'other'}]
+ ])await assert.rejects(saveOriginalPassportEntry({...base,kind,values}),/Unsupported Passport field/);
+ assert.equal(calls,0);
+});
+
+test('writer rejects unexpected saved company or deal after insert',async()=>{
+ const client={from(){return {insert(){return this},select(){return this},async single(){return {data:{id:'saved',company_id:'foreign',deal_id:'d1'},error:null}}}}};
+ await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/did not match selected property/);
+});
