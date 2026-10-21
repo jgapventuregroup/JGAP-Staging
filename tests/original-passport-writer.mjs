@@ -172,3 +172,15 @@ test('writer rejects unexpected saved company or deal after insert',async()=>{
  const client={from(){return {insert(){return this},select(){return this},async single(){return {data:{id:'saved',company_id:'foreign',deal_id:'d1'},error:null}}}}};
  await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Furnace'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/did not match selected property/);
 });
+
+test('writer rejects malformed optional text fields without accessing the database',async()=>{
+ let called=false;
+ const client={from(){called=true;throw Error('Database must not be accessed')}};
+ const context={client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client};
+ for(const values of [{name:'Furnace',condition:42},{name:'Furnace',asset_type:{}},{name:'Furnace',condition:'   '}]){
+  await assert.rejects(saveOriginalPassportEntry({...context,kind:'asset',values}),/Invalid Passport text/);
+ }
+ await assert.rejects(saveOriginalPassportEntry({...context,kind:'maintenance',values:{title:'Repair',maintenance_date:'2026-10-18',description:17}}),/Invalid Passport text/);
+ await assert.rejects(saveOriginalPassportEntry({...context,kind:'improvement',values:{title:'Roof',improvement_date:'2026-10-18',category:[]}}),/Invalid Passport text/);
+ assert.equal(called,false);
+});
