@@ -24,3 +24,13 @@ test('loader rejects duplicate equipment identifiers',async()=>{
  const client={from(table){return {select(){return this},eq(){return this},then(resolve){resolve({data:table==='property_assets'?[asset,asset]:[],error:null})}}}};
  await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1'}),/Duplicate assets/);
 });
+
+test('loader rejects records from another property in the same company',async()=>{
+ const client={from(){return {select(){return this},eq(){return this},then(resolve){resolve({data:[{id:'foreign',company_id:'c1',deal_id:'p2'}],error:null})}}}};
+ await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1'}),/outside selected property/);
+});
+
+test('loader rejects malformed database responses rather than treating them as empty',async()=>{
+ const client={from(){return {select(){return this},eq(){return this},then(resolve){resolve({data:null,error:null})}}}};
+ await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1'}),/Invalid assets records/);
+});
