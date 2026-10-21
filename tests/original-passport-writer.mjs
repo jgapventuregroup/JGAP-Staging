@@ -198,6 +198,12 @@ test('all four Passport writers pin the active property and reject mismatched re
   assert.equal(inserted.company_id,'c1');assert.equal(inserted.deal_id,'d1');
  }
 });
+test('service schedule writer rejects a mismatched database response',async()=>{
+ let inserted;
+ const client={from(table){if(table==='property_assets')return {select(){return this},eq(){return this},async single(){return {data:{id:'a1',company_id:'c1',deal_id:'d1'},error:null}}};assert.equal(table,'property_asset_services');return {insert(row){inserted=row;return this},select(){return this},async single(){return {data:{id:'s1',company_id:'c1',deal_id:'another-deal'},error:null}}}}};
+ await assert.rejects(saveOriginalPassportEntry({kind:'service',values:{asset_id:'a1',service_name:'Annual inspection',frequency_value:1,frequency_unit:'year'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/did not match selected property/);
+ assert.equal(inserted.company_id,'c1');assert.equal(inserted.deal_id,'d1');assert.equal(inserted.asset_id,'a1');
+});
 test('Passport writer reports database rejection without claiming a save',async()=>{
  const client={from(name){assert.equal(name,'property_improvements');return {insert(){return this},select(){return this},async single(){return {data:null,error:{message:'row-level security denied'}}}}}};
  await assert.rejects(saveOriginalPassportEntry({kind:'improvement',values:{title:'Roof',improvement_date:'2026-10-21'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/row-level security denied/);
