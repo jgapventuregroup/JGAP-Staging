@@ -115,7 +115,7 @@ assert.match(html,/from\('company_subscriptions'\)\.select\('plan,billing_status
 
 assert.match(html,/<button data-page="toolbox">Investor Toolbox<\/button>/,'Toolbox navigation must exist');assert.match(html,/<section id="toolbox" class="page"/,'Toolbox section must exist');for(const tool of ['Deal Analyzer','Deal Intelligence','Financing &amp; Lenders','Saved Properties &amp; Passport','Deal Pipeline'])assert.ok(html.includes('<h2>'+tool+'</h2>'),'Missing active Investor Toolbox tool: '+tool);assert.doesNotMatch(html,/They are not yet active in staging/,'Toolbox must not present the removed roadmap');console.log('PASS: Investor Toolbox active tool navigation');
 
-assert.match(html,/const paidActive=\(plan==='investor'\|\|plan==='pro'\)\&\&billingStatus==='active'/,'Unlimited entitlement requires active billing');assert.match(html,/paidActive\?'Unlimited saved properties':'5 lifetime property slots'/,'Inactive paid plans must not show unlimited entitlement');console.log('PASS: paid entitlement display matches database enforcement');
+assert.match(html,/const paidActive=\(plan==='investor'\|\|plan==='pro'\)\&\&billingStatus==='active'/,'Unlimited entitlement requires active billing');assert.match(html,/ownerPreview\?'Unlimited owner saves':plan==='unknown'\?'Status unavailable':paidActive\?'Unlimited saved properties':'5 lifetime property slots'/,'Only verified owner preview or active paid billing can show unlimited saving');console.log('PASS: paid entitlement display matches database enforcement');
 
 
 
