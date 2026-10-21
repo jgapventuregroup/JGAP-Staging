@@ -3,6 +3,11 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
 assert.match(html,/STAGING ONLY/);
+assert.match(html,/window\.JGAP_ORIGINAL_PASSPORT_WRITES_READY=false/, 'Original Passport writes must stay disabled pending authenticated company-isolation tests');
+const passportUi=fs.readFileSync(new URL('./property-passport-preview.mjs',import.meta.url),'utf8');
+assert.match(passportUi,/Financial snapshot updates use a separate, verified save function/, 'Financial save and original record read-only status must be distinguished');
+assert.match(passportUi,/if\(window\.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true\)/, 'Original Passport edit forms must be gated');
+
 assert.match(html,/No advertising network or paid checkout is active today\./, 'Staging must accurately disclose that paid checkout is unavailable');
 assert.match(html,/Paid checkout and feature-tier restrictions are not enabled\./, 'Do not present planned tiers as active paid features');
 assert.match(html,/paid-plan activation requires verified billing status/, 'Membership must not imply unverified client-side upgrades');assert.match(html,/html\[data-theme="dark"\] input\[aria-invalid="true"\]/,'Dark mode must have distinct invalid-field styling');
