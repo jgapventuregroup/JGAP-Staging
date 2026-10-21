@@ -9,7 +9,7 @@
 4. Sign out and sign back in. Verify the same saved details appear.
 5. Switch workspaces if authorized and verify that the previous company's property is no longer visible.
 6. Verify Free users see their existing unchanged workflow, with five lifetime saved properties and no paid-only actions accidentally unlocked.
-7. After authorized migrations and entitlement tests, verify equipment, service schedules, maintenance, improvements, income/expense and repairs/tasks: create, save, refresh, sign out/in, and confirm persistence. Before authorization, confirm every write control stays disabled.
+7. After the live isolation gate passes and original record editing is authorized, verify equipment, service schedules, maintenance, improvements, income/expense and repairs/tasks: create, save, refresh, sign out/in, and confirm persistence. Before authorization, confirm every write control stays disabled.
 8. Verify Print Passport shows only the selected property's records; then try blank values, zero, a long note, and an invalid date. Check for clear error messages and no duplicate saves.
 9. Check mobile and desktop layout, dark mode, and browser Back navigation.
 
@@ -27,7 +27,7 @@ Use two legitimate staging accounts belonging to **different companies**. Both a
 
 ## Release gates
 - All current GitHub Actions checks must pass on the deployment commit; older passing commits do not count.
-- New tables/RPCs have verified company-level RLS and paid entitlements on writes.
+- Original Passport tables have verified company-level RLS, and actual authenticated cross-company read/insert/update denial has been observed for each table.
 - No staging account or company data is copied to another company.
 - Browser test link points to an actual deployed staging build, not a source file.
 - Record pass/fail and screenshots for each issue before approving merge.
