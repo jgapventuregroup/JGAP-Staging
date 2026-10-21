@@ -1,6 +1,8 @@
 const tables={asset:'property_assets',service:'property_asset_services',maintenance:'property_maintenance',improvement:'property_improvements'};
 export async function saveOriginalPassportEntry({kind,values,client,companyId,dealId,getCurrentCompany,getCurrentClient}){
  const table=tables[kind];if(!table)throw Error('Unknown Passport entry');
+ // Defense in depth: importing this writer must not bypass the staging read-only gate.
+ if(globalThis.JGAP_ORIGINAL_PASSPORT_WRITES_READY!==true)throw Error('Passport record editing is not enabled for this staging workspace');
  if(!client||!companyId||!dealId||typeof getCurrentCompany!=='function'||typeof getCurrentClient!=='function')throw Error('Missing Passport context');
  if(getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Company session changed');
  if(!values||typeof values!=='object'||Array.isArray(values))throw Error('Invalid Passport entry');
