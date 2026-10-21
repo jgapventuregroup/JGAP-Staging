@@ -9,6 +9,17 @@ assert.match(html,/<input id="new-deal-name"[^>]*required/, 'Expandable property
 assert.match(html,/<button type="submit" id="new-deal-save">/, 'Expandable property form must retain its save action');
 assert.match(html,/<div class="properties-list-heading">[\s\S]*?Saved properties/, 'Saved portfolio section must remain visible outside the creation form');
 
+// Launch regression: navigation shortcuts must reach existing pages without duplicate dashboard actions.
+for (const page of ['dashboard','properties','pipeline','analyzer','toolbox']) {
+  assert.match(html,new RegExp('<section id="'+page+'" class="page(?: current)?"'), 'Navigation destination missing: '+page);
+}
+for (const page of ['analyzer','properties','pipeline','toolbox']) {
+  assert.match(html,new RegExp('<div class="dashboard-tool-grid"[^>]*>[\\s\\S]*?<button type="button" data-page="'+page+'"'), 'Dashboard shortcut missing: '+page);
+}
+assert.match(html,/<button type="button" data-page="properties">View all properties →<\/button>/, 'Recent properties must link to the portfolio');
+assert.match(html,/<button type="button" data-page="pipeline">Open pipeline →<\/button>/, 'Follow-ups must link to the pipeline');
+assert.match(html,/<button type="button" data-page="analyzer" class="pipeline-analyzer-link">/, 'Pipeline must offer direct analyzer navigation');
+
 const passportWriter=fs.readFileSync(new URL('./original-passport-writer.mjs',import.meta.url),'utf8');
 assert.match(passportWriter,/globalThis\.JGAP_ORIGINAL_PASSPORT_WRITES_READY!==true/, 'Passport writer must fail closed even when called directly');
 
