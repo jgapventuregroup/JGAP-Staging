@@ -3,6 +3,9 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
 assert.match(html,/STAGING ONLY/);
+const passportWriter=fs.readFileSync(new URL('./original-passport-writer.mjs',import.meta.url),'utf8');
+assert.match(passportWriter,/globalThis\.JGAP_ORIGINAL_PASSPORT_WRITES_READY!==true/, 'Passport writer must fail closed even when called directly');
+
 assert.match(html,/window\.JGAP_ORIGINAL_PASSPORT_WRITES_READY=false/, 'Original Passport writes must stay disabled pending authenticated company-isolation tests');
 const passportUi=fs.readFileSync(new URL('./property-passport-preview.mjs',import.meta.url),'utf8');
 assert.match(passportUi,/Financial snapshot updates use a separate, verified save function/, 'Financial save and original record read-only status must be distinguished');
