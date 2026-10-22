@@ -34,3 +34,17 @@ test('loader rejects malformed database responses rather than treating them as e
  const client={from(){return {select(){return this},eq(){return this},then(resolve){resolve({data:null,error:null})}}}};
  await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1'}),/Invalid assets records/);
 });
+
+test('loader stops after active company changes during a database request',async()=>{
+ let queries=0,activeCompany='c1';
+ const client={from(){queries++;return {select(){return this},eq(){return this},then(resolve){activeCompany='c2';resolve({data:[],error:null})}}}};
+ await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1',getCurrentCompany:()=>activeCompany,getCurrentClient:()=>client}),/Company session changed/);
+ assert.equal(queries,1);
+});
+test('loader rejects a client session change before starting another query',async()=>{
+ let activeClient,queries=0;
+ const client={from(){queries++;return {select(){return this},eq(){return this},then(resolve){activeClient={};resolve({data:[],error:null})}}}};
+ activeClient=client;
+ await assert.rejects(loadOriginalPassportRecords({client,companyId:'c1',propertyId:'p1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>activeClient}),/Client session changed/);
+ assert.equal(queries,1);
+});
