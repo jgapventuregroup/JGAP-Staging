@@ -218,7 +218,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       accessNote.className='passport-access-status';
       panel.append(accessNote);
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true){
-        const legacy=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
+        const legacy=await loadOriginalPassportRecords({client,companyId,propertyId:record.id,getCurrentCompany,getCurrentClient});
         if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
         const passportSections={};
         for(const [kind,title,key] of [['asset','Systems & equipment','assets'],['service','Service schedules','services'],['maintenance','Maintenance history','maintenance'],['improvement','Improvements','improvements']]){
@@ -239,7 +239,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
               if(error?.partialSave){
                 if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after partial save');
                 try{
-                  const saved=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});
+                  const saved=await loadOriginalPassportRecords({client,companyId,propertyId:record.id,getCurrentCompany,getCurrentClient});
                   if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after partial save');
                   const selector=editor.querySelector('select[name="asset_id"]');
                   if(selector){
@@ -277,7 +277,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
               throw error;
             }
             let updated;
-            try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});}
+            try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id,getCurrentCompany,getCurrentClient});}
             catch(error){
               if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after save');
               const warning=document.createElement('p');warning.setAttribute('role','alert');warning.textContent='Record saved, but the Passport could not refresh. Close and reopen it to see the latest data.';editor.prepend(warning);
@@ -296,7 +296,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
             await saveOriginalPassportEntry({kind,values,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
             let updated;
-            try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id});}
+            try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id,getCurrentCompany,getCurrentClient});}
             catch(error){
               if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed after save');
               const warning=document.createElement('p');warning.setAttribute('role','alert');warning.textContent='Record saved, but the Passport could not refresh. Close and reopen it to see the latest data.';editor.prepend(warning);
