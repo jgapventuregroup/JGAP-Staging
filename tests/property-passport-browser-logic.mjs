@@ -129,3 +129,14 @@ test('every live Passport record load supplies active company and client guards'
   assert.match(match[1],/getCurrentClient/);
  }
 });
+
+test('staging Passport action receives live company and client callbacks',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const source=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ const call=source.match(/JGAPPassportPreview\?\.addAction\(\{line:actions,[\s\S]*?fetchDeal:/);
+ assert.ok(call,'Expected staging Passport action');
+ assert.match(call[0],/getCurrentCompany:\(\)=>companyId/);
+ assert.match(call[0],/getCurrentClient:\(\)=>client/);
+ assert.doesNotMatch(call[0],/getCurrentCompany:\(\)=>activeCompany/);
+ assert.doesNotMatch(call[0],/getCurrentClient:\(\)=>activeClient/);
+});
