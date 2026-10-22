@@ -18,8 +18,8 @@ export async function preflightPassportIsolation({client,ownCompanyId,ownDealId,
   const foreign=await client.from(table).select('id,company_id,deal_id').eq('deal_id',otherDealId);
   guard();
   if(foreign.error||!Array.isArray(foreign.data))throw Error(table+': foreign read failed');
-  if(foreign.data.some(row=>row.company_id===otherCompanyId))throw Error(table+': cross-company data exposed');
-  results.push({table,ownRead:'passed',foreignRead:'no foreign records visible'});
+  if(foreign.data.length!==0)throw Error(table+': foreign property returned rows; cannot prove isolation');
+  results.push({table,ownRead:'passed',foreignRead:'zero rows visible'});
  }
  return {userId:auth.user.id,results,writeIsolationVerified:false};
 }
