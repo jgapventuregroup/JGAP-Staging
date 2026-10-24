@@ -44,10 +44,11 @@ Do not commit `.env` files, session tokens, passwords or database exports contai
 | `company_lifetime_deal_usage` | Monotonic save counter; deletion never refunds Free quota |
 | `company_subscriptions`, `subscription_change_audit`, `billing_webhook_events` | Server-managed plan/status, audit and webhook idempotency |
 | `lenders` | Company-scoped lender contacts |
+| `property_ledger_entries`, `property_repairs`, `property_tasks` | Live basic operations; company/deal FKs, immutable identity, server attribution/timestamps; own-company reads retained after downgrade and paid/owner-preview editing |
 | `property_assets`, `property_asset_services`, `property_maintenance`, `property_improvements` | Original Passport records; company/deal/equipment composite foreign keys; editors gated |
 | Eligibility, abuse-review and invitation tables | Restricted administrative/onboarding functions; no broad client policies |
 
-Important RPCs: `list_my_companies`, `create_my_company`, `list_company_deals`, `get_company_deal`, `create_company_deal`, `update_company_deal`, `create_company_deal_from_listing`, `get_my_lifetime_deal_usage`, `can_access_passport`, `has_owner_preview_access`, `update_passport_financials`. Review their deployed definitions and grants when changing callers.
+Important RPCs: `list_my_companies`, `create_my_company`, `list_company_deals`, `get_company_deal`, `create_company_deal`, `update_company_deal`, `create_company_deal_from_listing`, `get_my_lifetime_deal_usage`, `can_access_passport`, `has_owner_preview_access`, `update_passport_financials`, `property_operations_access`. Review their deployed definitions and grants when changing callers.
 
 **There is not yet a complete reproducible database bootstrap in this repository.** Earlier changes exist in staging's Supabase migration history, with assorted snapshots in `supabase/*.sql` and proposals in `docs/sql-drafts/`. Do not run all these files or treat draft SQL as applied migrations. Do not run a blind `db push` against an existing environment.
 
@@ -65,13 +66,13 @@ The incremental financial-write guard is in `supabase/migrations/20261024133246_
 | Purchase/finance | Purchase price, current value, mortgage balance, equity, rent/expense snapshot; authorized financial snapshot editing |
 | Notes/follow-ups | Existing deal notes and pipeline stage/date; not a separate task-history system |
 | Systems, equipment, service schedules, maintenance, improvements | Existing tables, readers and recovered writers; **read-only in this V1 staging build** pending the real-session security gate |
-| Income/expense ledger, repairs and tasks | Modules and reviewed schema proposals exist; live operation tables are absent; no live transaction accounting claim |
+| Income/expense ledger, repairs and tasks | Basic connected records, history, add/edit, repair completion/costs and task completion/reopening. Cash totals are all recorded ledger entries, separate from repair costs; not CPA-ready advanced accounting |
 | Documents | Upload/storage permissions and complete document management not implemented |
 | History | Existing stored dates/records only; no comprehensive versioned property history |
 | Advanced Pro suite | Money-Making System, Market Map, Deal Radar, alerts, lead generation, advanced reports/customization/team controls remain incomplete |
 | Laundromat Division | Deferred; excluded from this release |
 
-The full approved Pro offering is **not yet handoff-complete**. Keep missing capabilities clearly labeled. Do not sell a complete Passport or advanced suite based solely on a plan label. Completing these modules remains development work, distinct from the outside company's billing/deployment responsibilities.
+The full approved Pro offering is **not yet handoff-complete**. Keep missing capabilities clearly labeled. Do not sell a complete Passport or advanced suite based solely on a plan label. Document handling and advanced Pro modules remain development work, distinct from the outside company's billing/deployment responsibilities.
 
 ## Tests and evidence
 
@@ -79,11 +80,22 @@ The full approved Pro offering is **not yet handoff-complete**. Keep missing cap
 - `npm test` runs app/Analyzer/onboarding/account recovery/listing/lender/billing tests and Passport/module regression tests. Most browser behavior tests use mocked DOM/data; they do not prove live Auth email delivery, real subscription provisioning or production RLS.
 - `npm run check:edge` runs Deno type checking for the two existing billing functions; it does not deploy/enable them.
 - `tests/staging-membership-security.sql` passed nine grouped staging checks using fictional companies and rollback. It exercises database entitlements, invalid amounts, lifetime counts after deletion, subscription tampering, active/inactive/downgrade behavior and viewers. It simulates Auth identity under the database role and is supplemental evidence only. Use SQL stop-on-error behavior; rollback/disconnect after any failure.
+- `tests/staging-operations-security.sql` passed six grouped checks using two companies and rollback: own create/update/persistence, foreign access denial, immutable identity, creator spoofing, company/deal FK, inactive/downgrade retention and denial, viewer denial, Pro editing, task timestamps and anonymous denial. These are database-role tests, not normal signed-in sessions.
 - `tests/staging-tenant-isolation.sql` is read-only supplemental SQL, not original Passport writer approval.
 - `scripts/passport-live-isolation.mjs` is an opt-in real-session gate. Supply private environment values `TKA_STAGING_PUBLISHABLE_KEY`, `TKA_SESSION_A`, `TKA_SESSION_B`, `TKA_COMPANY_A`, `TKA_COMPANY_B`, and `TKA_RUN_LIVE_PASSPORT_TEST=staging-fixtures-only`; run `node scripts/passport-live-isolation.mjs`. Sessions must come from normal verified sign-in for two different users, each allowed to edit its company and not belonging to the opposite company. Both must already have server-authorized Passport access; this runner never changes subscriptions, creates users or fabricates tokens.
 - The live runner creates two fictional properties per company, tests each original table's own SELECT/INSERT/UPDATE, cross-company access/transfer refusal, service equipment relationships and anonymous denial. It removes only properties it created, using their exact IDs and run-specific names. Creation still increments lifetime counters. Use designated staging test workspaces; inspect fixture cleanup after failures. Do not use customer or production workspaces. Exported evidence uses A/B labels and HTTP statuses, never session tokens or returned private row bodies. The offline tests validate the runner's guards; **they do not mean the live suite has run**.
 - Rendered desktop/mobile/print QA remains pending in this takeover environment: Chromium was unavailable and its download did not produce a valid archive. Responsive source checks and mocked DOM navigation passed; do not describe these as real-device verification.
 - Even after live runner success, inspect evidence and recheck session persistence/browser workflows before removing the existing hard write gate. No automatic test toggles `JGAP_ORIGINAL_PASSPORT_WRITES_READY`.
+
+## Basic property operations integration
+
+The additive migration `supabase/migrations/20261024135041_property_operations.sql` is applied only to staging. It uses the existing `(company_id,id)` unique deal index, not a second property model. Earlier review-only drafts are proposals, not an instruction to replay them now. The staging connector recorded remote version `20261024135119`; reconcile that mapping with the CLI-generated source filename before future CLI history operations.
+
+`property_operations_access` returns read/write presentation capability for the selected workspace. The app does not enable operations if the RPC fails. Every actual read/write still uses table grants and RLS. Paid Investor/Pro and verified staging owner preview may edit; company viewers may read; Free/inactive members keep their own history but cannot write. Original systems/equipment/service/maintenance/improvement writers remain separately disabled.
+
+`property-activity-writer.mjs` reuses existing validators for both inserts and updates. Updates filter exact ID/company/deal; form input cannot override scope. Record creator, creation date and ownership are immutable; task completion time is derived by the database, including reopening. Client DELETE is intentionally not granted. Deleting a parent property through an authorized existing workflow cascades its activity, so preserve backup/recovery procedures.
+
+Passport Operations shows entries and summaries and provides collapsed add forms and inline edit forms. Confirmed saves with failed refresh lock the form until the Passport is reopened. Late company/session results are discarded. Transaction totals page through the complete history; more than 10,000 entries per collection fails closed instead of showing a misleading total. This is a V1 display limit. Keep real-device QA open; new DOM mocks do not prove rendered layouts.
 
 ## Billing and advertising integration
 

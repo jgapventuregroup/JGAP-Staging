@@ -26,13 +26,14 @@ const elements = new Map();
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
 const companies = [{ company_id: 'a', company_name: 'Company A', member_role: 'viewer' }, { company_id: 'b', company_name: 'Company B', member_role: 'owner' }];
 const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
-let membership={plan:'free',billing_status:'not_connected'}, passportAllowed=false, ownerPreviewAllowed=false, passportEligibility;
+let membership={plan:'free',billing_status:'not_connected'}, passportAllowed=false, ownerPreviewAllowed=false, passportEligibility,operationsCapability={read:false,write:false};
 const adSlots=[new Element('aside'),new Element('aside')];
 const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = []; let lifetimeB = 0;
 const fakeClient = {
   auth: { signInWithPassword: async ({ email }) => ({ data: { user: { email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
   rpc: async (name, args) => {
     calls.push({ name, args });
+    if (name === 'property_operations_access') return {data:operationsCapability,error:null};
     if (name === 'can_access_passport') return {data:passportAllowed,error:null};
     if (name === 'has_owner_preview_access') return {data:ownerPreviewAllowed,error:null};
     if (name === 'list_my_companies') return { data: onboardingMode ? (onboardingCreated ? [{company_id:'new-company',company_name:'My Investment Company',member_role:'owner'}] : []) : companies, error: null };
@@ -231,6 +232,12 @@ for(const [plan,billing_status,allowed,expectPassport,expectAds] of [
  assert.ok(adSlots.every(slot=>slot.hidden===!expectAds),plan+'/'+billing_status+' ad placement eligibility');
  assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Plan changes cannot open original record writers');
 }
+membership={plan:'investor',billing_status:'active'};passportAllowed=true;
+for(const capability of [{read:false,write:true},{read:true,write:false},{read:true,write:true}]){
+ operationsCapability=capability;el('company').value='b';await el('company').onchange();
+ assert.equal(context.window.JGAP_OPERATIONS_TABLES_READY,capability.read,'Reads must come from server capability');
+ assert.equal(context.window.JGAP_OPERATIONS_WRITES_READY,capability.read&&capability.write,'Editing requires both server read and write capability');
+}
 ownerPreviewAllowed=true;passportAllowed=true;
 el('company').value='b';await el('company').onchange();
 assert.equal(passportEligibility.enabled,true,'Verified owner preview works separately from Free subscription');
@@ -238,6 +245,7 @@ assert.match(el('membership-title').textContent,/Verified owner preview/);
 console.log('PASS: backend Passport denial wins over client plan labels; Pro ad-free; inactive/downgraded access closes; owner preview separate');
 await el('logout').onclick();
 assert.equal(el('deals').children.length, 0);
+assert.equal(context.window.JGAP_OPERATIONS_WRITES_READY,false,'Sign-out revokes activity editors');
 assert.equal(el('workspace').classList.contains('hidden'), true);
 assert.equal(el('password').value, '');
 console.log('PASS: customer workflow — explicit workspace choice, refreshing sessions, read-only analysis, stale financing, failed switches, owner access, sign-out');

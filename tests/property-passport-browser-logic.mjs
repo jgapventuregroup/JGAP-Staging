@@ -8,8 +8,10 @@ test('Passport preview requires active entitlement and ignores stale company res
  const previousWindow=globalThis.window;
  const elements=[];
  function node(tag){
-   const item={tag,children:[],attributes:{},textContent:'',disabled:false,isConnected:true,
+   const item={tag,dataset:{},children:[],attributes:{},textContent:'',disabled:false,isConnected:true,
      append(...children){for(const child of children){this.children.push(child);if(child&&typeof child==='object')child.parentNode=this}},
+     addEventListener(){},
+     replaceChildren(...items){this.children=[];this.append(...items)},
      setAttribute(k,v){this.attributes[k]=v},
      after(child){this.afterNode=child},
      remove(){this.removed=true},
@@ -83,6 +85,22 @@ test('Passport preview requires active entitlement and ignores stale company res
    await wrongCompany.children[0].onclick();
    assert.match(wrongCompany.afterNode?.textContent||'',/did not match the selected company and property/,'A matching property ID with the wrong company cannot display Passport');
    assert.equal(wrongCompany.children[0].attributes['aria-expanded'],'false','Rejected company must remain collapsed');
+   preview.clear();preview.setEligibility({companyId:'c1',enabled:true});
+   window.JGAP_OPERATIONS_WRITES_READY=true;
+   const activityLine=node('p');
+   preview.addAction({...options,line:activityLine,fetchOperations:async()=>({ledger:[{id:'income-1',company_id:'c1',deal_id:'deal-1',entry_type:'income',entry_date:'2026-10-24',category:'Rent',amount:'1250.00'}],repairs:[],tasks:[]})});
+   await activityLine.children[0].onclick();
+   assert.equal(activityLine.afterNode?.attributes['aria-label'],'Property Passport',activityLine.afterNode?.textContent);
+   assert.ok(elements.some(el=>el.dataset?.activityTotal==='income'&&el.textContent==='$1,250.00'),'Actual ledger totals must appear');
+   assert.ok(elements.some(el=>el.textContent==='Property activity history'),'Recorded entries must be visible, not just aggregate totals');
+   assert.ok(elements.some(el=>el.attributes?.['aria-label']==='Add task'),'Authorized operations editor must be wired into Passport');
+   preview.clear();preview.setEligibility({companyId:'c1',enabled:true});
+   const activityFailure=node('p');
+   preview.addAction({...options,line:activityFailure,fetchOperations:async()=>{throw Error('unavailable')}});
+   await activityFailure.children[0].onclick();
+   assert.equal(activityFailure.afterNode?.attributes['aria-label'],'Property Passport','Activity network failure must preserve the existing financial Passport');
+   assert.ok(activityFailure.afterNode.children.some(el=>el.attributes?.['aria-label']==='Edit Passport financials'));
+   assert.ok(activityFailure.afterNode.children.some(el=>el.textContent?.startsWith('Property activity could not load')),'Do not present failed loads as zero totals');
    let release;
    options.fetchDeal=()=>new Promise(resolve=>{release=resolve});
    const second=node('p');
