@@ -46,7 +46,7 @@ jobs:
             const file=path.join(root,relative);
             if(!fs.existsSync(file))throw Error('Missing preview module: '+relative);
             const source=fs.readFileSync(file,'utf8');
-            for(const match of source.matchAll(/(?:import|export)\\s+(?:[^'\";]*?\\s+from\\s+)?['\"](\\.[^'\"]+)['\"]/g)){
+            for(const match of source.matchAll(/(?:import|export)\s+(?:[^'\";]*?\s+from\s+)?['\"](\.[^'\"]+)['\"]/g)){
               const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(relative),match[1]));
               if(!dependency.startsWith('../'))queue.push(dependency);
             }
