@@ -42,13 +42,14 @@ Do not commit `.env` files, session tokens, passwords or database exports contai
 | `companies`, `company_members` | Workspace identity and owner/admin/editor/viewer roles |
 | `deals` | Saved properties, underwriting, offer fields, notes, follow-up and Passport financial snapshot |
 | `company_lifetime_deal_usage` | Monotonic save counter; deletion never refunds Free quota |
+| `property_ledger_bookkeeping` | Pro-only supplementary bookkeeping attached to exact existing ledger entries; retained but inaccessible after downgrade |
 | `company_subscriptions`, `subscription_change_audit`, `billing_webhook_events` | Server-managed plan/status, audit and webhook idempotency |
 | `lenders` | Company-scoped lender contacts |
 | `property_ledger_entries`, `property_repairs`, `property_tasks` | Live basic operations; company/deal FKs, immutable identity, server attribution/timestamps; own-company reads retained after downgrade and paid/owner-preview editing |
 | `property_assets`, `property_asset_services`, `property_maintenance`, `property_improvements` | Original Passport records; company/deal/equipment composite foreign keys; editors gated |
 | Eligibility, abuse-review and invitation tables | Restricted administrative/onboarding functions; no broad client policies |
 
-Important RPCs: `list_my_companies`, `create_my_company`, `list_company_deals`, `get_company_deal`, `create_company_deal`, `update_company_deal`, `create_company_deal_from_listing`, `get_my_lifetime_deal_usage`, `can_access_passport`, `has_owner_preview_access`, `update_passport_financials`, `property_operations_access`. Review their deployed definitions and grants when changing callers.
+Important RPCs: `list_my_companies`, `create_my_company`, `list_company_deals`, `get_company_deal`, `create_company_deal`, `update_company_deal`, `create_company_deal_from_listing`, `get_my_lifetime_deal_usage`, `can_access_passport`, `has_owner_preview_access`, `update_passport_financials`, `property_operations_access`, `advanced_finance_access`, `get_advanced_finance_report`, `save_property_bookkeeping`. Review their deployed definitions and grants when changing callers.
 
 **There is not yet a complete reproducible database bootstrap in this repository.** Earlier changes exist in staging's Supabase migration history, with assorted snapshots in `supabase/*.sql` and proposals in `docs/sql-drafts/`. Do not run all these files or treat draft SQL as applied migrations. Do not run a blind `db push` against an existing environment.
 
@@ -69,10 +70,10 @@ The incremental financial-write guard is in `supabase/migrations/20261024133246_
 | Income/expense ledger, repairs and tasks | Basic connected records, history, add/edit, repair completion/costs and task completion/reopening. Cash totals are all recorded ledger entries, separate from repair costs; not CPA-ready advanced accounting |
 | Documents | Upload/storage permissions and complete document management not implemented |
 | History | Existing stored dates/records only; no comprehensive versioned property history |
-| Advanced Pro suite | Money-Making System, Market Map, Deal Radar, alerts, lead generation, advanced reports/customization/team controls remain incomplete |
+| Advanced Pro suite | Financial Reports and bookkeeping CSV are restored in a bounded scope (see `finance-recovery.md`). Money-Making System, Market Map, Deal Radar, alerts, lead generation, customization and advanced team controls remain incomplete |
 | Laundromat Division | Deferred; excluded from this release |
 
-The full approved Pro offering is **not yet handoff-complete**. Keep missing capabilities clearly labeled. Do not sell a complete Passport or advanced suite based solely on a plan label. Document handling and advanced Pro modules remain development work, distinct from the outside company's billing/deployment responsibilities.
+The full approved Pro offering is **not yet handoff-complete**. Keep missing capabilities clearly labeled. Do not sell a complete Passport or advanced suite based solely on a plan label. Document handling and the remaining advanced Pro modules remain development work, distinct from the outside company's billing/deployment responsibilities.
 
 ## Tests and evidence
 
@@ -96,6 +97,12 @@ The additive migration `supabase/migrations/20261024135041_property_operations.s
 `property-activity-writer.mjs` reuses existing validators for both inserts and updates. Updates filter exact ID/company/deal; form input cannot override scope. Record creator, creation date and ownership are immutable; task completion time is derived by the database, including reopening. Client DELETE is intentionally not granted. Deleting a parent property through an authorized existing workflow cascades its activity, so preserve backup/recovery procedures.
 
 Passport Operations shows entries and summaries and provides collapsed add forms and inline edit forms. Confirmed saves with failed refresh lock the form until the Passport is reopened. Late company/session results are discarded. Transaction totals page through the complete history; more than 10,000 entries per collection fails closed instead of showing a misleading total. This is a V1 display limit. Keep real-device QA open; new DOM mocks do not prove rendered layouts.
+
+## Recovered Pro reporting
+
+See `finance-recovery.md` for the original-module mapping, backend contracts, five grouped staging security checks and explicit accounting/document limitations. `finance-cpa.mjs` mounts into the existing app's Financial Reports page, which uses company-scoped invoker RPCs rather than client-selected plan values. The deploy and preview allowlists include this module. Report exports re-authorize and reload identical filters immediately before download; company/filter changes invalidate older responses.
+
+Migration source `supabase/migrations/20261024142418_advanced_finance.sql` maps to remote staging history version `20261024142543`. Pro bookkeeping is stored separately from the basic ledger so Investor access to basic records does not expose Pro-only metadata. The exact transaction ID replaces the original latest-row lookup. Downgrade preserves metadata; reactivation restores its visibility. Normal signed-in, device and final export QA remain open.
 
 ## Billing and advertising integration
 

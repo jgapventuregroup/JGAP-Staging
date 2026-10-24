@@ -29,7 +29,7 @@ jobs:
       - name: Package Investor preview
         run: |
           mkdir -p dist/previews
-          cp index.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
+          cp index.html finance-cpa.mjs config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
           cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html dist/previews/
       - name: Verify bundled Passport module imports resolve
         run: |
