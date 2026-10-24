@@ -192,3 +192,62 @@ test('Passport notes save exact scope, verify persistence and preserve text on f
   const blocked=make();await submit(blocked);assert.equal(calls.length,before+1,'Closed or stale Passport cannot save');
  }finally{globalThis.document=previousDocument;}
 });
+
+test('Passport property details validate units, verify exact saved fields and reject stale results',async()=>{
+ const previousDocument=globalThis.document;
+ globalThis.document={createElement:tag=>({tag,children:[],value:'',disabled:false,setAttribute(k,v){this[k]=v},append(...items){this.children.push(...items)}})};
+ try{
+  const {createPassportDetailsEditor}=await import('../property-passport-preview.mjs');
+  const record={id:'property-A',company_id:'company-A',property_type:'Duplex',units:2};
+  const calls=[];let current=true,mode='success',expected={property_type:'Triplex',units:3},shown=null,release;
+  const client={rpc:async(name,args)=>{
+   calls.push({name,args});
+   if(mode==='pending'&&name==='update_company_deal')await new Promise(resolve=>{release=resolve});
+   if(mode==='denied')return {error:Error('Read-only role')};
+   if(mode==='offline'&&name==='get_company_deal')return {error:Error('Offline')};
+   return {data:{...record,...expected,...(mode==='foreign'?{id:'property-B'}:{}),...(mode==='mismatch'&&name==='get_company_deal'?{units:2}:{})}};
+  }};
+  const make=()=>createPassportDetailsEditor({record,client,companyId:'company-A',isCurrent:()=>current,onSaved:value=>{shown=value}});
+  const submit=form=>form.onsubmit({preventDefault(){}});
+  let form=make();assert.equal(form.children[1].children[0].value,'Duplex');assert.equal(form.children[2].children[0].value,'2');
+  form.children[1].children[0].value=' Triplex ';form.children[2].children[0].value='3';await submit(form);
+  assert.deepEqual(calls[0].args,{p_company_id:'company-A',p_deal_id:'property-A',p_patch:{property_type:'Triplex',units:3}});assert.deepEqual(shown,{propertyType:'Triplex',units:3});
+  for(const value of ['0','-1','1.5','NaN','2147483648']){
+   form=make();form.children[2].children[0].value=value;const before=calls.length;await submit(form);assert.equal(calls.length,before,'Invalid units cannot save: '+value);assert.match(form.children[4].textContent,/positive whole number/);
+  }
+  form=make();form.children[1].children[0].value=' ';const beforeBlank=calls.length;await submit(form);assert.equal(calls.length,beforeBlank);assert.match(form.children[4].textContent,/Enter a property type/);
+  expected={property_type:'Duplex',units:null};form=make();form.children[2].children[0].value='';await submit(form);assert.equal(shown.units,null,'Unknown units must remain unknown');
+  expected={property_type:'Duplex',units:3};
+  for(const failure of ['denied','foreign','offline','mismatch']){
+   mode=failure;shown=null;form=make();form.children[2].children[0].value='3';await submit(form);
+   assert.equal(shown,null,'Unverified details cannot replace display');assert.equal(form.children[2].children[0].value,'3','Draft retained');assert.equal(form.children[3].disabled,false);
+   assert.match(form.children[4].textContent,['offline','mismatch'].includes(failure)?/saved, but reload/:/Could not save property details/);
+  }
+  mode='pending';form=make();form.children[2].children[0].value='3';const before=calls.length;const pending=submit(form);await submit(form);assert.equal(calls.length,before+1);current=false;release();await pending;assert.equal(calls.length,before+1,'Stale save cannot fetch or render another property');
+ }finally{globalThis.document=previousDocument;}
+});
+
+test('Passport Overview renders company context and gives editors, not viewers, detail forms',async()=>{
+ const oldDocument=globalThis.document,oldWindow=globalThis.window;
+ function node(tag){
+  const element={tagName:tag.toUpperCase(),children:[],dataset:{},attributes:{},textContent:'',value:'',setAttribute(k,v){this.attributes[k]=v},getAttribute(k){return this.attributes[k]},append(...items){this.children.push(...items)},remove(){},after(item){this.afterNode=item},scrollIntoView(){},focus(){},addEventListener(){}};
+  element.querySelectorAll=selector=>element.children.flatMap(child=>{if(!child?.tagName)return [];return [...(child.tagName.toLowerCase()===selector?[child]:[]),...(child.querySelectorAll?.(selector)||[])]});
+  element.querySelector=selector=>element.querySelectorAll(selector)[0]||null;
+  return element;
+ }
+ globalThis.document={createElement:node,createTextNode:text=>({textContent:text})};globalThis.window={};
+ try{
+  await import(pathToFileURL(resolve('property-passport-preview.mjs')).href+'?details-render-test');
+  const preview=window.JGAPPassportPreview,client={};
+  for(const canWrite of [false,true]){
+   preview.setEligibility({companyId:'company-A',enabled:true,canWrite});const line=node('div');
+   preview.addAction({line,deal:{id:'property-A',name:'Duplex'},companyId:'company-A',companyName:'Company A',client,getCurrentCompany:()=> 'company-A',getCurrentClient:()=>client,fetchDeal:async()=>({id:'property-A',company_id:'company-A',name:'Duplex',property_type:'Duplex',units:2})});
+   await line.children[0].onclick();const panel=line.afterNode;assert.equal(panel.attributes['aria-label'],'Property Passport');
+   const details=panel.children.find(child=>child.getAttribute?.('aria-label')==='Property details');
+   assert.ok(details.children.some(child=>child.children?.some(part=>part.textContent==='Company A')),'Owning workspace context is visible');
+   const forms=panel.querySelectorAll('form');
+   assert.equal(forms.some(form=>form.attributes['aria-label']==='Edit property details'),canWrite);
+   assert.equal(forms.some(form=>form.attributes['aria-label']==='Edit property notes'),canWrite);
+  }
+ }finally{globalThis.document=oldDocument;globalThis.window=oldWindow;}
+});

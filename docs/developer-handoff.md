@@ -63,7 +63,7 @@ The incremental financial-write guard is in `supabase/migrations/20261024133246_
 
 | Passport requirement | Current implementation / limitation |
 | --- | --- |
-| Details | Saved address/type/stage/units and purchase date; ownership is company context, not a title/deed management system |
+| Details | Saved address/type/stage/units and purchase date; type and units editable by authorized roles with verified reload; ownership is company context, not a title/deed management system |
 | Purchase/finance | Purchase price, current value, mortgage balance, equity, rent/expense snapshot; authorized financial snapshot editing |
 | Notes/follow-ups | Existing deal notes and pipeline stage/date; not a separate task-history system |
 | Systems, equipment, service schedules, maintenance, improvements | Existing tables, readers and recovered writers; **read-only in this V1 staging build** pending the real-session security gate |

@@ -35,3 +35,6 @@ Use two legitimate staging accounts belonging to **different companies**. Both a
 
 ## October 24 automation update
 The opt-in runner `scripts/passport-live-isolation.mjs` now implements the separate real-session requests above. See `developer-handoff.md` for private environment setup, fictional fixture creation/cleanup and evidence limits. Its configuration/denial-classification unit tests run offline; live authenticated verification has **not** run in this takeover session. Original writers remain disabled.
+
+## Added Overview editors — targeted acceptance still open
+On the final release candidate, check the new notes and type/unit editors on desktop and phone. Save and reopen notes (including multiline text and clearing), change type/unit count, confirm blank units show “Not recorded,” and confirm saved values appear on Print Passport. Viewers should see records without these editors. Failed saves must preserve drafts; switching company during a save must not display the previous property. This is targeted acceptance of the added editors, not a request to repeat previously completed general account tests.

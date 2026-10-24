@@ -43,6 +43,41 @@ export function createPassportNotesEditor({record,client,companyId,isCurrent,onS
   return form;
 }
 
+export function createPassportDetailsEditor({record,client,companyId,isCurrent,onSaved}){
+  const form=document.createElement('form');form.setAttribute('aria-label','Edit property details');
+  const title=document.createElement('h3');title.textContent='Update property details';
+  const typeLabel=document.createElement('label');typeLabel.textContent='Property type';
+  const type=document.createElement('input');type.type='text';type.required=true;type.value=record.property_type??'';type.placeholder='For example, duplex or single-family';typeLabel.append(type);
+  const unitsLabel=document.createElement('label');unitsLabel.textContent='Number of units (leave blank if unknown)';
+  const units=document.createElement('input');units.type='number';units.min='1';units.max='2147483647';units.step='1';units.value=record.units==null?'':String(record.units);unitsLabel.append(units);
+  const save=document.createElement('button');save.type='submit';save.textContent='Save property details';
+  const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+  form.append(title,typeLabel,unitsLabel,save,status);
+  let pending=false;
+  form.onsubmit=async event=>{
+    event.preventDefault();if(pending||!isCurrent())return;
+    const propertyType=type.value.trim(),rawUnits=units.value.trim();
+    if(!propertyType){status.textContent='Enter a property type.';return;}
+    if(rawUnits!==''&&(!/^\d+$/.test(rawUnits)||!Number.isSafeInteger(Number(rawUnits))||Number(rawUnits)<1||Number(rawUnits)>2147483647)){status.textContent='Enter a positive whole number of units, or leave it blank if unknown.';return;}
+    const unitCount=rawUnits===''?null:Number(rawUnits);
+    const matches=value=>value?.id===record.id&&value.company_id===companyId&&value.property_type?.trim()===propertyType&&(value.units==null?null:Number(value.units))===unitCount;
+    pending=true;save.disabled=true;type.disabled=true;units.disabled=true;status.textContent='Saving property details…';
+    let confirmed=false;
+    try{
+      const {data,error}=await client.rpc('update_company_deal',{p_company_id:companyId,p_deal_id:record.id,p_patch:{property_type:propertyType,units:unitCount}});
+      if(!isCurrent())return;if(error)throw error;
+      const saved=Array.isArray(data)?data[0]:data;if(!matches(saved))throw Error('Save response did not match this property and details.');
+      confirmed=true;
+      const {data:loaded,error:loadError}=await client.rpc('get_company_deal',{p_company_id:companyId,p_deal_id:record.id});
+      if(!isCurrent())return;if(loadError)throw loadError;
+      const fresh=Array.isArray(loaded)?loaded[0]:loaded;if(!matches(fresh))throw Error('Reloaded property details could not be verified.');
+      onSaved({propertyType,units:unitCount});type.value=propertyType;units.value=unitCount==null?'':String(unitCount);status.textContent='Property details saved and verified.';
+    }catch(error){if(isCurrent())status.textContent=(confirmed?'Property details saved, but reload could not be verified. Reopen the Passport to check before editing again. ':'Could not save property details. ')+(error?.message||'Unknown error');}
+    finally{pending=false;if(isCurrent()){save.disabled=false;type.disabled=false;units.disabled=false;}}
+  };
+  return form;
+}
+
 // Read-only preview. Paid entitlement must be verified by the server before activation.
 let eligibility={companyId:null,enabled:false};
 let requestId=0;
@@ -77,7 +112,7 @@ function setEligibility(next){
   expandedButton=null;
   eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true,canWrite:next?.canWrite===true};
 }
-function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
+function addAction({line,deal,companyId,companyName,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
   if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
   const button=document.createElement('button');
   button.type='button';
@@ -154,7 +189,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
       const passportMoney=new Set(['Purchase price','Current market value','Mortgage balance','Estimated equity','Target offer','Monthly rent','Operating expenses / month']);
       const formatPassportValue=(label,value)=>value===null?'Not recorded':passportMoney.has(label)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value):String(value);
       for(const [groupTitle,fields] of [
-        ['Property details',[['Address',p.address],['Type',p.propertyType],['Stage',p.status],['Units',p.units],['Purchase date',p.purchaseDate]]],
+        ['Property details',[['Company workspace',companyName||companyId],['Address',p.address],['Type',p.propertyType],['Stage',p.status],['Units',p.units],['Purchase date',p.purchaseDate]]],
         ['Financial snapshot',[['Purchase price',p.purchasePrice],['Current market value',p.currentValue],['Mortgage balance',p.mortgageBalance],['Estimated equity',p.equity],['Target offer',p.targetOfferPrice],['Monthly rent',p.monthlyRent],['Operating expenses / month',p.monthlyOperatingExpenses]]],
         ['Notes & next steps',[['Notes',p.notes],['Follow-up',p.followUpDate]]]
       ]){
@@ -171,6 +206,15 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         panel.append(group);
       }
       if(eligibility.canWrite){
+        const detailsGroup=Array.from(panel.children).find(node=>node.getAttribute?.('aria-label')==='Property details');
+        detailsGroup?.append(createPassportDetailsEditor({record,client,companyId,
+          isCurrent:()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId&&eligibility.canWrite,
+          onSaved:next=>{
+            for(const [label,value] of [['Type',next.propertyType],['Units',next.units]]){
+              const row=Array.from(detailsGroup.children).find(node=>node.querySelector?.('strong')?.textContent===label+': ');
+              if(row)row.replaceChildren(Object.assign(document.createElement('strong'),{textContent:label+': '}),document.createTextNode(value==null?'Not recorded':String(value)));
+            }
+          }}));
         const notesGroup=Array.from(panel.children).find(node=>node.getAttribute?.('aria-label')==='Notes & next steps');
         const notesEditor=createPassportNotesEditor({record,client,companyId,
           isCurrent:()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId&&eligibility.canWrite,
