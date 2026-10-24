@@ -27,7 +27,7 @@ The full feature allocation is documented in `docs/membership-feature-matrix.md`
 - Reserved, labeled sponsored slots for Free/Investor, without actual ad serving.
 
 ## Known blockers — do not claim launch-ready
-1. **Build verification:** Require all four GitHub Actions workflows green on the final handoff commit. A regression appeared on Oct 24 in `tests/customer-workflow.mjs` during account onboarding after a membership presentation change; the offending script was removed in commit `8c7f422`, pending verification.
+1. **Build verification:** Require all four GitHub Actions workflows green on the final handoff commit. A regression appeared on Oct 24 in `tests/customer-workflow.mjs` during account onboarding after a membership presentation change; the offending script was removed in commit `8c7f422`. All four push workflows subsequently passed on `f305109`; the cancelled `8c7f422` Pages run was superseded by that successful deployment. A new final commit still requires its own four successful runs.
 2. **Passport editing:** Original Systems/equipment, services, maintenance and improvements editors remain deliberately disabled. Authenticated two-company SELECT/INSERT/UPDATE isolation tests must pass before enabling. Read-only preflight module is not a substitute for write testing.
 3. **Billing:** No live checkout, payment processor, subscription webhook synchronization, renewal, cancellation, or payment-failure lifecycle is connected.
 4. **Feature entitlements:** Confirm Free/Investor/Pro access matches the matrix in UI and database; test both upgrades and downgrades.
@@ -58,3 +58,10 @@ The full feature allocation is documented in `docs/membership-feature-matrix.md`
 
 ## Handoff materials
 Share repository access via GitHub permissions, this document, `docs/membership-feature-matrix.md`, `docs/property-passport-browser-test.md`, and test results. Transfer secrets through a secure credentials manager only, never chat, screenshots, or repository files.
+
+## Staging security milestone — October 24, 2026
+- Confirmed and closed a direct table-API bypass of paid Passport financial editing. The existing RPC already checked membership; an additive trigger now protects INSERT and changed financial columns on UPDATE as well. Unchanged/basic deal fields retain existing behavior. Server administration remains explicit.
+- Applied `guard_passport_financial_writes` only to staging. Source: `supabase/migrations/20261024133246_guard_passport_financial_writes.sql`. This incremental migration does not recreate the existing schema.
+- `tests/staging-membership-security.sql` passed nine grouped checks on staging: Free direct/RPC denial, unchanged basic finance editing, five lifetime saves after deletion, subscription self-upgrade denial, active Investor/Pro, past-due/canceled/downgraded access, data retention, invalid numeric rejection, and read-only viewer restrictions. All synthetic fixtures and plan changes rolled back.
+- Evidence boundary: these are database-role tests with simulated identity, **not real separately authenticated sessions**, and do not authorize enabling original Passport writers. Original table writers remain disabled.
+- Security advisors report intentional authenticated security-definer helpers requiring review, six RLS tables without client policies, and disabled leaked-password protection. Verify intentional deny-by-default grants and assess password protection availability before production. Do not add broad policies merely to silence advisors.
