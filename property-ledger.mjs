@@ -25,3 +25,17 @@ export function summarizeLedger(entries){
   }
   return {income:incomeCents/100,expenses:expenseCents/100,net:(incomeCents-expenseCents)/100};
 }
+
+// Coverage describes recorded entries only; it is not proof a month's books are complete.
+export function describeLedgerPeriod(entries){
+ if(!Array.isArray(entries))throw Error('Invalid ledger history');
+ let firstDate=null,lastDate=null;
+ for(const entry of entries){
+  const date=entry?.entry_date;
+  const parsed=typeof date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(date)?new Date(date+'T00:00:00Z'):null;
+  if(!parsed||!Number.isFinite(parsed.getTime())||parsed.toISOString().slice(0,10)!==date)throw Error('Invalid ledger entry date');
+  if(firstDate===null||date<firstDate)firstDate=date;
+  if(lastDate===null||date>lastDate)lastDate=date;
+ }
+ return {count:entries.length,firstDate,lastDate};
+}

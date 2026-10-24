@@ -4,6 +4,7 @@ import {createPassportRecordsTable} from './original-passport-display.mjs';
 import {createOriginalPassportForm,createPassportSystemForm} from './original-passport-forms.mjs';
 import {saveOriginalPassportEntry,savePassportSystemWithService} from './original-passport-writer.mjs';
 import {summarizePropertyOperations} from './property-operations.mjs';
+import {describeLedgerPeriod} from './property-ledger.mjs';
 import {fetchPropertyOperations} from './property-operations-loader.mjs';
 import {createPropertyActivityForm,createPropertyActivityRecords} from './property-activity-forms.mjs';
 
@@ -143,12 +144,12 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
       const p=projectPropertyPassport(record,companyId);
       // Operations are loaded only when a real, authorized data provider is wired in.
       // Do not display fictional or zero totals as though they were live data.
-      let operations=null,activity=null,operationsError=null;
+      let operations=null,activity=null,activityPeriod=null,operationsError=null;
       if(typeof fetchOperations==='function'){
         try{activity=await fetchOperations();}
         catch(error){operationsError=error;}
         if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
-        if(activity){try{operations=summarizePropertyOperations({...activity,asOfDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-')});}catch(error){operationsError=error;activity=null;}}
+        if(activity){try{activityPeriod=describeLedgerPeriod(activity.ledger);operations=summarizePropertyOperations({...activity,asOfDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-')});}catch(error){operationsError=error;activity=null;}}
       }
       if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
       panel?.remove();
@@ -186,11 +187,11 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
         printWindow.focus();printWindow.print();
       };
       panel.append(print);
-      const passportMoney=new Set(['Purchase price','Current market value','Mortgage balance','Estimated equity','Target offer','Monthly rent','Operating expenses / month']);
+      const passportMoney=new Set(['Purchase price','Current market value','Mortgage balance','Estimated equity','Target offer','Estimated monthly rent','Estimated operating expenses / month']);
       const formatPassportValue=(label,value)=>value===null?'Not recorded':passportMoney.has(label)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value):String(value);
       for(const [groupTitle,fields] of [
         ['Property details',[['Company workspace',companyName||companyId],['Address',p.address],['Type',p.propertyType],['Stage',p.status],['Units',p.units],['Purchase date',p.purchaseDate]]],
-        ['Financial snapshot',[['Purchase price',p.purchasePrice],['Current market value',p.currentValue],['Mortgage balance',p.mortgageBalance],['Estimated equity',p.equity],['Target offer',p.targetOfferPrice],['Monthly rent',p.monthlyRent],['Operating expenses / month',p.monthlyOperatingExpenses]]],
+        ['Financial snapshot',[['Purchase price',p.purchasePrice],['Current market value',p.currentValue],['Mortgage balance',p.mortgageBalance],['Estimated equity',p.equity],['Target offer',p.targetOfferPrice],['Estimated monthly rent',p.monthlyRent],['Estimated operating expenses / month',p.monthlyOperatingExpenses]]],
         ['Notes & next steps',[['Notes',p.notes],['Follow-up',p.followUpDate]]]
       ]){
         const group=document.createElement('section');
@@ -417,12 +418,14 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
       const operationsHeading=document.createElement('h3');
       operationsHeading.textContent='Property operations';
       panel.append(operationsHeading);
+      const periodLabel=period=>period.count===0?'No income or expenses recorded. Zero recorded totals do not verify property performance.':'All recorded dates · '+period.count+' '+(period.count===1?'entry':'entries')+' · '+period.firstDate+' to '+period.lastDate;
       if(operations){
+        const coverage=document.createElement('p');coverage.dataset.activityCoverage='true';coverage.setAttribute('role','status');coverage.textContent=periodLabel(activityPeriod);panel.append(coverage);
         const money=value=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value);
-        for(const [label,value] of [['Income',money(operations.cashFlow.income)],['Expenses',money(operations.cashFlow.expenses)],['Net cash flow',money(operations.cashFlow.net)],['Open repairs',operations.repairs.open],['Completed repairs',operations.repairs.completed],['Open tasks',operations.tasks.open],['Overdue tasks',operations.tasks.overdue]]){
+        for(const [label,value] of [['Recorded income (all dates)',money(operations.cashFlow.income)],['Recorded expenses (all dates)',money(operations.cashFlow.expenses)],['Recorded ledger net (all dates)',money(operations.cashFlow.net)],['Open repairs',operations.repairs.open],['Completed repairs',operations.repairs.completed],['Open tasks',operations.tasks.open],['Overdue tasks',operations.tasks.overdue]]){
           const row=document.createElement('p');
           const strong=document.createElement('strong');strong.textContent=label+': ';
-          const span=document.createElement('span');span.dataset.activityTotal=({'Income':'income','Expenses':'expenses','Net cash flow':'net','Open repairs':'repairsOpen','Completed repairs':'repairsCompleted','Open tasks':'tasksOpen','Overdue tasks':'tasksOverdue'})[label];span.textContent=String(value);row.append(strong,span);panel.append(row);
+          const span=document.createElement('span');span.dataset.activityTotal=({'Recorded income (all dates)':'income','Recorded expenses (all dates)':'expenses','Recorded ledger net (all dates)':'net','Open repairs':'repairsOpen','Completed repairs':'repairsCompleted','Open tasks':'tasksOpen','Overdue tasks':'tasksOverdue'})[label];span.textContent=String(value);row.append(strong,span);panel.append(row);
         }
       }else{
         const unavailable=document.createElement('p');
@@ -432,7 +435,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
       if(operations){
         const history=document.createElement('section');
         const historyTitle=document.createElement('h3');historyTitle.textContent='Property activity history';history.append(historyTitle);
-        const historyNote=document.createElement('p');historyNote.textContent='Totals include all recorded income and expenses. Repair estimates and actual costs are listed separately; add an expense when paid to include it in cash flow.';history.append(historyNote);
+        const historyNote=document.createElement('p');historyNote.textContent='Totals cover all recorded dates, not a single month. Ledger net is recorded income minus recorded expenses; it is not verified profit or a comparison with the Analyzer. Missing transactions, loan payments and other costs are not estimated automatically. Repair costs are listed separately; add an expense when paid to include it in the ledger.';history.append(historyNote);
         const records=document.createElement('div');history.append(records);
         const isCurrent=()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId;
         let refreshSequence=0;
@@ -441,11 +444,13 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
           if(!isCurrent())return;
           const fresh=await fetchPropertyOperations({client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
           if(!isCurrent()||sequence!==refreshSequence)return;
+          const freshPeriod=describeLedgerPeriod(fresh.ledger);
           const summary=summarizePropertyOperations({...fresh,asOfDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-')});
           for(const [key,value] of Object.entries({income:summary.cashFlow.income,expenses:summary.cashFlow.expenses,net:summary.cashFlow.net,repairsOpen:summary.repairs.open,repairsCompleted:summary.repairs.completed,tasksOpen:summary.tasks.open,tasksOverdue:summary.tasks.overdue})){
             const target=activePanel.querySelector('[data-activity-total="'+key+'"]');
             if(target)target.textContent=['income','expenses','net'].includes(key)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value):String(value);
           }
+          const coverage=activePanel.querySelector('[data-activity-coverage]');if(coverage)coverage.textContent=periodLabel(freshPeriod);
           renderRecords(fresh);
         };
         const renderRecords=rows=>{
@@ -466,7 +471,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
       }
       const note=document.createElement('small');
       note.setAttribute('role','status');
-      note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Property activity entries save to the connected staging database.':'Operations data is read-only until secure write access is enabled.'):'Read-only preview. No changes are saved here.';
+      note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Property activity entries save to the connected staging database.':'Operations data is read-only until secure write access is enabled.'):'Property activity is unavailable. Saved property details and authorized Passport edits remain separate.';
       panel.append(note);
       // Compact property workspace: one focused area at a time, without removing any data.
       const tabs=document.createElement('nav');
@@ -475,7 +480,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
       const sections=Array.from(panel.children);
       const groups={
         Overview:sections.filter(node=>node.tagName==='SECTION'&&['Property details','Financial snapshot','Notes & next steps'].includes(node.getAttribute?.('aria-label'))),
-        Financials:sections.filter(node=>node.tagName==='FORM'&&node.getAttribute?.('aria-label')==='Edit Passport financials'),
+        Financials:sections.filter(node=>(node.tagName==='FORM'&&node.getAttribute?.('aria-label')==='Edit Passport financials')||(node.tagName==='SECTION'&&node.getAttribute?.('aria-label')==='Financial snapshot')),
         Systems:[],
         Maintenance:[],
         Improvements:[],
@@ -542,6 +547,9 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
         };
         tabs.append(tab);
       }
+      const activityLink=document.createElement('button');activityLink.type='button';activityLink.textContent='Open income and expense records →';
+      activityLink.onclick=()=>{if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;showGroup('Operations');const tab=Array.from(tabs.children).find(node=>node.textContent==='Operations');tab?.focus?.();};
+      financeForm.append(activityLink);
       tabs.setAttribute('role','tablist');
       panel.append(tabs);
       showGroup(activeGroup);

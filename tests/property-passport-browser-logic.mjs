@@ -93,6 +93,8 @@ test('Passport preview requires active entitlement and ignores stale company res
    await activityLine.children[0].onclick();
    assert.equal(activityLine.afterNode?.attributes['aria-label'],'Property Passport',activityLine.afterNode?.textContent);
    assert.ok(elements.some(el=>el.dataset?.activityTotal==='income'&&el.textContent==='$1,250.00'),'Actual ledger totals must appear');
+   assert.ok(elements.some(el=>el.dataset?.activityCoverage==='true'&&el.textContent==='All recorded dates · 1 entry · 2026-10-24 to 2026-10-24'),'Recorded period and count are explicit');
+   assert.ok(elements.some(el=>el.textContent==='Recorded ledger net (all dates): '),'Ledger net must not be presented as a monthly estimate');
    assert.ok(elements.some(el=>el.textContent==='Property activity history'),'Recorded entries must be visible, not just aggregate totals');
    assert.ok(elements.some(el=>el.attributes?.['aria-label']==='Add task'),'Authorized operations editor must be wired into Passport');
    preview.clear();preview.setEligibility({companyId:'c1',enabled:true});
@@ -102,6 +104,16 @@ test('Passport preview requires active entitlement and ignores stale company res
    assert.equal(activityFailure.afterNode?.attributes['aria-label'],'Property Passport','Activity network failure must preserve the existing financial Passport');
    assert.ok(activityFailure.afterNode.children.some(el=>el.attributes?.['aria-label']==='Edit Passport financials'));
    assert.ok(activityFailure.afterNode.children.some(el=>el.textContent?.startsWith('Property activity could not load')),'Do not present failed loads as zero totals');
+   const emptyActivity=node('p');
+   preview.addAction({...options,line:emptyActivity,fetchOperations:async()=>({ledger:[],repairs:[],tasks:[]})});
+   await emptyActivity.children[0].onclick();
+   assert.ok(emptyActivity.afterNode.children.some(el=>el.dataset?.activityCoverage==='true'&&el.textContent.startsWith('No income or expenses recorded.')),'Empty history must not imply verified zero performance');
+   const invalidPeriod=node('p');
+   preview.addAction({...options,line:invalidPeriod,fetchOperations:async()=>({ledger:[{entry_type:'income',amount:'100',entry_date:'2026-02-30'}],repairs:[],tasks:[]})});
+   await invalidPeriod.children[0].onclick();
+   assert.equal(invalidPeriod.afterNode?.attributes['aria-label'],'Property Passport','Invalid activity dates preserve Financials');
+   assert.ok(invalidPeriod.afterNode.children.some(el=>el.textContent?.startsWith('Property activity could not load')));
+   assert.ok(!invalidPeriod.afterNode.children.some(el=>el.dataset?.activityCoverage),'Invalid dates cannot produce a financial coverage claim');
    let release;
    options.fetchDeal=()=>new Promise(resolve=>{release=resolve});
    const second=node('p');
@@ -248,6 +260,13 @@ test('Passport Overview renders company context and gives editors, not viewers, 
    const forms=panel.querySelectorAll('form');
    assert.equal(forms.some(form=>form.attributes['aria-label']==='Edit property details'),canWrite);
    assert.equal(forms.some(form=>form.attributes['aria-label']==='Edit property notes'),canWrite);
+   const financials=panel.querySelectorAll('button').find(button=>button.textContent==='Financials');financials.onclick();
+   const snapshot=panel.children.find(child=>child.getAttribute?.('aria-label')==='Financial snapshot');
+   const financialForm=forms.find(form=>form.attributes['aria-label']==='Edit Passport financials');
+   assert.equal(snapshot.hidden,false,'Financials includes the saved snapshot, not only inputs');assert.equal(financialForm.hidden,false);
+   const activityLink=financialForm.children.find(child=>child.textContent==='Open income and expense records →');assert.ok(activityLink);activityLink.onclick();
+   assert.equal(financialForm.hidden,true);assert.equal(snapshot.hidden,true);
+   assert.equal(panel.querySelectorAll('button').find(button=>button.textContent==='Operations').attributes['aria-selected'],'true','Financials link opens the Operations tab');
   }
  }finally{globalThis.document=oldDocument;globalThis.window=oldWindow;}
 });

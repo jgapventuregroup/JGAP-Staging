@@ -22,3 +22,12 @@ test('ledger summary rejects totals exceeding safe integer-cent precision',()=>{
   const many=Array.from({length:10000},()=>({entry_type:'income',amount:'9999999999.99'}));
   assert.throws(()=>summarizeLedger(many),/safe precision/);
 });
+
+import {describeLedgerPeriod} from '../property-ledger.mjs';
+test('recorded period spans every entry without treating a range as a complete month',()=>{
+ assert.deepEqual(describeLedgerPeriod([{entry_date:'2026-10-24'},{entry_date:'2025-12-31'},{entry_date:'2026-10-01'}]),{count:3,firstDate:'2025-12-31',lastDate:'2026-10-24'});
+ assert.deepEqual(describeLedgerPeriod([]),{count:0,firstDate:null,lastDate:null});
+ assert.deepEqual(describeLedgerPeriod([{entry_date:'2024-02-29'}]),{count:1,firstDate:'2024-02-29',lastDate:'2024-02-29'});
+ for(const entry_date of ['2026-02-29','2026-02-30','2026-13-01','10/24/2026',null,undefined,''])assert.throws(()=>describeLedgerPeriod([{entry_date}]),/Invalid ledger entry date/);
+ assert.throws(()=>describeLedgerPeriod(null),/Invalid ledger history/);
+});
