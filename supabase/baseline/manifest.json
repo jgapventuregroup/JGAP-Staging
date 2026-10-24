@@ -1,0 +1,165 @@
+{
+  "captured_on": "2026-10-24",
+  "source_repository": "jgapventuregroup/JGAP-Staging",
+  "source_commit": "af5933076be7cadbb4ae2250ada8eee9727a3593",
+  "source_project": "qfszapteuxuogoselprp",
+  "scope": [
+    "public",
+    "jgap_private"
+  ],
+  "application_rows_included": false,
+  "auth_users_included": false,
+  "secrets_included": false,
+  "owner_preview": "disabled in baseline; original staging function not modified",
+  "platform": "Requires pre-existing Supabase Auth/platform; local tests use an explicit SQL Auth contract only",
+  "migration_history": [
+    {
+      "version": "20261011204154",
+      "name": "add_deal_follow_up_date"
+    },
+    {
+      "version": "20261011220958",
+      "name": "create_company_subscriptions_read_only"
+    },
+    {
+      "version": "20261011221657",
+      "name": "enforce_free_deal_limit_on_database_writes"
+    },
+    {
+      "version": "20261011222119",
+      "name": "private_signup_abuse_review_queue"
+    },
+    {
+      "version": "20261011222849",
+      "name": "initialize_free_membership_for_new_companies"
+    },
+    {
+      "version": "20261011224558",
+      "name": "audit_paid_subscription_state_changes"
+    },
+    {
+      "version": "20261011230221",
+      "name": "server_managed_free_membership_eligibility"
+    },
+    {
+      "version": "20261011230759",
+      "name": "validate_free_approval_against_verified_auth_user"
+    },
+    {
+      "version": "20261011230927",
+      "name": "require_company_membership_for_free_eligibility_approval"
+    },
+    {
+      "version": "20261011233235",
+      "name": "audit_free_eligibility_review_decisions"
+    },
+    {
+      "version": "20261012000536",
+      "name": "add_lifetime_deal_usage"
+    },
+    {
+      "version": "20261012000550",
+      "name": "backfill_lifetime_deal_usage"
+    },
+    {
+      "version": "20261012000559",
+      "name": "enforce_five_lifetime_properties"
+    },
+    {
+      "version": "20261012000613",
+      "name": "expose_membership_scoped_lifetime_usage"
+    },
+    {
+      "version": "20261012001725",
+      "name": "lock_free_property_identity"
+    },
+    {
+      "version": "20261012102245",
+      "name": "fail_closed_when_company_billing_is_missing"
+    },
+    {
+      "version": "20261012103256",
+      "name": "add_verified_staging_subscription_sync"
+    },
+    {
+      "version": "20261012105929",
+      "name": "add_atomic_company_scoped_listing_import"
+    },
+    {
+      "version": "20261012110746",
+      "name": "add_company_isolated_original_lender_directory"
+    },
+    {
+      "version": "20261018214523",
+      "name": "owner_preview_access_staging"
+    },
+    {
+      "version": "20261018221247",
+      "name": "passport_records_staging_scoped_rls"
+    },
+    {
+      "version": "20261018222036",
+      "name": "passport_financial_fields_on_existing_deals"
+    },
+    {
+      "version": "20261018222803",
+      "name": "passport_financial_update_scoped_rpc"
+    },
+    {
+      "version": "20261018223736",
+      "name": "restrict_passport_financial_rpc_to_authenticated"
+    },
+    {
+      "version": "20261019101107",
+      "name": "revoke_anon_passport_record_writes"
+    },
+    {
+      "version": "20261019171459",
+      "name": "passport_scoped_record_update_policies"
+    },
+    {
+      "version": "20261021002757",
+      "name": "verified_owner_unlimited_staging_deal_saves"
+    },
+    {
+      "version": "20261021011313",
+      "name": "grant_authenticated_passport_record_updates"
+    },
+    {
+      "version": "20261021011557",
+      "name": "passport_remove_dangerous_authenticated_table_privileges"
+    },
+    {
+      "version": "20261021011752",
+      "name": "revoke_anonymous_passport_table_reads"
+    },
+    {
+      "version": "20261021011935",
+      "name": "restrict_passport_helper_rpc_to_signed_in_users"
+    },
+    {
+      "version": "20261024133340",
+      "name": "guard_passport_financial_writes"
+    },
+    {
+      "version": "20261024135119",
+      "name": "property_operations"
+    },
+    {
+      "version": "20261024142543",
+      "name": "advanced_finance"
+    },
+    {
+      "version": "20261024144304",
+      "name": "paid_secondary_financing"
+    },
+    {
+      "version": "20261024160056",
+      "name": "saved_finance_comparison"
+    },
+    {
+      "version": "20261024160326",
+      "name": "saved_finance_comparison_scope_fix"
+    }
+  ]
+}

@@ -41,3 +41,6 @@ On the final release candidate, check the new notes and type/unit editors on des
 
 ## Pro comparison — targeted rendered acceptance still open
 Open Financial Reports as authorized Pro/owner preview, choose one property and month, keep Reconciliation and Tax treatment at All, and load the report. Compare its current saved estimate with the saved Analyzer assumptions and its recorded column with that month's ledger. Check empty months, incomplete loan assumptions, filter changes, read-only viewer access and phone table scrolling. Ordinary Investor/Free/inactive access must be denied. This is not proof of an immutable original underwriting budget or complete actual books.
+
+## Public desktop observation — October 24
+The deployed sign-in screen was inspected in Chrome at a 1348px content viewport. Branding, email/password inputs and sign-in/create/recovery actions rendered; document width matched viewport width (no horizontal overflow). This was signed out and does not certify the workspace, phone layout, printing, downloads, or authenticated original-record isolation.
