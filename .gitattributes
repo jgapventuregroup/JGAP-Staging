@@ -1,0 +1,2 @@
+# The generated baseline is checked byte-for-byte on every platform.
+supabase/baseline/application-schema.sql text eol=lf

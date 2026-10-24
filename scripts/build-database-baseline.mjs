@@ -73,7 +73,8 @@ for(const relation of catalog.relations){
 }
 for(const fn of catalog.functions)grants('FUNCTION',`${qualified(fn)}(${fn.args})`,fn.acl);
 output.push('commit;\n');
-const sql=output.join('\n\n');
+// Catalog function bodies may contain historical CRLF. Emit portable LF SQL.
+const sql=output.join('\n\n').replaceAll('\r\n','\n');
 const target=new URL('supabase/baseline/application-schema.sql',root);
 if(process.argv.includes('--check')){
  if(fs.readFileSync(target,'utf8')!==sql)throw Error('Baseline SQL differs from reviewed metadata; run node scripts/build-database-baseline.mjs');

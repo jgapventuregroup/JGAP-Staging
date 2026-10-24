@@ -7,6 +7,7 @@ const read=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
 
 test('clean app baseline restores with RLS/grants and passes SQL security regressions',async()=>{
  const check=spawnSync(process.execPath,['scripts/build-database-baseline.mjs','--check'],{encoding:'utf8'});assert.equal(check.status,0,check.stderr);
+ assert.ok(!read('supabase/baseline/application-schema.sql').includes('\r'),'Generated baseline must use LF on every platform');
  const db=new PGlite();
  try{
   await db.exec(read('tests/database-platform-fixture.sql'));
