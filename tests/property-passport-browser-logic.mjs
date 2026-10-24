@@ -37,7 +37,8 @@ test('Passport preview requires active entitlement and ignores stale company res
    const incomplete=node('p');
    preview.addAction({...options,line:incomplete,deal:{name:'No identity'}});
    assert.equal(incomplete.children.length,0,'Property without ID cannot expose Passport');
-   preview.addAction(options);
+   const returnedAction=preview.addAction(options);
+   assert.equal(returnedAction,line.children[0],'Dashboard reuses the same guarded Passport action');
    assert.equal(line.children.length,1,'Paid workspace gets Passport action');
    assert.equal(line.children[0].attributes['aria-expanded'],'false','Passport begins collapsed');
    await line.children[0].onclick();

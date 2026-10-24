@@ -486,6 +486,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
     }finally{if(pendingButton===button){button.disabled=false;pendingButton=null;}}
   };
   line.append(button);
+  return button;
 }
 window.JGAPPassportPreview={clear,setEligibility,addAction,fetchPropertyOperations};
 window.dispatchEvent?.(new Event('jgap-passport-ready'));

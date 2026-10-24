@@ -99,3 +99,8 @@ See `docs/developer-handoff.md` for architecture, configuration, database invent
 - Calculations now use `calculate_secondary_financing`, which checks current membership/active paid entitlement or verified staging owner preview. Free, past-due/canceled, foreign-workspace and anonymous calls are denied. Primary Free Analyzer behavior is unchanged.
 - Six grouped rollback checks passed, including combined cash flow, zero-rate/all-cash cases, missing primary figures and malformed input. Workflow tests cover backend-authorized UI, down-payment copying, exact RPC arguments and stale result suppression.
 - Interest-only secondary scenario is not saved to a property and does not change primary mortgage/maximum-offer results. Combined cash flow is explicitly shown in its own result. No original Passport gate or billing/advertising configuration changed.
+
+## Direct recent-property navigation
+- Dashboard recent-property cards now open that exact property's Passport for server-authorized workspaces; other workspaces open that property's saved Analyzer inputs. Cards retain the normal guarded Passport action and exact company/deal fetch validation. No new entitlement or original-editor activation was introduced.
+- Retained cards from a previous workspace cannot request records after a company switch. Repeat clicks while loading are ignored. Accessible card labels identify both the destination and property.
+- Customer workflow and Passport module tests cover exact property routing, paid/Free destinations, returned guarded actions and stale-company refusal. These tests use controlled DOM/API doubles; signed-in rendered-device acceptance and the original four-table real-session gate remain open.
