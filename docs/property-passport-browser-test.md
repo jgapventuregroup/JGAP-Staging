@@ -32,3 +32,6 @@ Use two legitimate staging accounts belonging to **different companies**. Both a
 - No staging account or company data is copied to another company.
 - Browser test link points to an actual deployed staging build, not a source file.
 - Record pass/fail and screenshots for each issue before approving merge.
+
+## October 24 automation update
+The opt-in runner `scripts/passport-live-isolation.mjs` now implements the separate real-session requests above. See `developer-handoff.md` for private environment setup, fictional fixture creation/cleanup and evidence limits. Its configuration/denial-classification unit tests run offline; live authenticated verification has **not** run in this takeover session. Original writers remain disabled.

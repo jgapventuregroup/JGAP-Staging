@@ -65,3 +65,14 @@ Share repository access via GitHub permissions, this document, `docs/membership-
 - `tests/staging-membership-security.sql` passed nine grouped checks on staging: Free direct/RPC denial, unchanged basic finance editing, five lifetime saves after deletion, subscription self-upgrade denial, active Investor/Pro, past-due/canceled/downgraded access, data retention, invalid numeric rejection, and read-only viewer restrictions. All synthetic fixtures and plan changes rolled back.
 - Evidence boundary: these are database-role tests with simulated identity, **not real separately authenticated sessions**, and do not authorize enabling original Passport writers. Original table writers remain disabled.
 - Security advisors report intentional authenticated security-definer helpers requiring review, six RLS tables without client policies, and disabled leaked-password protection. Verify intentional deny-by-default grants and assess password protection availability before production. Do not add broad policies merely to silence advisors.
+
+## Developer runbook and explicit scope
+See `docs/developer-handoff.md` for architecture, configuration, database inventory/version reconciliation, opt-in real-session security testing, advertising/billing contracts and release/rollback procedures. The full approved Pro offering remains incomplete: live operation ledgers/repair/task tables, document handling and the advanced Pro modules are not delivered. A complete schema-only migration baseline is also outstanding. These are explicit blockers; a green CI result alone does not make the full product handoff-ready.
+
+## Verification evidence from this takeover
+- Existing onboarding fix: all four push workflows green on `f305109`.
+- Financial guard milestone: all four push workflows green on `4d52203` (run IDs `40098756238`, `40098756237`, `40098756229`, `40098756240`).
+- Updated local `npm test` passed, including backend-response precedence in the UI, Pro ad placement behavior, existing preflight tests and actual preview dependency traversal with an intentionally missing module. `npm run check:edge` passed.
+- Two-company real-session runner is implemented but not executed; required signed-in sessions are unavailable here. No original record editor was enabled.
+- Rendered browser/device QA remains pending because the local browser runtime could not be installed.
+- Subsequent commits still require their own four green workflow runs before handoff.
