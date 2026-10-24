@@ -50,3 +50,6 @@ The fixture cleanup check found zero leftover test companies. These are SQL-role
 - No bank reconciliation imports, balance sheet, depreciation, immutable accounting audit trail, receipt capture or comprehensive CPA package is claimed.
 - Documents, the Money-Making System, Market Map, Deal Radar, alerts, lead generation, dashboard customization and advanced team controls remain unfinished/deferred as documented elsewhere. Laundromat Division remains excluded.
 - Real-session, rendered desktop/mobile and end-to-end download verification remain open. Original Passport editors stay disabled until their separate gate passes.
+
+## Current saved estimate versus recorded month
+The Pro report now includes a current saved-estimate comparison for a single property and unfiltered month. See the developer runbook for the `estimate` response, calculation/rounding rules, migration mapping, rollback and six grouped SQL tests. This is an incremental addition to the existing recovered report. It does not provide frozen underwriting versions or certify recorded data completeness; the CSV continues to contain recorded transactions only.

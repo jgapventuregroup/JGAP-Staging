@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {financeCents,formatFinanceMoney,validateFinanceFilters,validateBookkeeping,validateFinanceReport,financeReportCSV,mountFinance} from '../finance-cpa.mjs';
+import {financeCents,formatFinanceMoney,validateFinanceFilters,validateBookkeeping,validateFinanceReport,financeReportCSV,mountFinance,validateFinanceEstimate,financeDifference} from '../finance-cpa.mjs';
 const filters={month:'2026-10',dealId:null,reconciled:null,taxTreatment:null};
 const entry=(id,type,amount,category,month='2026-10')=>({entry_id:id,company_id:'company-A',deal_id:'deal-A',property_name:'Fictional duplex',entry_date:month+'-01',entry_type:type,amount,category,description:'Recorded transaction',vendor_name:'',payment_method:'',account_name:'',tax_treatment:'review',receipt_reference:'',reconciled:false,bookkeeping_notes:''});
 function report(selection=filters){return {company_id:'company-A',month:selection.month,deal_id:selection.dealId,reconciled:selection.reconciled,tax_treatment:selection.taxTreatment,entries:[entry('entry-1','income','1000.01','Rent',selection.month),entry('entry-2','expense','100.02','Repairs',selection.month)],totals:{income:'1000.01',expenses:'100.02',net:'899.99',unreconciled:2,count:2},categories:[{category:'Rent',income:'1000.01',expenses:'0',net:'1000.01'},{category:'Repairs',income:'0',expenses:'100.02',net:'-100.02'}]};}
@@ -42,10 +42,10 @@ class Node{
  addEventListener(name,handler){this.listeners[name]=handler}
 }
 const all=node=>[node,...node.children.flatMap(all)];
-function setup({canRead=true,canWrite=true,delayed=false,denyReload=false}={}){
+function setup({canRead=true,canWrite=true,delayed=false,denyReload=false,withEstimate=false,empty=false,incomplete=false}={}){
  let scope={companyId:'company-A',canRead,canWrite,properties:[{id:'deal-A',name:'Fictional duplex'}]},release;
  const calls=[],downloads=[],saves=[];const root=new Node('div');
- const view=mountFinance({root,getContext:()=>scope,loadReport:async(company,selection)=>{calls.push({company,selection});if(denyReload&&calls.length>1)throw Error('Active Pro report access required');if(delayed)return await new Promise(resolve=>{release=()=>resolve(report(selection))});return report(selection);},saveDetails:async(company,record,patch)=>saves.push({company,entryId:record.entry_id,patch}),download:(csv,name)=>downloads.push({csv,name})});
+ const view=mountFinance({root,getContext:()=>scope,loadReport:async(company,selection)=>{calls.push({company,selection});if(denyReload&&calls.length>1)throw Error('Active Pro report access required');if(delayed)return await new Promise(resolve=>{release=()=>resolve(report(selection))});const response=report(selection);if(withEstimate)response.estimate=!selection.dealId?{status:'property_required'}:selection.reconciled!==null||selection.taxTreatment!==null?{status:'unfiltered_required'}:incomplete?{status:'incomplete',invalid_fields:['loan_term_years']}:savedEstimate();if(empty){response.entries=[];response.categories=[];response.totals={income:'0',expenses:'0',net:'0',count:0,unreconciled:0};}return response;},saveDetails:async(company,record,patch)=>saves.push({company,entryId:record.entry_id,patch}),download:(csv,name)=>downloads.push({csv,name})});
  return {root,view,calls,downloads,saves,release:()=>release(),switchCompany:()=>{scope={...scope,companyId:'company-B'};}};
 }
 const previous=globalThis.document;
@@ -78,4 +78,39 @@ test('export refuses a cached report when renewed backend authorization fails',d
  const button=all(f.root).find(node=>node.textContent==='Download bookkeeping CSV');await button.onclick();
  assert.equal(f.downloads.length,0,'An old visible report must not bypass fresh export authorization');
  assert.ok(all(f.root).some(node=>node.textContent.startsWith('Could not load report')));
+}));
+
+function savedEstimate(){return {status:'ready',basis:'current_saved_assumptions',monthly_income:'1100.00',operating_expenses:'200.00',mortgage_payment:'300.00',total_outflows:'500.00',net:'600.00'};}
+test('saved estimate validates complete filter scope and exact component sums',()=>{
+ const scoped={...filters,dealId:'deal-A'};
+ assert.equal(validateFinanceEstimate(savedEstimate(),scoped).net,'600.00');
+ assert.equal(financeDifference('899.99','600.00'),'299.99');assert.equal(financeDifference('100.02','500.00'),'-399.98');
+ assert.equal(financeDifference('99999999999999.99','0.01'),'99999999999999.98');
+ for(const patch of [{net:'600.01'},{total_outflows:'499.99'},{monthly_income:'NaN'},{mortgage_payment:'-1'},{basis:'purchase_snapshot'},{status:'unknown'}])assert.throws(()=>validateFinanceEstimate({...savedEstimate(),...patch},scoped));
+ assert.throws(()=>validateFinanceEstimate(savedEstimate(),filters));assert.throws(()=>validateFinanceEstimate(savedEstimate(),{...scoped,reconciled:false}));
+ assert.equal(validateFinanceEstimate({status:'property_required'},filters).status,'property_required');
+ assert.equal(validateFinanceEstimate({status:'unfiltered_required'},{...scoped,taxTreatment:'review'}).status,'unfiltered_required');
+ assert.equal(validateFinanceEstimate({status:'incomplete',invalid_fields:['monthly_rent']},scoped).status,'incomplete');
+ for(const invalid_fields of [[],['unknown'],['monthly_rent','monthly_rent']])assert.throws(()=>validateFinanceEstimate({status:'incomplete',invalid_fields},scoped));
+ const bad=report(scoped);bad.estimate={...savedEstimate(),net:'1'};assert.throws(()=>validateFinanceReport(bad,'company-A',scoped));
+});
+test('Pro comparison uses current single-property month and clears for partial filter scopes',dom(async()=>{
+ const f=setup({withEstimate:true,canWrite:false});await f.view.open();
+ assert.ok(all(f.root).some(node=>node.textContent.startsWith('Select one property to compare')));
+ const selection=all(f.root).filter(node=>node.tagName==='SELECT');const property=selection[0],recon=selection[1],tax=selection[2];
+ property.value='deal-A';property.listeners.change();
+ const exportButton=all(f.root).find(node=>node.textContent==='Download bookkeeping CSV');await exportButton.onclick();
+ assert.ok(all(f.root).some(node=>node.textContent==='$299.99'),'Exact recorded-minus-estimate net difference');
+ assert.ok(all(f.root).some(node=>node.textContent.startsWith('Month: ')&&node.textContent.includes('not a frozen purchase-time budget')));
+ recon.value='false';recon.listeners.change();assert.ok(!all(f.root).some(node=>node.textContent==='$299.99'),'Changing filters immediately removes comparison');await exportButton.onclick();
+ assert.ok(all(f.root).some(node=>node.textContent.startsWith('Set Reconciliation and Tax treatment to All')));
+ recon.value='';tax.value='review';tax.listeners.change();await exportButton.onclick();
+ assert.ok(all(f.root).some(node=>node.textContent.startsWith('Set Reconciliation and Tax treatment to All')));
+}));
+test('empty recorded months and invalid assumptions never display fabricated comparison differences',dom(async()=>{
+ for(const options of [{empty:true},{incomplete:true}]){
+  const f=setup({withEstimate:true,...options});await f.view.open();const property=all(f.root).find(node=>node.tagName==='SELECT');property.value='deal-A';property.listeners.change();await all(f.root).find(node=>node.textContent==='Download bookkeeping CSV').onclick();
+  assert.ok(!all(f.root).some(node=>node.textContent==='$299.99'));
+  assert.ok(all(f.root).some(node=>node.textContent.startsWith(options.empty?'No transactions are recorded':'Complete or correct the saved Analyzer assumptions')));
+ }
 }));

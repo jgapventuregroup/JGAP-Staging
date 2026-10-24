@@ -38,3 +38,6 @@ The opt-in runner `scripts/passport-live-isolation.mjs` now implements the separ
 
 ## Added Overview editors — targeted acceptance still open
 On the final release candidate, check the new notes and type/unit editors on desktop and phone. Save and reopen notes (including multiline text and clearing), change type/unit count, confirm blank units show “Not recorded,” and confirm saved values appear on Print Passport. Viewers should see records without these editors. Failed saves must preserve drafts; switching company during a save must not display the previous property. This is targeted acceptance of the added editors, not a request to repeat previously completed general account tests.
+
+## Pro comparison — targeted rendered acceptance still open
+Open Financial Reports as authorized Pro/owner preview, choose one property and month, keep Reconciliation and Tax treatment at All, and load the report. Compare its current saved estimate with the saved Analyzer assumptions and its recorded column with that month's ledger. Check empty months, incomplete loan assumptions, filter changes, read-only viewer access and phone table scrolling. Ordinary Investor/Free/inactive access must be denied. This is not proof of an immutable original underwriting budget or complete actual books.

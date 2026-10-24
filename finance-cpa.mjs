@@ -28,8 +28,27 @@ export function validateBookkeeping(input){
  if(!taxOptions.includes(input.tax_treatment)||typeof input.reconciled!=='boolean')throw Error('Check tax treatment and reconciliation');
  return {...result,tax_treatment:input.tax_treatment,reconciled:input.reconciled};
 }
+const estimateFields=['offer','monthly_rent','other_monthly_income','vacancy_rate','monthly_operating_expenses','down_payment','interest_rate','loan_term_years'];
+export function validateFinanceEstimate(estimate,filters){
+ if(!estimate||typeof estimate!=='object'||Array.isArray(estimate))throw Error('Invalid saved estimate');
+ if(!filters.dealId){if(estimate.status!=='property_required')throw Error('Comparison requires one property');return estimate;}
+ if(filters.reconciled!==null||filters.taxTreatment!==null){if(estimate.status!=='unfiltered_required')throw Error('Comparison requires unfiltered month');return estimate;}
+ if(estimate.status==='incomplete'){
+  if(!Array.isArray(estimate.invalid_fields)||!estimate.invalid_fields.length||estimate.invalid_fields.length>estimateFields.length||new Set(estimate.invalid_fields).size!==estimate.invalid_fields.length||estimate.invalid_fields.some(field=>!estimateFields.includes(field)))throw Error('Invalid estimate input status');return estimate;
+ }
+ if(estimate.status!=='ready'||estimate.basis!=='current_saved_assumptions')throw Error('Invalid saved estimate status');
+ const amounts=Object.fromEntries(['monthly_income','operating_expenses','mortgage_payment','total_outflows','net'].map(key=>[key,financeCents(estimate[key])]));
+ if(['monthly_income','operating_expenses','mortgage_payment','total_outflows'].some(key=>amounts[key]<0n)||amounts.total_outflows!==amounts.operating_expenses+amounts.mortgage_payment||amounts.net!==amounts.monthly_income-amounts.total_outflows)throw Error('Saved estimate totals do not match');
+ return estimate;
+}
+export function financeDifference(recorded,estimated){
+ const cents=financeCents(recorded)-financeCents(estimated),absolute=cents<0n?-cents:cents;
+ return (cents<0n?'-':'')+String(absolute/100n)+'.'+String(absolute%100n).padStart(2,'0');
+}
+
 export function validateFinanceReport(report,companyId,filters){
  validateFinanceFilters(filters);
+ if(report?.estimate!==undefined)validateFinanceEstimate(report.estimate,filters);
  if(!report||report.company_id!==companyId||report.month!==filters.month||report.deal_id!==filters.dealId||report.reconciled!==filters.reconciled||report.tax_treatment!==filters.taxTreatment)throw Error('Report did not match the selected workspace and filters');
  if(!Array.isArray(report.entries)||!Array.isArray(report.categories)||report.entries.length>10000)throw Error('Invalid report history');
  let income=0n,expenses=0n,unreconciled=0;const categories=new Map(),seen=new Set();
@@ -101,6 +120,22 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download}){
   const render=selected=>{
    body.replaceChildren();const stats=el('div');stats.className='metric-grid';
    for(const [label,value] of [['Income',formatFinanceMoney(selected.totals.income)],['Expenses',formatFinanceMoney(selected.totals.expenses)],['Net recorded cash flow',formatFinanceMoney(selected.totals.net)],['Unreconciled',selected.totals.unreconciled]]){const card=el('div');card.className='metric';card.append(el('span',label),el('strong',value));stats.append(card);}body.append(stats);
+   const estimate=selected.estimate;
+   body.append(el('h2','Current saved estimate vs recorded month'));
+   if(!selected.deal_id)body.append(el('p','Select one property to compare its saved monthly assumptions with recorded results.'));
+   else if(selected.reconciled!==null||selected.tax_treatment!==null)body.append(el('p','Set Reconciliation and Tax treatment to All to compare the full recorded month.'));
+   else if(!estimate)body.append(el('p','Saved estimate comparison is unavailable in this report.'));
+   else if(estimate.status==='incomplete')body.append(el('p','Complete or correct the saved Analyzer assumptions before comparing: '+estimate.invalid_fields.map(field=>({offer:'offer/purchase price',monthly_rent:'monthly rent',other_monthly_income:'other monthly income',vacancy_rate:'vacancy rate',monthly_operating_expenses:'operating expenses',down_payment:'down payment',interest_rate:'interest rate',loan_term_years:'loan term'})[field]).join(', ')+'.'));
+   else if(selected.totals.count===0)body.append(el('p','No transactions are recorded for this property and month. A recorded-results comparison is not available.'));
+   else{
+    body.append(el('p','Month: '+selected.month+'. The estimate uses current saved Analyzer assumptions, not a frozen purchase-time budget. Recorded books may be incomplete; differences are not performance ratings.'));
+    body.append(table(['Measure','Current monthly estimate','Recorded in '+selected.month,'Recorded minus estimate'],[
+     ['Income',estimate.monthly_income,selected.totals.income],
+     ['Outflows',estimate.total_outflows,selected.totals.expenses],
+     ['Net',estimate.net,selected.totals.net]
+    ].map(([label,expected,actual])=>[label,formatFinanceMoney(expected),formatFinanceMoney(actual),formatFinanceMoney(financeDifference(actual,expected))])));
+    body.append(el('p','Estimated income applies vacancy to rent, then adds other income. Estimated outflows: '+formatFinanceMoney(estimate.operating_expenses)+' operating expenses + '+formatFinanceMoney(estimate.mortgage_payment)+' primary mortgage payment. Recorded expenses include only entries you added, which may include capital costs or loan payments. Secondary loans, fees and missing transactions are not inferred. The bookkeeping CSV contains transactions, not this estimate.'));
+   }
    body.append(el('h2','Category breakdown'),table(['Category','Income','Expenses','Net'],selected.categories.map(c=>[c.category,formatFinanceMoney(c.income),formatFinanceMoney(c.expenses),formatFinanceMoney(c.net)])));
    body.append(el('h2','Transaction history'));const list=el('div');body.append(list);let page=0;
    const renderPage=()=>{
