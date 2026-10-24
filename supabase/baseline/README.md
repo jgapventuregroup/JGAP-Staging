@@ -4,7 +4,7 @@ This is the existing app's schema, captured from staging on October 24, 2026: 20
 
 ## What has been verified
 
-`npm run check:database-baseline` rebuild-checks the SQL against the reviewed catalog, restores it into an isolated in-memory PostgreSQL engine, checks the restored schema and permissions, and runs 41 grouped SQL security checks across seven existing suites. The test verifies the baseline refuses a second application over existing app tables. The test database is discarded afterward.
+`npm run check:database-baseline` rebuild-checks the SQL against the reviewed catalog, restores it into an isolated in-memory PostgreSQL engine, checks the restored schema and permissions, and runs 44 grouped SQL security checks across eight existing suites. The test verifies the baseline refuses a second application over existing app tables. The test database is discarded afterward.
 
 The test platform is pinned PGlite, not a deployed Supabase instance. `tests/database-platform-fixture.sql` models only `auth.users`, `auth.uid()` and `auth.role()` for SQL/RLS testing. **Never apply this test fixture to Supabase.** It does not implement real login, email verification, JWT verification, PostgREST, Storage or platform configuration. Real-session isolation and hosted-platform acceptance remain required. Local SQL-role tests do not enable the original Passport editors.
 

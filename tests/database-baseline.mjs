@@ -39,7 +39,7 @@ test('clean app baseline restores with RLS/grants and passes SQL security regres
   await db.exec(`insert into auth.users(id,email,email_confirmed_at) values('10000000-0000-4000-8000-000000000001','schema-a@example.invalid',now()),('10000000-0000-4000-8000-000000000002','schema-b@example.invalid',now());
    insert into public.companies(id,name) values('20000000-0000-4000-8000-000000000001','Local seed A'),('20000000-0000-4000-8000-000000000002','Local seed B');
    insert into public.company_members(company_id,user_id,role) values('20000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','owner'),('20000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000002','owner');`);
-  for(const file of ['staging-membership-security.sql','staging-operations-security.sql','staging-advanced-finance-security.sql','staging-secondary-financing-security.sql','staging-passport-notes-security.sql','staging-passport-details-security.sql','staging-saved-finance-comparison.sql']){
+  for(const file of ['staging-membership-security.sql','staging-operations-security.sql','staging-advanced-finance-security.sql','staging-secondary-financing-security.sql','staging-passport-notes-security.sql','staging-passport-details-security.sql','staging-saved-finance-comparison.sql','staging-original-passport-entitlements.sql']){
    const results=await db.exec(read('tests/'+file));
    const checks=results.flatMap(result=>result.rows||[]).filter(row=>row.outcome);
    assert.ok(checks.length>0,file+' must report checks');assert.ok(checks.every(row=>row.outcome==='PASS'),file);

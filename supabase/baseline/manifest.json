@@ -160,6 +160,13 @@
     {
       "version": "20261024160326",
       "name": "saved_finance_comparison_scope_fix"
+    },
+    {
+      "version": "20261024215951",
+      "name": "original_passport_pro_writes"
     }
+  ],
+  "schema_changes_after_source_commit": [
+    "supabase/migrations/20261024215841_original_passport_pro_writes.sql"
   ]
 }

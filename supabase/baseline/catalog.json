@@ -3788,7 +3788,7 @@
       "policies": [
         {
           "name": "passport_insert",
-          "check": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "check": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "roles": [
             "authenticated"
           ],
@@ -3808,11 +3808,11 @@
         },
         {
           "name": "passport_update",
-          "check": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "check": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "roles": [
             "authenticated"
           ],
-          "using": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "using": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "command": "w",
           "permissive": true
         }
@@ -4132,7 +4132,7 @@
       "policies": [
         {
           "name": "passport_insert",
-          "check": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "check": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "roles": [
             "authenticated"
           ],
@@ -4152,11 +4152,11 @@
         },
         {
           "name": "passport_update",
-          "check": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "check": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "roles": [
             "authenticated"
           ],
-          "using": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "using": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "command": "w",
           "permissive": true
         }
@@ -4428,7 +4428,7 @@
       "policies": [
         {
           "name": "passport_insert",
-          "check": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "check": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "roles": [
             "authenticated"
           ],
@@ -4448,11 +4448,11 @@
         },
         {
           "name": "passport_update",
-          "check": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "check": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "roles": [
             "authenticated"
           ],
-          "using": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "using": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "command": "w",
           "permissive": true
         }
@@ -5384,7 +5384,7 @@
       "policies": [
         {
           "name": "passport_insert",
-          "check": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "check": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "roles": [
             "authenticated"
           ],
@@ -5404,11 +5404,11 @@
         },
         {
           "name": "passport_update",
-          "check": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "check": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "roles": [
             "authenticated"
           ],
-          "using": "(can_access_passport(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
+          "using": "(can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1\n   FROM company_members m\n  WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))",
           "command": "w",
           "permissive": true
         }

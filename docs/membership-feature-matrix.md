@@ -11,6 +11,7 @@ Approved direction: preserve Free exactly as currently implemented; provide a us
 | Saved property creation | Existing 5 lifetime slots unchanged | Unlimited while subscribed | Unlimited while subscribed |
 | Deal Pipeline / Deal Intelligence | Keep current Free access unchanged pending explicit gating decision | Included | Included |
 | Property Passport | No change to Free | Basic property profile and history | Complete passport and documents |
+| Original equipment/services/maintenance/improvements editing | No | Read-only history while eligible | Pro-only writes; frontend remains locked pending real-session gate |
 | Income, expenses and cash flow | No change to Free | Basic property financial tracking | Advanced finance, current saved-estimate/month comparison and bookkeeping reporting |
 | Repairs, notes, follow-ups | No change to Free | Basic | Advanced including vendors, work history and reporting |
 | Money-Making System | No change to Free | — | Full |

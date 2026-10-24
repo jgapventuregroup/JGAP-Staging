@@ -6,12 +6,12 @@ The existing staging app is functional but is **not approved for production or p
 | --- | --- | --- |
 | Analyzer, property saves, pipeline, account recovery | Existing regression suite; earlier owner save/reopen and navigation checks | Final rendered smoke after relevant changes |
 | Membership and lifetime limits | Backend staging rollback tests; repeatable SQL tests on restored schema; browser-response tests | Normal paid/inactive accounts and final rendered flows |
-| Passport financials, notes, type/units | Existing owner financial-save check; new exact-scope/verified-save tests and backend denial tests | New notes/details editors on desktop/phone, print output |
-| Ledger, repairs, tasks | Staging role tests, CRUD/loader/form regressions, date/count/total checks | Normal-session rendered add/edit/completion workflow |
-| Pro reports, comparison, CSV | Backend entitlement/precision/isolation tests and UI/API regression tests | Rendered comparison, selected filters and actual download on supported devices |
+| Passport financials, notes, type/units | Existing owner financial-save check; new exact-scope/verified-save tests and backend denial tests | Phone and ordinary paid-user acceptance; desktop owner saves and printable documents verified |
+| Ledger, repairs, tasks | Staging role tests, CRUD/loader/form regressions, date/count/total checks | Phone and ordinary paid-user acceptance; owner desktop saves/completion/reopening verified |
+| Pro reports, comparison, CSV | Backend entitlement/precision/isolation tests and UI/API regression tests | Phone and ordinary Pro-user acceptance; owner desktop comparison/filter/download verified |
 | Original equipment/services/maintenance/improvement editors | Existing code, readers and schema permissions retained | Real separately authenticated two-company SELECT/INSERT/UPDATE gate still unexecuted; editors remain disabled |
-| Database handoff | Schema-only baseline; clean isolated restore; 41 SQL check groups; grant/policy/key/trigger comparisons; existing-schema refusal | Hosted Supabase platform restore rehearsal and environment setup; local Auth contract is not real authentication |
-| Branding and layout | Shared website colors; responsive CSS and navigation regressions; signed-out desktop sign-in observation without horizontal overflow | Signed-in desktop/phone, keyboard, dark mode and print acceptance |
+| Database handoff | Schema-only baseline; clean isolated restore; 44 SQL check groups; grant/policy/key/trigger comparisons; existing-schema refusal | Hosted Supabase platform restore rehearsal and environment setup; local Auth contract is not real authentication |
+| Branding and layout | Shared website colors; responsive CSS and navigation regressions; signed-out desktop sign-in observation without horizontal overflow | Phone acceptance and final contrast-fix review; owner desktop keyboard/theme and printable documents inspected |
 | Advertisements | Labeled placeholders; Pro suppression tests | Outside company: live serving, creative review, privacy/consent and reporting |
 | Commerce and packaging | Existing disabled billing adapters and documented interfaces | Outside company: processor/webhooks, app install/download packaging, book delivery, production configuration/monitoring |
 

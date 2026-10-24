@@ -29,15 +29,15 @@ jobs:
       - name: Package Investor preview
         run: |
           mkdir -p dist/previews
-          cp index.html finance-cpa.mjs config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
-          cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html dist/previews/
+          cp index.html passport-live-isolation-core.mjs passport-security-gate.mjs finance-cpa.mjs config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
+          cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html previews/passport-security-gate.html dist/previews/
       - name: Verify bundled Passport module imports resolve
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import path from 'node:path';
           const root='dist';
-          const queue=['property-passport-preview.mjs'];
+          const queue=['property-passport-preview.mjs','passport-security-gate.mjs'];
           const visited=new Set();
           while(queue.length){
             const relative=queue.shift();

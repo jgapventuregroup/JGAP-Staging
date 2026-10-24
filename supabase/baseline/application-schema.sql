@@ -1641,15 +1641,15 @@ ALTER TABLE "public"."property_asset_services" ADD CONSTRAINT "property_asset_se
 
 ALTER TABLE "public"."property_asset_services" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "passport_insert" ON "public"."property_asset_services" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+CREATE POLICY "passport_insert" ON "public"."property_asset_services" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
   WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text])))))));
 
 CREATE POLICY "passport_select" ON "public"."property_asset_services" AS PERMISSIVE FOR SELECT TO "authenticated" USING (can_access_passport(company_id));
 
-CREATE POLICY "passport_update" ON "public"."property_asset_services" AS PERMISSIVE FOR UPDATE TO "authenticated" USING ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+CREATE POLICY "passport_update" ON "public"."property_asset_services" AS PERMISSIVE FOR UPDATE TO "authenticated" USING ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
-  WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))) WITH CHECK ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+  WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))) WITH CHECK ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
   WHERE ((m.company_id = property_asset_services.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text])))))));
 
@@ -1657,15 +1657,15 @@ ALTER TABLE "public"."property_assets" ADD CONSTRAINT "property_assets_company_i
 
 ALTER TABLE "public"."property_assets" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "passport_insert" ON "public"."property_assets" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+CREATE POLICY "passport_insert" ON "public"."property_assets" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
   WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text])))))));
 
 CREATE POLICY "passport_select" ON "public"."property_assets" AS PERMISSIVE FOR SELECT TO "authenticated" USING (can_access_passport(company_id));
 
-CREATE POLICY "passport_update" ON "public"."property_assets" AS PERMISSIVE FOR UPDATE TO "authenticated" USING ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+CREATE POLICY "passport_update" ON "public"."property_assets" AS PERMISSIVE FOR UPDATE TO "authenticated" USING ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
-  WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))) WITH CHECK ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+  WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))) WITH CHECK ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
   WHERE ((m.company_id = property_assets.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text])))))));
 
@@ -1673,15 +1673,15 @@ ALTER TABLE "public"."property_improvements" ADD CONSTRAINT "property_improvemen
 
 ALTER TABLE "public"."property_improvements" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "passport_insert" ON "public"."property_improvements" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+CREATE POLICY "passport_insert" ON "public"."property_improvements" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
   WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text])))))));
 
 CREATE POLICY "passport_select" ON "public"."property_improvements" AS PERMISSIVE FOR SELECT TO "authenticated" USING (can_access_passport(company_id));
 
-CREATE POLICY "passport_update" ON "public"."property_improvements" AS PERMISSIVE FOR UPDATE TO "authenticated" USING ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+CREATE POLICY "passport_update" ON "public"."property_improvements" AS PERMISSIVE FOR UPDATE TO "authenticated" USING ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
-  WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))) WITH CHECK ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+  WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))) WITH CHECK ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
   WHERE ((m.company_id = property_improvements.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text])))))));
 
@@ -1715,15 +1715,15 @@ ALTER TABLE "public"."property_maintenance" ADD CONSTRAINT "property_maintenance
 
 ALTER TABLE "public"."property_maintenance" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "passport_insert" ON "public"."property_maintenance" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+CREATE POLICY "passport_insert" ON "public"."property_maintenance" AS PERMISSIVE FOR INSERT TO "authenticated" WITH CHECK ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
   WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text])))))));
 
 CREATE POLICY "passport_select" ON "public"."property_maintenance" AS PERMISSIVE FOR SELECT TO "authenticated" USING (can_access_passport(company_id));
 
-CREATE POLICY "passport_update" ON "public"."property_maintenance" AS PERMISSIVE FOR UPDATE TO "authenticated" USING ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+CREATE POLICY "passport_update" ON "public"."property_maintenance" AS PERMISSIVE FOR UPDATE TO "authenticated" USING ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
-  WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))) WITH CHECK ((can_access_passport(company_id) AND (EXISTS ( SELECT 1
+  WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text]))))))) WITH CHECK ((can_access_advanced_finance(company_id) AND (EXISTS ( SELECT 1
    FROM company_members m
   WHERE ((m.company_id = property_maintenance.company_id) AND (m.user_id = ( SELECT auth.uid() AS uid)) AND (m.role = ANY (ARRAY['owner'::text, 'admin'::text, 'editor'::text])))))));
 
