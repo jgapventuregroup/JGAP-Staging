@@ -11,6 +11,38 @@ export function validPassportPurchaseDate(date){
  return date===''||(typeof date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date+'T00:00:00Z'))&&new Date(date+'T00:00:00Z').toISOString().slice(0,10)===date);
 }
 
+// Reuse the existing company-scoped deal RPC; no original-record write gate is changed.
+export function createPassportNotesEditor({record,client,companyId,isCurrent,onSaved}){
+  const form=document.createElement('form');form.setAttribute('aria-label','Edit property notes');
+  const title=document.createElement('h3');title.textContent='Property notes';
+  const label=document.createElement('label');label.textContent='Notes about this property';
+  const input=document.createElement('textarea');input.rows=6;input.value=record.notes??'';label.append(input);
+  const save=document.createElement('button');save.type='submit';save.textContent='Save notes';
+  const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+  form.append(title,label,save,status);
+  let pending=false;
+  form.onsubmit=async event=>{
+    event.preventDefault();if(pending||!isCurrent())return;
+    const notes=input.value.trim()||null;
+    pending=true;save.disabled=true;input.disabled=true;status.textContent='Saving notes…';
+    let confirmed=false;
+    try{
+      const {data,error}=await client.rpc('update_company_deal',{p_company_id:companyId,p_deal_id:record.id,p_patch:{notes}});
+      if(!isCurrent())return;if(error)throw error;
+      const saved=Array.isArray(data)?data[0]:data;
+      if(!saved||saved.id!==record.id||saved.company_id!==companyId||(saved.notes?.trim()||null)!==notes)throw Error('Save response did not match this property and notes.');
+      confirmed=true;
+      const {data:loaded,error:loadError}=await client.rpc('get_company_deal',{p_company_id:companyId,p_deal_id:record.id});
+      if(!isCurrent())return;if(loadError)throw loadError;
+      const fresh=Array.isArray(loaded)?loaded[0]:loaded;
+      if(!fresh||fresh.id!==record.id||fresh.company_id!==companyId||(fresh.notes?.trim()||null)!==notes)throw Error('Reloaded notes could not be verified.');
+      onSaved(notes);input.value=notes??'';status.textContent='Notes saved and verified.';
+    }catch(error){if(isCurrent())status.textContent=(confirmed?'Notes saved, but reload could not be verified. Reopen the Passport to check before editing again. ':'Could not save notes. ')+(error?.message||'Unknown error');}
+    finally{pending=false;if(isCurrent()){save.disabled=false;input.disabled=false;}}
+  };
+  return form;
+}
+
 // Read-only preview. Paid entitlement must be verified by the server before activation.
 let eligibility={companyId:null,enabled:false};
 let requestId=0;
@@ -43,7 +75,7 @@ function setEligibility(next){
   panel=null;
   markPassportButton(expandedButton,false);
   expandedButton=null;
-  eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true};
+  eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true,canWrite:next?.canWrite===true};
 }
 function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
   if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
@@ -114,7 +146,7 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         try{printWindow.opener=null;}catch{}
         const doc=printWindow.document;
         doc.title=p.name+' — Property Passport';
-        const style=doc.createElement('style');style.textContent='body{font:15px system-ui,sans-serif;color:#172b42;max-width:760px;margin:35px auto;padding:0 18px}section{break-inside:avoid;margin:18px 0}h2,h3{color:#173b5c}p{margin:7px 0}';
+        const style=doc.createElement('style');style.textContent='body{font:15px system-ui,sans-serif;color:#172b42;max-width:760px;margin:35px auto;padding:0 18px}section{break-inside:avoid;margin:18px 0}h2,h3{color:#173b5c}p{margin:7px 0}.passport-notes-copy{white-space:pre-wrap;overflow-wrap:anywhere}';
         doc.head.append(style);doc.body.append(printable);
         printWindow.focus();printWindow.print();
       };
@@ -131,11 +163,22 @@ function addAction({line,deal,companyId,client,getCurrentCompany,getCurrentClien
         const groupHeading=document.createElement('h3');groupHeading.textContent=groupTitle;group.append(groupHeading);
         for(const [label,value] of fields){
           const row=document.createElement('p');
+          if(label==='Notes')row.className='passport-notes-copy';
           const strong=document.createElement('strong');strong.textContent=label+': ';
           row.append(strong,document.createTextNode(formatPassportValue(label,value)));
           group.append(row);
         }
         panel.append(group);
+      }
+      if(eligibility.canWrite){
+        const notesGroup=Array.from(panel.children).find(node=>node.getAttribute?.('aria-label')==='Notes & next steps');
+        const notesEditor=createPassportNotesEditor({record,client,companyId,
+          isCurrent:()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId&&eligibility.canWrite,
+          onSaved:notes=>{
+            const row=Array.from(notesGroup?.children||[]).find(node=>node.querySelector?.('strong')?.textContent==='Notes: ');
+            if(row)row.replaceChildren(Object.assign(document.createElement('strong'),{textContent:'Notes: '}),document.createTextNode(notes??'Not recorded'));
+          }});
+        notesGroup?.append(notesEditor);
       }
       // Financial edits are routed through the staging RPC; never update deals directly.
       const financeForm=document.createElement('form');

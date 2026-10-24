@@ -11,7 +11,7 @@ test('Passport preview requires active paid membership or server-authorized owne
  const preview=fs.readFileSync(new URL('../property-passport-preview.mjs',import.meta.url),'utf8');
  assert.match(html,/const paidActive=\(plan==='investor'\|\|plan==='pro'\)&&billingStatus==='active'/);
  assert.match(html,/has_owner_preview_access/);
- assert.match(html,/setEligibility\(\{companyId:activeCompany,enabled:passportRecordsAllowed\}\)/);
+ assert.match(html,/setEligibility\(\{companyId:activeCompany,enabled:passportRecordsAllowed,canWrite:\['owner','admin','editor'\]\.includes\(companies\.find\(c=>c\.id===activeCompany\)\?\.role\)\}\)/);
  assert.match(preview,/if\(!eligibility.enabled\|\|eligibility.companyId!==companyId\|\|!deal\?\.id\)return/);
  assert.match(preview,/getCurrentCompany\(\)!==companyId\|\|getCurrentClient\(\)!==client/);
  assert.match(preview,/projectPropertyPassport\(record,companyId\)/);

@@ -159,3 +159,36 @@ test('staging Passport action receives live company and client callbacks',async(
  assert.doesNotMatch(call[0],/getCurrentCompany:\(\)=>activeCompany/);
  assert.doesNotMatch(call[0],/getCurrentClient:\(\)=>activeClient/);
 });
+
+test('Passport notes save exact scope, verify persistence and preserve text on failures',async()=>{
+ const previousDocument=globalThis.document;
+ const node=tag=>({tag,children:[],value:'',disabled:false,setAttribute(k,v){this[k]=v},append(...items){this.children.push(...items)}});
+ globalThis.document={createElement:node};
+ try{
+  const {createPassportNotesEditor}=await import('../property-passport-preview.mjs');
+  const record={id:'property-A',company_id:'company-A',notes:'Original notes'};
+  let current=true,mode='success',displayed='Original notes',release;
+  const calls=[];
+  const client={rpc:async(name,args)=>{
+   calls.push({name,args});
+   if(mode==='deferred'&&name==='update_company_deal')await new Promise(resolve=>{release=resolve});
+   if(mode==='denied')return {data:null,error:Error('Role cannot edit')};
+   if(mode==='reload-fails'&&name==='get_company_deal')return {data:null,error:Error('Offline')};
+   return {data:{...record,notes:args.p_patch?.notes??(mode==='cleared'?null:'New notes'),...(mode==='foreign'?{company_id:'company-B'}:{})},error:null};
+  }};
+  const make=()=>createPassportNotesEditor({record,client,companyId:'company-A',isCurrent:()=>current,onSaved:value=>{displayed=value}});
+  const submit=form=>form.onsubmit({preventDefault(){}});
+  let form=make(),input=form.children[1].children[0];assert.equal(input.value,'Original notes');input.value=' New notes ';await submit(form);
+  assert.deepEqual(calls[0],{name:'update_company_deal',args:{p_company_id:'company-A',p_deal_id:'property-A',p_patch:{notes:'New notes'}}});
+  assert.equal(calls[1].name,'get_company_deal');assert.equal(displayed,'New notes');assert.match(form.children[3].textContent,/saved and verified/);
+  mode='cleared';form=make();form.children[1].children[0].value=' ';await submit(form);assert.equal(displayed,null,'Empty notes explicitly clear saved notes');
+  for(const failure of ['denied','foreign','reload-fails']){
+   mode=failure;displayed='Original notes';form=make();input=form.children[1].children[0];input.value='New notes';await submit(form);
+   assert.equal(input.value,'New notes','Failure retains the draft');assert.equal(displayed,'Original notes','Unverified data must not replace displayed notes');assert.equal(input.disabled,false);
+   assert.match(form.children[3].textContent,failure==='reload-fails'?/Notes saved, but reload/:/Could not save notes/);
+  }
+  mode='deferred';form=make();form.children[1].children[0].value='New notes';const before=calls.length;const pending=submit(form);await submit(form);assert.equal(calls.length,before+1,'Double submit cannot duplicate requests');
+  current=false;release();await pending;assert.equal(calls.length,before+1,'Company switch prevents verification request and stale display update');
+  const blocked=make();await submit(blocked);assert.equal(calls.length,before+1,'Closed or stale Passport cannot save');
+ }finally{globalThis.document=previousDocument;}
+});

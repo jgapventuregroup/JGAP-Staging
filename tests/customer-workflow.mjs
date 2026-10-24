@@ -90,6 +90,7 @@ assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'Blan
 el('company').value = 'a'; await el('company').onchange();
 assert.equal(el('metric-count').textContent, '1');
 assert.equal(el('new-deal-form').hidden, true, 'Viewers cannot add properties');
+assert.equal(passportEligibility.canWrite,false,'Viewer cannot receive a Passport notes editor');
 assert.match(el('new-deal-limit-notice').textContent, /read-only/);
 assert.equal(el('deals').children.length, 1);
 const recentFree=el('dashboard-recent-properties').children[0];
@@ -127,6 +128,7 @@ assert.match(el('celoc-results').textContent, /Inputs changed/);
 companies[0].member_role='owner';
 await el('login').onclick(); // Refresh the app's membership snapshot; fixture mutation alone does not change cached permissions.
 el('company').value='a';await el('company').onchange();
+assert.equal(passportEligibility.canWrite,true,'Editing role is supplied to Passport separately from paid read eligibility');
 const editable=el('deals').children[0].children.flatMap(x=>x.children||[]).find(x=>x.tagName==='button');
 await editable.onclick();
 // Incomplete saved deals must open for editing without displaying a calculation failure.
