@@ -7,6 +7,7 @@ Approved direction: preserve Free exactly as currently implemented; provide a us
 | Capability | Free | Investor ($19/mo) | Pro ($39/mo) |
 | --- | --- | --- | --- |
 | Existing Free experience, Deal Analyzer, maximum offer, basic dashboard | Existing behavior unchanged | Included | Included |
+| CELCO / HELOC additional financing | No | Included while active | Included while active |
 | Saved property creation | Existing 5 lifetime slots unchanged | Unlimited while subscribed | Unlimited while subscribed |
 | Deal Pipeline / Deal Intelligence | Keep current Free access unchanged pending explicit gating decision | Included | Included |
 | Property Passport | No change to Free | Basic property profile and history | Complete passport and documents |
@@ -28,3 +29,6 @@ Approved direction: preserve Free exactly as currently implemented; provide a us
 6. Paid checkout, Stripe, advertisements, real payment verification, and production release remain **web development company handoff items**.
 7. Prioritize a functional Investor basic Property Passport, finance view, and repair/task records; then restore Pro's Money-Making System, financial dashboard, Market Map and advanced real-estate modules. The Laundromat Division is deferred and must not be included in the current release.
 8. Recheck original module dependencies, tables, migrations, permissions, and browser workflows before declaring any migration complete.
+
+## October 24 owner clarification
+CELCO / HELOC secondary financing is a paid Investor/Pro feature. This explicitly replaces the prior Free availability of the separate secondary-loan estimator. Other existing Free Deal Analyzer, maximum-offer, Pipeline and Intelligence behavior stays unchanged. Verified staging owner preview remains a separate authorized exception. Secondary financing is now calculated through a backend entitlement check, not merely hidden controls.

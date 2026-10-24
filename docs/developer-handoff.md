@@ -49,7 +49,7 @@ Do not commit `.env` files, session tokens, passwords or database exports contai
 | `property_assets`, `property_asset_services`, `property_maintenance`, `property_improvements` | Original Passport records; company/deal/equipment composite foreign keys; editors gated |
 | Eligibility, abuse-review and invitation tables | Restricted administrative/onboarding functions; no broad client policies |
 
-Important RPCs: `list_my_companies`, `create_my_company`, `list_company_deals`, `get_company_deal`, `create_company_deal`, `update_company_deal`, `create_company_deal_from_listing`, `get_my_lifetime_deal_usage`, `can_access_passport`, `has_owner_preview_access`, `update_passport_financials`, `property_operations_access`, `advanced_finance_access`, `get_advanced_finance_report`, `save_property_bookkeeping`. Review their deployed definitions and grants when changing callers.
+Important RPCs: `list_my_companies`, `create_my_company`, `list_company_deals`, `get_company_deal`, `create_company_deal`, `update_company_deal`, `create_company_deal_from_listing`, `get_my_lifetime_deal_usage`, `can_access_passport`, `has_owner_preview_access`, `update_passport_financials`, `property_operations_access`, `advanced_finance_access`, `get_advanced_finance_report`, `save_property_bookkeeping`, `calculate_secondary_financing`. Review their deployed definitions and grants when changing callers.
 
 **There is not yet a complete reproducible database bootstrap in this repository.** Earlier changes exist in staging's Supabase migration history, with assorted snapshots in `supabase/*.sql` and proposals in `docs/sql-drafts/`. Do not run all these files or treat draft SQL as applied migrations. Do not run a blind `db push` against an existing environment.
 
@@ -103,6 +103,12 @@ Passport Operations shows entries and summaries and provides collapsed add forms
 See `finance-recovery.md` for the original-module mapping, backend contracts, five grouped staging security checks and explicit accounting/document limitations. `finance-cpa.mjs` mounts into the existing app's Financial Reports page, which uses company-scoped invoker RPCs rather than client-selected plan values. The deploy and preview allowlists include this module. Report exports re-authorize and reload identical filters immediately before download; company/filter changes invalidate older responses.
 
 Migration source `supabase/migrations/20261024142418_advanced_finance.sql` maps to remote staging history version `20261024142543`. Pro bookkeeping is stored separately from the basic ledger so Investor access to basic records does not expose Pro-only metadata. The exact transaction ID replaces the original latest-row lookup. Downgrade preserves metadata; reactivation restores its visibility. Normal signed-in, device and final export QA remain open.
+
+## Paid CELCO / HELOC financing
+
+The owner's October 24 instruction makes the existing secondary-loan estimator Investor/Pro only. The app shows it expanded near the primary loan inputs after server authorization and hides it behind a plan notice for Free. The backend `calculate_secondary_financing` RPC independently checks current active Investor/Pro entitlement or verified owner preview, validates inputs and calculates interest-only costs/combined cash flow. Do not restore a client-only paid calculation fallback. Other Free Analyzer calculations remain unchanged.
+
+The scenario is not persisted and is separate from primary mortgage and maximum-offer results. It excludes principal repayments, fees and variable-rate changes. `tests/staging-secondary-financing-security.sql` records six grouped rollback checks; the customer workflow tests exercise UI authorization, copied down payment, exact calculation context and stale-response suppression. Normal signed-in/device testing remains separate from these tests. See the incremental `paid_secondary_financing` migration and reconcile its CLI source timestamp with remote history before using CLI migrations.
 
 ## Billing and advertising integration
 

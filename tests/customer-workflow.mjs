@@ -26,6 +26,7 @@ const elements = new Map();
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
 const companies = [{ company_id: 'a', company_name: 'Company A', member_role: 'viewer' }, { company_id: 'b', company_name: 'Company B', member_role: 'owner' }];
 const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
+let secondaryDeferred=null;
 let membership={plan:'free',billing_status:'not_connected'}, passportAllowed=false, ownerPreviewAllowed=false, passportEligibility,operationsCapability={read:false,write:false},financeCapability={read:false,write:false};
 const adSlots=[new Element('aside'),new Element('aside')];
 const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = []; let lifetimeB = 0;
@@ -33,6 +34,7 @@ const fakeClient = {
   auth: { signInWithPassword: async ({ email }) => ({ data: { user: { email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
   rpc: async (name, args) => {
     calls.push({ name, args });
+    if (name === 'calculate_secondary_financing') {if(secondaryDeferred)return await new Promise(resolve=>{secondaryDeferred.resolve=resolve});return {data:{company_id:args.p_company_id,monthly_interest:'300',annual_interest:'3600',monthly_cash_flow:'-148.04'},error:null};}
     if (name === 'advanced_finance_access') return {data:financeCapability,error:null};
     if (name === 'get_advanced_finance_report') return {data:{company_id:args.p_company_id},error:null};
     if (name === 'save_property_bookkeeping') return {data:{company_id:args.p_company_id,deal_id:args.p_deal_id,ledger_entry_id:args.p_entry_id},error:null};
@@ -232,6 +234,8 @@ for(const [plan,billing_status,allowed,expectPassport,expectAds] of [
  membership={plan,billing_status};passportAllowed=allowed;
  el('company').value='b';await el('company').onchange();
  assert.equal(passportEligibility.enabled,expectPassport,plan+'/'+billing_status+' must honor backend Passport authorization');
+ assert.equal(el('secondary-financing').hidden,!expectPassport,'Secondary financing follows server paid authorization');
+ assert.equal(el('secondary-financing').open,expectPassport,'Paid financing controls should be expanded and easy to find');
  assert.ok(adSlots.every(slot=>slot.hidden===!expectAds),plan+'/'+billing_status+' ad placement eligibility');
  assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Plan changes cannot open original record writers');
 }
@@ -265,6 +269,17 @@ assert.equal(context.window.JGAPFinanceContext.scope().canRead,false,'Server rep
 assert.equal(context.window.JGAPFinanceContext.scope().canWrite,false,'Write capability requires read capability');
 await assert.rejects(context.window.JGAPFinanceContext.load('b',financeFilters),/not authorized/);
 console.log('PASS: advanced finance context honors server capability, editing role and exact transaction/company scope');
+membership={plan:'investor',billing_status:'active'};passportAllowed=true;el('company').value='b';await el('company').onchange();
+for(const [key,value] of Object.entries({offer:180000,rent:1800,other:0,vacancy:5,expenses:600,down:20,rate:7,years:30}))el(key).value=String(value);
+el('celoc-rate').value='9';el('celoc-use-down').onclick();assert.equal(el('celoc-amount').value,'36000.00');
+el('celoc-amount').value='40000';await el('celoc-calculate').onclick();
+const secondaryCall=calls.filter(call=>call.name==='calculate_secondary_financing').at(-1);assert.equal(secondaryCall.args.p_amount,40000);assert.equal(secondaryCall.args.p_rate,9);assert.equal(secondaryCall.args.p_company_id,'b');assert.equal(secondaryCall.args.p_primary.down,20);
+assert.match(el('celoc-results').textContent,/\$300\.00/);assert.match(el('celoc-results').textContent,/-\$148\.04/);
+secondaryDeferred={};const pendingSecondary=el('celoc-calculate').onclick();el('company').value='a';await el('company').onchange();secondaryDeferred.resolve({data:{company_id:'b',monthly_interest:'300',annual_interest:'3600',monthly_cash_flow:'-148.04'},error:null});await pendingSecondary;secondaryDeferred=null;
+assert.equal(el('celoc-results').textContent,'','Late secondary-loan results must not enter another workspace');
+membership={plan:'free',billing_status:'not_connected'};passportAllowed=false;el('company').value='b';await el('company').onchange();
+const secondaryCount=calls.filter(call=>call.name==='calculate_secondary_financing').length;await el('celoc-calculate').onclick();assert.equal(calls.filter(call=>call.name==='calculate_secondary_financing').length,secondaryCount,'Free UI must never invoke paid calculator');assert.equal(el('secondary-financing').hidden,true);
+console.log('PASS: paid CELCO/HELOC controls, backend calculation, Free denial and stale-response protection');
 await el('logout').onclick();
 assert.equal(el('deals').children.length, 0);
 assert.equal(context.window.JGAP_OPERATIONS_WRITES_READY,false,'Sign-out revokes activity editors');
