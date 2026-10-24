@@ -130,3 +130,8 @@ Dashboard and properties pages reserve labeled sponsored placements. Active Pro 
 8. Database rollback is separate from a Git revert. Preserve the financial guard while investigating; reverting its migration reopens the confirmed bypass. Any proposed DB removal needs a specific reviewed script, backup and appropriate owner approval. Prefer a forward fix. Do not replay historical SQL snapshots to roll back.
 
 Handoff access should be granted through GitHub/Supabase account permissions. Transfer secrets securely and confirm owner/admin recovery access. The app remains staging-only until its production release is separately approved.
+
+## Website and app brand continuity
+The owner supplied website screenshots on October 24, 2026 as the visual reference: deep navy headers, orange actions, white cards, pale blue workspace surfaces, bold headings and clear next-step navigation. The staging app now shares these colors across its header, dashboard, forms, Analyzer and Passport while retaining dark mode and existing page IDs. The marketing website was not changed. Rendered mobile/desktop acceptance remains required.
+
+The owner's distribution intent is to sell access to the investor app and the forthcoming book through the marketing website. App download/install packaging is not delivered by this styling change. The handoff company must agree the supported platforms and implement the download/install experience, book delivery and checkout, and server-verified subscription provisioning. Preserve the current plan matrix; do not equate a downloaded app with a paid entitlement. No live commerce or advertisements were enabled.
