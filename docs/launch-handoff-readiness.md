@@ -76,3 +76,8 @@ See `docs/developer-handoff.md` for architecture, configuration, database invent
 - Two-company real-session runner is implemented but not executed; required signed-in sessions are unavailable here. No original record editor was enabled.
 - Rendered browser/device QA remains pending because the local browser runtime could not be installed.
 - Subsequent commits still require their own four green workflow runs before handoff.
+
+## Property operations backend milestone
+- Added `property_ledger_entries`, `property_repairs`, and `property_tasks` in staging via the reviewed `property_operations` migration. Composite foreign keys, immutable record ownership, server-derived creator/timestamps, RLS and explicit grants protect the tables. There is no client DELETE grant.
+- Six grouped checks in `tests/staging-operations-security.sql` passed against staging with two companies: own create/edit persistence, foreign SELECT/INSERT/UPDATE refusal, property/company reassignment denial, spoofed attribution prevention, downgrade history retention, inactive/Free/viewer write denial, Pro editing and anonymous denial. All fictional fixtures rolled back. These use simulated database identities, not the original Passport real-session release gate.
+- Original equipment/services/maintenance/improvements editors remain disabled. Frontend operations activation is tracked separately from this backend milestone.
