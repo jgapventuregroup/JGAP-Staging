@@ -46,6 +46,7 @@ test('Passport preview requires active entitlement and ignores stale company res
    assert.equal(line.afterNode.children[0].textContent,'Duplex — Property Passport');
    const openPanel=line.afterNode;
    assert.equal(line.children[0].attributes['aria-expanded'],'true','Opening Passport updates expanded state');
+   assert.equal(line.children[0].attributes['aria-label'],'Close property passport for Duplex','Expanded control identifies the selected property');
    const financialRows=openPanel.children.flatMap(child=>child.tag==='section'?child.children.filter(row=>row.tag==='p'):child.tag==='p'?[child]:[]).map(child=>child.children.map(part=>part.textContent).join(''));
    assert.ok(financialRows.includes('Estimated equity: Not recorded'),'Unknown equity must be explicit');
    assert.ok(financialRows.includes('Current market value: Not recorded'),'ARV must not be shown as market value');
@@ -56,6 +57,7 @@ test('Passport preview requires active entitlement and ignores stale company res
    closeButton.onclick();
    assert.equal(openPanel.removed,true,'Close action removes the active Passport');
    assert.equal(line.children[0].attributes['aria-expanded'],'false','Closing Passport restores collapsed state');
+   assert.equal(line.children[0].attributes['aria-label'],'Open property passport for Duplex','Closing keeps the property identity for screen readers');
    assert.equal(line.children[0].disabled,false,'Close action leaves preview button usable');
    preview.setEligibility({companyId:'c1',enabled:true});
    const accountChange=node('p');

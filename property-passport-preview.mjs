@@ -89,7 +89,7 @@ function markPassportButton(button,open){
   if(!button)return;
   button.textContent=open?'Close Passport':'Open Property Passport';
   button.setAttribute('aria-expanded',String(open));
-  button.setAttribute('aria-label',(open?'Close':'Open')+' property passport');
+  button.setAttribute('aria-label',(open?'Close':'Open')+' property passport'+(button.dataset.passportPropertyName?' for '+button.dataset.passportPropertyName:''));
 }
 function releasePendingButton(){
   if(pendingButton)pendingButton.disabled=false;
@@ -118,6 +118,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
   const button=document.createElement('button');
   button.type='button';
   button.textContent='Open Property Passport';
+  button.dataset.passportPropertyName=String(deal.name||'Untitled property');
   button.setAttribute('title','View the saved property details and Passport records');
   button.setAttribute('aria-label','Open property passport for '+deal.name);
   button.setAttribute('aria-expanded','false');

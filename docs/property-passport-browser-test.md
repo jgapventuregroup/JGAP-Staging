@@ -80,3 +80,9 @@ Observed actual UI results on that versioned build:
 **Cleanup pending owner approval:** automatic approval review rejected the guarded deletion because database deletions need explicit approval. The one fictional property and its five linked original records remain. No cleanup transaction ran, no lifetime counters were reset, and no original customer property was modified. Delete only this exact fixture after approval; do not delete a company or account.
 
 This closes desktop owner add/edit/reopen acceptance for original records. Phone/device acceptance, ordinary Pro/viewer rendered flows and document uploads remain open. The 128-check separate-session tenant gate is unchanged.
+
+## Approved fixture cleanup completed
+After the owner explicitly approved deleting only the named fictional QA property and its five child records, the guarded staging transaction succeeded. It required the exact property ID/company/name and the expected corrected equipment, two services, completed maintenance and improvement values; it also refused cleanup if any ledger, repair or task activity existed. The transaction required exactly one property deletion. Its result verified zero remaining fixture properties, assets, services, maintenance and improvements. No company/account was deleted, no lifetime counter was reset, and no other property was targeted. This supersedes the earlier pending-cleanup note.
+
+## Narrow-screen and accessible-name follow-up
+Added fieldset minimum-size/legend wrapping rules for the optional service schedule, explicit 44px disclosure/save targets, 16px form input text and narrow-screen button/tab wrapping. Passport toggle labels now retain the property name when opened, closed or reset. Existing browser-logic regression checks cover the accessible label lifecycle. This is a CSS/code inspection improvement, not a claim of physical phone or mobile Safari acceptance.

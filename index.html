@@ -173,6 +173,21 @@ html[data-theme="dark"] #property-passport-panel>section{background:#142c41;bord
 }
 html[data-theme="dark"] #property-passport-panel>form[aria-label="Edit Passport financials"]{background:#142c41;border-color:#36516a}
 
+/* Keep nested equipment fields and record disclosures inside narrow Passport columns. */
+#property-passport-panel fieldset{box-sizing:border-box;min-inline-size:0;max-width:100%;width:100%;margin-inline:0;padding:12px}
+#property-passport-panel legend{max-width:100%;white-space:normal;overflow-wrap:anywhere;padding-inline:4px}
+#property-passport-panel form input,#property-passport-panel form select,#property-passport-panel form textarea{min-width:0;font-size:16px}
+#property-passport-panel details{min-width:0;max-width:100%}
+#property-passport-panel details>summary{box-sizing:border-box;min-height:44px;padding:12px 8px;cursor:pointer;overflow-wrap:anywhere}
+#property-passport-panel details>summary:focus-visible{outline:3px solid #ff8200;outline-offset:2px;border-radius:6px}
+#property-passport-panel form button{min-height:44px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:480px){
+#property-passport-panel{padding:12px;gap:10px}
+#property-passport-panel>section,#property-passport-panel>form[aria-label="Edit Passport financials"]{padding:12px}
+#property-passport-panel form button{width:100%}
+#property-passport-panel>.passport-tabs .passport-tab{flex:1 1 auto;min-width:0;padding:11px 12px}
+}
+
 /* Passport workspace tabs — keep the title/actions visible, display one section at a time. */
 #property-passport-panel>[hidden]{display:none!important}
 #property-passport-panel>.passport-tabs{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;order:1;padding:4px 0 12px;border-bottom:1px solid #d5e1ea}
