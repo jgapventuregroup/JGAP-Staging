@@ -2,8 +2,8 @@
 const bucket='passport-documents';
 const origin='https://qfszapteuxuogoselprp.supabase.co';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-export async function createDocumentLiveGate({clients,anonymousClient,companies,properties,publicFetch=fetch}){
- const checks=[];const accounts=[];let ownerDone=false,inactiveDone=false,viewerDone=false,started=false;
+export async function createDocumentLiveGate({clients,anonymousClient,companies,properties,publicFetch=fetch,reuseRetained=false}){
+ const checks=[];const accounts=[];let ownerDone=false,inactiveDone=false,viewerDone=false,started=false,uploadsThisRun=0;
  const pass=(value,label)=>{if(!value)throw Error(label);checks.push(label)};
  const code=result=>Number(result.error?.statusCode||result.error?.status||0);
  const denied=(result,label,allowed=[401,403])=>pass(!!result.error&&!result.data&&allowed.includes(code(result)),label);
@@ -25,7 +25,7 @@ export async function createDocumentLiveGate({clients,anonymousClient,companies,
  pass(accounts[0].userId!==accounts[1].userId,'Two distinct authenticated users');
  const storage=a=>a.client.storage.from(bucket);
  const ownDownload=async(a,label)=>{
-  const result=await storage(a).download(a.key);pass(!result.error&&result.data&&typeof result.data.arrayBuffer==='function',label+' download allowed');
+  const result=await storage(a).download(a.key,{}, {cache:'no-store'});pass(!result.error&&result.data&&typeof result.data.arrayBuffer==='function',label+' download allowed');
   const actual=new Uint8Array(await result.data.arrayBuffer());pass(actual.length===bytes.length&&actual.every((x,i)=>x===bytes[i]),label+' downloaded bytes persist exactly');
  };
  const upload=(client,key,blob=payload(),extra={})=>client.storage.from(bucket).upload(key,blob,{contentType:'application/pdf',upsert:false,...extra});
@@ -35,15 +35,21 @@ export async function createDocumentLiveGate({clients,anonymousClient,companies,
   async runOwnerChecks(){
    if(started)throw Error('Owner gate already started; review retained fixture objects before retrying');started=true;
    for(const a of accounts){
-    const before=await storage(a).list(a.prefix,{limit:100});pass(!before.error&&Array.isArray(before.data)&&before.data.length===0,a.alias+' fixture starts empty');
-    a.key=candidate(a,a.alias);
-    const uploaded=await upload(a.client,a.key);pass(!uploaded.error&&uploaded.data?.path===a.key,a.alias+' own immutable upload');
+    const before=await storage(a).list(a.prefix,{limit:100});
+    if(reuseRetained){
+     pass(!before.error&&Array.isArray(before.data)&&before.data.length===1&&new RegExp('^[0-9a-f-]{36}--TKA-document-gate-'+a.alias+'\\.pdf$').test(before.data[0].name),a.alias+' exactly one retained fictional fixture');
+     a.key=a.prefix+'/'+before.data[0].name;
+    }else{
+     pass(!before.error&&Array.isArray(before.data)&&before.data.length===0,a.alias+' fixture starts empty');
+     a.key=candidate(a,a.alias);
+     const uploaded=await upload(a.client,a.key);pass(!uploaded.error&&uploaded.data?.path===a.key,a.alias+' own immutable upload');uploadsThisRun++;
+    }
     await ownList(a,a.alias);await ownDownload(a,a.alias);
    }
    for(let i=0;i<2;i++){
     const a=accounts[i],other=accounts[1-i];
     const list=await storage(a).list(other.prefix,{limit:100});pass(!list.error&&Array.isArray(list.data)&&list.data.length===0,a.alias+' foreign listing empty');
-    denied(await storage(a).download(other.key),a.alias+' foreign download denied',[400,401,403,404]);
+    denied(await storage(a).download(other.key,{}, {cache:'no-store'}),a.alias+' foreign download denied',[400,401,403,404]);
     denied(await upload(a.client,candidate(other,'foreign-denied')),a.alias+' foreign upload denied');
     denied(await upload(a.client,a.companyId+'/'+other.propertyId+'/'+crypto.randomUUID()+'--TKA-document-gate-mismatch.pdf'),a.alias+' mismatched property upload denied');
     denied(await upload(a.client,a.key,new Blob(['modified'],{type:'application/pdf'}),{upsert:true}),a.alias+' upsert denied');
@@ -57,7 +63,7 @@ export async function createDocumentLiveGate({clients,anonymousClient,companies,
    pass(!!oversized.error&&[400,413,422].includes(code(oversized))&&/size|large|limit|exceed/i.test(oversized.error.message||''),'Bucket rejects oversized file');
    const anonymous=anonymousClient.storage.from(bucket);
    const list=await anonymous.list(a.prefix,{limit:100});pass((!list.error&&Array.isArray(list.data)&&list.data.length===0)||(list.error&&[401,403].includes(code(list))),'Anonymous listing denied or empty');
-   denied(await anonymous.download(a.key),'Anonymous download denied',[400,401,403,404]);
+   denied(await anonymous.download(a.key,{}, {cache:'no-store'}),'Anonymous download denied',[400,401,403,404]);
    denied(await upload(anonymousClient,candidate(a,'anonymous-denied')),'Anonymous upload denied');
    for(const account of accounts)await ownList(account,account.alias+' final owner');
    ownerDone=true;return this.evidence();
@@ -66,7 +72,7 @@ export async function createDocumentLiveGate({clients,anonymousClient,companies,
    if(!ownerDone||inactiveDone)throw Error('Complete the owner gate once before inactive checks');
    const a=accounts[0];const cap=await a.client.rpc('advanced_finance_access',{p_company_id:a.companyId});pass(!cap.error&&cap.data?.read===false&&cap.data?.write===false,'Inactive fixture capability revoked');
    const list=await storage(a).list(a.prefix,{limit:100});pass(!list.error&&Array.isArray(list.data)&&list.data.length===0,'Inactive document listing empty');
-   denied(await storage(a).download(a.key),'Inactive download denied',[400,401,403,404]);
+   denied(await storage(a).download(a.key,{}, {cache:'no-store'}),'Inactive download denied',[400,401,403,404]);
    denied(await upload(a.client,candidate(a,'inactive-denied')),'Inactive upload denied');
    await ownDownload(accounts[1],'Active B during inactive A');inactiveDone=true;return this.evidence();
   },
@@ -78,6 +84,6 @@ export async function createDocumentLiveGate({clients,anonymousClient,companies,
    denied(await upload(a.client,candidate(a,'viewer-denied')),'Viewer upload denied');
    await ownDownload(accounts[1],'Active B during viewer A');viewerDone=true;return this.evidence();
   },
-  evidence(){return {result:ownerDone&&inactiveDone&&viewerDone?'PASS':'INCOMPLETE',passed:checks.length,checks:[...checks],stages:{owner:ownerDone,inactive:inactiveDone,viewer:viewerDone},retainedFixtures:{properties:2,documentFiles:accounts.filter(a=>a.key).length},cleanupPerformed:false}}
+  evidence(){return {result:ownerDone&&inactiveDone&&viewerDone?'PASS':'INCOMPLETE',passed:checks.length,checks:[...checks],stages:{owner:ownerDone,inactive:inactiveDone,viewer:viewerDone},retainedFixtures:{properties:2,documentFiles:accounts.filter(a=>a.key).length},cleanupPerformed:false,fixtureMode:reuseRetained?'reused':'fresh-uploads',uploadsThisRun}}
  };
 }

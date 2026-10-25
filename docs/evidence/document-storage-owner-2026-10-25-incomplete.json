@@ -1,0 +1,256 @@
+{
+  "source": "normal authenticated Storage API gate",
+  "captured_on": "2026-10-25",
+  "result": "INCOMPLETE",
+  "passed": 48,
+  "checks": [
+    "A normal verified authentication",
+    "A memberships loaded",
+    "A controlled editing company",
+    "A no membership in opposite company",
+    "A controlled saved property",
+    "A server Pro editing capability",
+    "B normal verified authentication",
+    "B memberships loaded",
+    "B controlled editing company",
+    "B no membership in opposite company",
+    "B controlled saved property",
+    "B server Pro editing capability",
+    "Two distinct authenticated users",
+    "A fixture starts empty",
+    "A own immutable upload",
+    "A exact own file listing",
+    "A download allowed",
+    "A downloaded bytes persist exactly",
+    "B fixture starts empty",
+    "B own immutable upload",
+    "B exact own file listing",
+    "B download allowed",
+    "B downloaded bytes persist exactly",
+    "A foreign listing empty",
+    "A foreign download denied",
+    "A foreign upload denied",
+    "A mismatched property upload denied",
+    "A upsert denied",
+    "A after rejected upsert download allowed",
+    "A after rejected upsert downloaded bytes persist exactly",
+    "A public URL unavailable",
+    "B foreign listing empty",
+    "B foreign download denied",
+    "B foreign upload denied",
+    "B mismatched property upload denied",
+    "B upsert denied",
+    "B after rejected upsert download allowed",
+    "B after rejected upsert downloaded bytes persist exactly",
+    "B public URL unavailable",
+    "Bucket rejects disallowed MIME",
+    "Bucket rejects oversized file",
+    "Anonymous listing denied or empty",
+    "Anonymous download denied",
+    "Anonymous upload denied",
+    "A final owner exact own file listing",
+    "B final owner exact own file listing",
+    "Inactive fixture capability revoked",
+    "Inactive document listing empty"
+  ],
+  "stages": {
+    "owner": true,
+    "inactive": false,
+    "viewer": false
+  },
+  "retainedFixtures": {
+    "properties": 2,
+    "documentFiles": 2
+  },
+  "cleanupPerformed": false,
+  "http": [
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200
+    },
+    {
+      "account": "public",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/public",
+      "status": 400
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "B",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200
+    },
+    {
+      "account": "public",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/public",
+      "status": 400
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "anonymous",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "anonymous",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200
+    }
+  ],
+  "source_commit": "07ebb89f544695a0fcda6a720e655ca9c97a9490",
+  "observed_failure": "Inactive listing denied, but download returned HTTP 200 after an earlier successful download; cache diagnosis pending."
+}

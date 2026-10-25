@@ -60,7 +60,7 @@ export async function uploadPassportDocument(context,file){
 export async function downloadPassportDocument(context,entry){
  await authorize(context);const prefix=scope(context);
  if(!entry||typeof entry.path!=='string'||!entry.path.startsWith(prefix+'/')||!objectName.test(entry.path.slice(prefix.length+1)))throw Error('Document does not belong to this property');
- const {data,error}=await context.client.storage.from(DOCUMENT_BUCKET).download(entry.path);scope(context);
+ const {data,error}=await context.client.storage.from(DOCUMENT_BUCKET).download(entry.path,{}, {cache:'no-store'});scope(context);
  if(error||!data||typeof data.arrayBuffer!=='function')throw Error('Could not download document');
  return data;
 }

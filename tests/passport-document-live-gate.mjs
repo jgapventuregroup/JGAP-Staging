@@ -18,7 +18,7 @@ function fixture({foreignLeak=false,wrongBytes=false,unverified=false}={}){
     if(index<0||!key.startsWith(companies[index]+'/'+properties[index]+'/')||(index===0&&(state.inactive||state.viewer))||options.upsert)return denied();
     objects.set(key,blob);return {data:{path:key},error:null};
    },
-   download:async key=>{
+   download:async(key,options,parameters)=>{assert.equal(parameters.cache,'no-store');
     if(index<0||(!foreignLeak&&!key.startsWith(companies[index]+'/'+properties[index]+'/'))||(index===0&&state.inactive)||!objects.has(key))return denied();
     return {data:wrongBytes?new Blob(['wrong']):objects.get(key),error:null};
    },
@@ -40,4 +40,9 @@ test('document gate refuses foreign leakage, corrupt bytes, unverified users and
  for(const options of [{foreignLeak:true},{wrongBytes:true}]){const f=fixture(options),gate=await createDocumentLiveGate(f.options);await assert.rejects(gate.runOwnerChecks())}
  const unverified=fixture({unverified:true});await assert.rejects(createDocumentLiveGate(unverified.options),/normal verified/);
  const repeated=fixture();await assert.rejects(createDocumentLiveGate({...repeated.options,companies:[companies[0],companies[0]]}),/distinct controlled/);
+});
+
+test('retained-fixture mode reuses only known fictional PDFs without another positive upload',async()=>{
+ const f=fixture();const first=await createDocumentLiveGate(f.options);await first.runOwnerChecks();assert.equal(f.objects.size,2);
+ const retry=await createDocumentLiveGate({...f.options,reuseRetained:true});const result=await retry.runOwnerChecks();assert.equal(result.uploadsThisRun,0);assert.equal(result.fixtureMode,'reused');assert.equal(f.objects.size,2);
 });

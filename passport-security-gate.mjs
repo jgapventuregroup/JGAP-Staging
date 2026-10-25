@@ -6,11 +6,11 @@ const $=id=>document.getElementById(id);
 const origin='https://qfszapteuxuogoselprp.supabase.co';
 const key=window.JGAP_STAGING_PUBLISHABLE_KEY;
 const allowedHost=['localhost','127.0.0.1'].includes(location.hostname)||(location.hostname==='jgapventuregroup.github.io'&&location.pathname.startsWith('/JGAP-Staging/'));
-let clients=[],users=[],busy=false,documentGate=null;
+let clients=[],users=[],busy=false,documentGate=null,documentPropertyRequest=0;
 const storageHttpEvidence=[];
 const observedFetch=account=>async(input,init)=>{
- const response=await fetch(input,init);
  const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
+ const response=await fetch(input,url.origin===origin&&url.pathname.startsWith('/storage/v1/')?{...init,cache:'no-store'}:init);
  if(url.origin===origin&&url.pathname.startsWith('/storage/v1/'))storageHttpEvidence.push({account,method:init?.method||input.method||'GET',endpoint:url.pathname.split('/').slice(0,5).join('/'),status:response.status});
  return response;
 };
@@ -64,10 +64,12 @@ $('gate-run').onclick=async()=>{
 
 async function refreshDocumentProperties(){
  if(documentGate)return;
+ const request=++documentPropertyRequest;
  for(let i=0;i<clients.length;i++){
+  if(request!==documentPropertyRequest)return;
   const picker=$(i?'gate-document-property-b':'gate-document-property-a');picker.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Select the disposable document test property';picker.append(empty);
   const company=$(i?'gate-company-b':'gate-company-a').value;if(!company)continue;
-  const result=await clients[i].rpc('list_company_deals',{p_company_id:company});if(result.error||!Array.isArray(result.data))throw Error('Could not load document fixture properties');
+  const result=await clients[i].rpc('list_company_deals',{p_company_id:company});if(request!==documentPropertyRequest)return;if(result.error||!Array.isArray(result.data))throw Error('Could not load document fixture properties');
   for(const row of result.data){if(row.company_id!==company||!row.name?.startsWith('V1 document gate '))continue;const option=document.createElement('option');option.value=row.id;option.textContent=row.name;picker.append(option);}
  }
 }
@@ -84,7 +86,7 @@ async function runDocumentStage(stage){
    if(documentGate)throw Error('A document gate has already started; review retained files before restarting');
    storageHttpEvidence.length=0;
    const anonymousClient=window.supabase.createClient(origin,key,{global:{fetch:observedFetch('anonymous')},auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'tka-document-anonymous'}});
-   documentGate=await createDocumentLiveGate({clients,anonymousClient,companies:[$('gate-company-a').value,$('gate-company-b').value],properties:[$('gate-document-property-a').value,$('gate-document-property-b').value],publicFetch:observedFetch('public')});
+   documentGate=await createDocumentLiveGate({clients,anonymousClient,companies:[$('gate-company-a').value,$('gate-company-b').value],properties:[$('gate-document-property-a').value,$('gate-document-property-b').value],publicFetch:observedFetch('public'),reuseRetained:$('gate-document-reuse').checked});
    for(const id of ['gate-company-a','gate-company-b','gate-document-property-a','gate-document-property-b','gate-run','gate-refresh'])$(id).disabled=true;
    status('Testing actual document upload/list/download and cross-company denial. Fictional files will remain; no cleanup is performed.');
    await documentGate.runOwnerChecks();$('gate-document-inactive').disabled=false;status('Owner document checks passed. Next: only the disposable Company A must be made inactive for the next check.');
