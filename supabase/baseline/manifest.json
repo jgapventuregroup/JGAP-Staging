@@ -168,5 +168,20 @@
   ],
   "schema_changes_after_source_commit": [
     "supabase/migrations/20261024215841_original_passport_pro_writes.sql"
-  ]
+  ],
+  "storage_integrations": {
+    "setup": "supabase/storage/passport-documents.sql",
+    "included_in_application_baseline": false,
+    "remote_migrations": [
+      {
+        "version": "20261025165449",
+        "name": "private_passport_documents"
+      },
+      {
+        "version": "20261025165853",
+        "name": "passport_document_flat_object_names"
+      }
+    ],
+    "customer_controls": "disabled pending normal authenticated Storage API acceptance"
+  }
 }

@@ -1,3 +1,4 @@
+import {createPassportDocumentsSection} from './passport-documents.mjs';
 import {projectPropertyPassport} from './property-passport.mjs';
 import {loadOriginalPassportRecords} from './original-passport-loader.mjs';
 import {createPassportRecordsTable} from './original-passport-display.mjs';
@@ -502,6 +503,9 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
       note.setAttribute('role','status');
       note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Property activity entries save to the connected staging database.':'Operations data is read-only until secure write access is enabled.'):'Property activity is unavailable. Saved property details and authorized Passport edits remain separate.';
       panel.append(note);
+      const documentsSection=await createPassportDocumentsSection({client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+      if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
+      panel.append(documentsSection);
       // Compact property workspace: one focused area at a time, without removing any data.
       const tabs=document.createElement('nav');
       tabs.className='passport-tabs';
@@ -513,7 +517,8 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
         Systems:[],
         Maintenance:[],
         Improvements:[],
-        Operations:[]
+        Operations:[],
+        Documents:[]
       };
       let activeGroup='Overview';
       let sectionGroup='Overview';
@@ -527,6 +532,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
           if(title.startsWith('Systems & equipment')||title.startsWith('Service schedules'))groups.Systems.push(node);
           else if(title.startsWith('Maintenance history'))groups.Maintenance.push(node);
           else if(title.startsWith('Improvements'))groups.Improvements.push(node);
+          else if(title==='Documents')groups.Documents.push(node);
           else if(title.startsWith('Add Passport records')){
             // Show the relevant editor only on its matching Passport tab.
             for(const name of ['Systems','Maintenance','Improvements'])groups[name].push(node);

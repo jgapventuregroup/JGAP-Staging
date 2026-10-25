@@ -17,7 +17,7 @@ The existing staging app is functional but is **not approved for production or p
 
 ## Open product work — do not advertise as delivered
 
-Document uploads/attachments and legal-title ownership records are unfinished. Current comparison uses current saved assumptions, not an immutable purchase-time underwriting budget. Money-Making System, Market Map, Deal Radar, alerts, lead generation, dashboard customization and advanced team controls remain incomplete. The Laundromat Division is excluded by the existing owner decision.
+Document upload/list/download code and private Pro/company/property Storage policies are prepared, with three grouped staging SQL-role checks and local module/restore tests. Customer controls remain disabled pending the normal authenticated Storage API gate, real form and device acceptance. Legal-title ownership records are unfinished. Current comparison uses current saved assumptions, not an immutable purchase-time underwriting budget. Money-Making System, Market Map, Deal Radar, alerts, lead generation, dashboard customization and advanced team controls remain incomplete. The Laundromat Division is excluded by the existing owner decision.
 
 The original editors passed their normal-session isolation gate and desktop owner form acceptance; ordinary paid/viewer and phone acceptance remain required. Broader changes to the approved paid offering require owner approval; missing features must remain labeled unavailable and must not be sold as complete.
 
