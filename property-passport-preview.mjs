@@ -176,7 +176,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
         // The on-screen tabs hide inactive sections. Printing must include the complete Passport.
         printable.querySelectorAll('[hidden]').forEach(node=>node.removeAttribute('hidden'));
         printable.querySelectorAll('[aria-hidden="true"]').forEach(node=>node.removeAttribute('aria-hidden'));
-        printable.querySelectorAll('button,form,input,select,textarea,.passport-tabs,[data-activity-editor]').forEach(node=>node.remove());
+        printable.querySelectorAll('button,form,input,select,textarea,.passport-tabs,[data-activity-editor],[data-original-record-editor]').forEach(node=>node.remove());
         const printWindow=window.open('','_blank');
         if(!printWindow){window.alert('Allow pop-ups to print the Passport');return;}
         try{printWindow.opener=null;}catch{}
@@ -310,11 +310,39 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
         const legacy=await loadOriginalPassportRecords({client,companyId,propertyId:record.id,getCurrentCompany,getCurrentClient});
         if(current!==requestId||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;
         const passportSections={};
+        const renderOriginalRecords=(kind,records,assets,services)=>{
+          const container=document.createElement('div');container.append(createPassportRecordsTable(kind,records,assets,services));
+          if(window.JGAP_ORIGINAL_PASSPORT_WRITES_READY!==true)return container;
+          for(const entry of records){
+            const details=document.createElement('details');details.dataset.originalRecordEditor='true';
+            const summary=document.createElement('summary');summary.textContent='Edit '+(entry.name||entry.service_name||entry.title||'record');details.append(summary);
+            details.append(createOriginalPassportForm(kind,async values=>{
+              const assertContext=()=>{if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId||window.JGAP_ORIGINAL_PASSPORT_WRITES_READY!==true)throw Error('Passport context changed');};
+              assertContext();
+              await saveOriginalPassportEntry({kind,entryId:entry.id,values,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
+              assertContext();
+              let updated;
+              try{updated=await loadOriginalPassportRecords({client,companyId,propertyId:record.id,getCurrentCompany,getCurrentClient});}
+              catch(error){throw Error('Changes saved and verified, but records could not refresh. Close and reopen the Passport.');}
+              assertContext();
+              const savedSection=container.parentNode;
+              for(const [entryKind,key] of [['asset','assets'],['service','services'],['maintenance','maintenance'],['improvement','improvements']]){
+                const section=passportSections[key];if(!section)continue;
+                while(section.children.length>1)section.lastChild.remove();
+                section.children[0].textContent=({assets:'Systems & equipment',services:'Service schedules',maintenance:'Maintenance history',improvements:'Improvements'})[key]+' ('+updated[key].length+')';
+                section.append(renderOriginalRecords(entryKind,updated[key],updated.assets,updated.services));
+              }
+              const notice=document.createElement('p');notice.setAttribute('role','status');notice.textContent='Passport record changes saved and verified.';savedSection?.append(notice);
+            },{assets,record:entry}));
+            container.append(details);
+          }
+          return container;
+        };
         for(const [kind,title,key] of [['asset','Systems & equipment','assets'],['service','Service schedules','services'],['maintenance','Maintenance history','maintenance'],['improvement','Improvements','improvements']]){
           const section=document.createElement('section');
           const records=Array.isArray(legacy?.[key])?legacy[key]:[];
           const h=document.createElement('h3');h.textContent=title+' ('+records.length+')';section.append(h);
-          section.append(createPassportRecordsTable(kind,records,legacy.assets,legacy.services));
+          section.append(renderOriginalRecords(kind,records,legacy.assets,legacy.services));
           passportSections[key]=section;
           panel.append(section);
         }
@@ -354,7 +382,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
                     const section=passportSections[key];if(!section)continue;
                     while(section.children.length>1)section.lastChild.remove();
                     section.children[0].textContent=({assets:'Systems & equipment',services:'Service schedules',maintenance:'Maintenance history',improvements:'Improvements'})[key]+' ('+(saved[key]?.length??0)+')';
-                    section.append(createPassportRecordsTable(entryKind,saved[key],saved.assets,saved.services));
+                    section.append(renderOriginalRecords(entryKind,saved[key],saved.assets,saved.services));
                   }
                 }catch(refreshError){
                   if(refreshError?.message==='Passport context changed after partial save')throw refreshError;
@@ -379,7 +407,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
               const section=passportSections[key];if(!section)continue;
               while(section.children.length>1)section.lastChild.remove();
               section.children[0].textContent=({assets:'Systems & equipment',services:'Service schedules',maintenance:'Maintenance history',improvements:'Improvements'})[key]+' ('+(updated[key]?.length??0)+')';
-              section.append(createPassportRecordsTable(entryKind,updated[key],updated.assets,updated.services));
+              section.append(renderOriginalRecords(entryKind,updated[key],updated.assets,updated.services));
             }
           }:async values=>{
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
@@ -409,7 +437,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
               const section=passportSections[key];if(!section)continue;
               while(section.children.length>1)section.lastChild.remove();
               section.children[0].textContent=({assets:'Systems & equipment',services:'Service schedules',maintenance:'Maintenance history',improvements:'Improvements'})[key]+' ('+(updated[key]?.length??0)+')';
-              section.append(createPassportRecordsTable(entryKind,updated[key],updated.assets,updated.services));
+              section.append(renderOriginalRecords(entryKind,updated[key],updated.assets,updated.services));
             }
           },{assets:legacy.assets}));
           panel.append(editor);

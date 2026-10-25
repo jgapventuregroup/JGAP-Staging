@@ -154,7 +154,7 @@ test('every live Passport record load supplies active company and client guards'
  const {readFile}=await import('node:fs/promises');
  const source=await readFile(new URL('../property-passport-preview.mjs',import.meta.url),'utf8');
  const calls=[...source.matchAll(/loadOriginalPassportRecords\(\{([^}]+)\}\)/g)];
- assert.equal(calls.length,4,'All initial and post-save record loads must be guarded');
+ assert.equal(calls.length,5,'Initial, create, update and partial-save record loads must be guarded');
  for(const match of calls){
   assert.match(match[1],/getCurrentCompany/);
   assert.match(match[1],/getCurrentClient/);

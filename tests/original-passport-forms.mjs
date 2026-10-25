@@ -157,3 +157,26 @@ test('combined Passport form rejects a zero service frequency',async()=>{
   assert.match(form.children.find(n=>n.attributes.role==='status').textContent,/positive whole number/);
  }finally{globalThis.document=previous}
 });
+
+test('existing record form prefills values, preserves zero, clears optional data and retains corrected draft',async()=>{
+ const old=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  let written,resets=0;
+  const form=createOriginalPassportForm('improvement',async values=>{written=values},{record:{title:'Attic insulation',improvement_date:'2026-10-25',cost:0,category:'Energy'}});
+  form.reset=()=>{resets++};
+  assert.equal(form.elements.namedItem('title').value,'Attic insulation');assert.equal(form.elements.namedItem('cost').value,'0');
+  form.elements.namedItem('category').value='';form.elements.namedItem('description').value='Corrected description';
+  await form.listeners.submit({preventDefault(){}});
+  assert.deepEqual(written,{title:'Attic insulation',improvement_date:'2026-10-25',description:'Corrected description',cost:0,category:null});
+  assert.equal(resets,0);assert.match(form.children.at(-1).textContent,/saved and verified/);
+ }finally{globalThis.document=old}
+});
+test('failed existing record save keeps the draft and allows correction',async()=>{
+ const old=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  const form=createOriginalPassportForm('asset',async()=>{throw Error('row-level security denied')},{record:{name:'Heat pump'}});
+  form.elements.namedItem('name').value='Corrected heat pump';
+  await form.listeners.submit({preventDefault(){}});
+  assert.equal(form.elements.namedItem('name').value,'Corrected heat pump');assert.equal(form.children.find(n=>n.tag==='button').disabled,false);assert.match(form.children.at(-1).textContent,/security denied/);
+ }finally{globalThis.document=old}
+});

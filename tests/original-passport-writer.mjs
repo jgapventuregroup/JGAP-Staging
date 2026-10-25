@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {saveOriginalPassportEntry,savePassportSystemWithService} from '../original-passport-writer.mjs';
-// Exercise the writer's validation with mocked clients; staging itself remains read-only.
+// Exercise validation and exact-scope persistence with mocked clients.
 globalThis.JGAP_ORIGINAL_PASSPORT_WRITES_READY=true;
 test('writer fails closed when Passport record editing is disabled',async()=>{
  globalThis.JGAP_ORIGINAL_PASSPORT_WRITES_READY=false;
@@ -207,4 +207,49 @@ test('service schedule writer rejects a mismatched database response',async()=>{
 test('Passport writer reports database rejection without claiming a save',async()=>{
  const client={from(name){assert.equal(name,'property_improvements');return {insert(){return this},select(){return this},async single(){return {data:null,error:{message:'row-level security denied'}}}}}};
  await assert.rejects(saveOriginalPassportEntry({kind:'improvement',values:{title:'Roof',improvement_date:'2026-10-21'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/row-level security denied/);
+});
+
+function updateFixture(kind,values,{wrongId=false,wrongValue=false,denied=false,switchSession=false}={}){
+ const table={asset:'property_assets',service:'property_asset_services',maintenance:'property_maintenance',improvement:'property_improvements'}[kind];
+ const requests=[];let current='c1';let saved={id:'entry-1',company_id:'c1',deal_id:'d1',...values};
+ const client={from(name){let operation='read',patch,filters={};return {
+  update(value){operation='update';patch=value;return this},
+  select(){return this},eq(key,value){filters[key]=value;return this},
+  async single(){
+   requests.push({name,operation,patch,filters});
+   if(name==='property_assets'&&kind==='service')return {data:{id:'asset-1',company_id:'c1',deal_id:'d1'},error:null};
+   assert.equal(name,table);
+   if(operation==='update'){
+    if(denied)return {data:null,error:{message:'row-level security denied'}};
+    if(switchSession)current='other';
+    saved={...saved,...patch};return {data:{...saved,id:wrongId?'foreign-entry':saved.id},error:null};
+   }
+   return {data:{...saved,...(wrongValue?{title:'Unexpected stored title'}:{})},error:null};
+  }
+ }}};
+ return {client,requests,context:{kind,values,entryId:'entry-1',client,companyId:'c1',dealId:'d1',getCurrentCompany:()=>current,getCurrentClient:()=>client}};
+}
+test('all original record updates pin ID/company/property, clear optional fields and verify persisted values',async()=>{
+ for(const [kind,values] of [
+  ['asset',{name:'Heat pump',purchase_cost:0,warranty_expiration:null}],
+  ['service',{asset_id:'asset-1',service_name:'Filter replacement',frequency_value:3,frequency_unit:null,notes:null}],
+  ['maintenance',{title:'Repaired leak',maintenance_date:'2026-10-25',cost:0,description:null,status:null}],
+  ['improvement',{title:'Insulation',improvement_date:'2026-10-25',cost:125.75,category:null}]
+ ]){
+  const fixture=updateFixture(kind,values);await saveOriginalPassportEntry(fixture.context);
+  const update=fixture.requests.find(r=>r.operation==='update');
+  assert.deepEqual(update.filters,{id:'entry-1',company_id:'c1',deal_id:'d1'});
+  assert.deepEqual(update.patch,values);assert.ok(!Object.hasOwn(update.patch,'company_id'));assert.ok(!Object.hasOwn(update.patch,'deal_id'));
+  const readback=fixture.requests.at(-1);assert.equal(readback.operation,'read');assert.deepEqual(readback.filters,update.filters);
+ }
+});
+test('original record update rejects denied, mismatched, stale and unverified saves',async()=>{
+ const values={title:'Insulation',improvement_date:'2026-10-25'};
+ for(const [options,message] of [[{denied:true},/security denied/],[{wrongId:true},/did not match/],[{wrongValue:true},/saved values could not be verified/],[{switchSession:true},/session changed after save/]]){
+  const fixture=updateFixture('improvement',values,options);await assert.rejects(saveOriginalPassportEntry(fixture.context),message);
+ }
+});
+test('original record update rejects empty identity before database access',async()=>{
+ let called=false;const client={from(){called=true}};
+ await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Boiler'},entryId:' ',client}),/Invalid Passport record ID/);assert.equal(called,false);
 });
