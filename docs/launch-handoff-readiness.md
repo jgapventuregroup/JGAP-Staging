@@ -135,3 +135,6 @@ See `docs/developer-handoff.md` for architecture, configuration, database invent
 - Corrected an active navigation text/background contrast issue found in dark mode.
 - Original-record writes are now Pro/verified-preview plus editing-role only in RLS; Investor history reads remain. Three grouped staging SQL checks passed, with rollback; the baseline now includes this policy and 44 local SQL check groups.
 - The existing real-session runner now has a controlled browser adapter to avoid manual token copying. No original customer editor was enabled by this preparation. Actual two-account evidence is still required before changing its gate.
+
+## Current original-editor status — October 25, 2026
+The authenticated security gate is complete (128 checks; sanitized evidence linked above). Activation commit `26273b7` enables original editors for backend-authorized Pro editing roles/verified owner preview. Local `npm test` passed. Earlier pending-gate notes describe prior milestones. Real enabled-form acceptance and mobile/document/platform work remain open; this is not a production or full handoff-ready declaration. Require all four workflows on the latest final commit, including documentation corrections.
