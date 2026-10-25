@@ -28,7 +28,7 @@ The full feature allocation is documented in `docs/membership-feature-matrix.md`
 
 ## Known blockers — do not claim launch-ready
 1. **Build verification:** Require all four GitHub Actions workflows green on the final handoff commit. A regression appeared on Oct 24 in `tests/customer-workflow.mjs` during account onboarding after a membership presentation change; the offending script was removed in commit `8c7f422`. All four push workflows subsequently passed on `f305109`; the cancelled `8c7f422` Pages run was superseded by that successful deployment. A new final commit still requires its own four successful runs.
-2. **Passport editing:** Authenticated two-company isolation gate passed 128 checks on October 24 (see `evidence/passport-live-isolation-2026-10-24.json`). Original Systems/equipment, services, maintenance and improvements editors now require server-authorized Pro write capability and an owner/admin/editor role. Investor history remains read-only. Real browser form save/persistence verification on the enabled build remains outstanding.
+2. **Passport editing:** Authenticated two-company isolation gate passed 128 checks on October 24 (see `evidence/passport-live-isolation-2026-10-24.json`). Original Systems/equipment, services, maintenance and improvements editors now require server-authorized Pro write capability and an owner/admin/editor role. Investor history remains read-only. Desktop owner add/edit/reopen acceptance passed on versioned release 9ab2f62. Phone and ordinary paid/viewer acceptance remain open; fictional QA fixture cleanup awaits explicit approval.
 3. **Billing:** No live checkout, payment processor, subscription webhook synchronization, renewal, cancellation, or payment-failure lifecycle is connected.
 4. **Feature entitlements:** Confirm Free/Investor/Pro access matches the matrix in UI and database; test both upgrades and downgrades.
 5. **Advertising:** Placeholder slots only. Direct-sold inventory management, creative review, reporting, ad-network fallback, consent/privacy and ad serving remain unimplemented.
@@ -48,7 +48,7 @@ The full feature allocation is documented in `docs/membership-feature-matrix.md`
 
 ## Acceptance checklist
 - [ ] All automated checks pass on the exact handoff commit.
-- [x] Passport record authenticated isolation gate resolved; enabled editor browser acceptance remains outstanding.
+- [x] Passport record authenticated isolation gate resolved; desktop owner editor acceptance passed; device/ordinary paid acceptance still open.
 - [ ] Feature matrix reconciled with working UI/backend features.
 - [ ] Mobile and desktop end-to-end tests pass.
 - [ ] Payment integration responsibilities accepted by handoff company.

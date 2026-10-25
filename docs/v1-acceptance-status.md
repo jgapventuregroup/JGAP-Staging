@@ -9,7 +9,7 @@ The existing staging app is functional but is **not approved for production or p
 | Passport financials, notes, type/units | Existing owner financial-save check; new exact-scope/verified-save tests and backend denial tests | Phone and ordinary paid-user acceptance; desktop owner saves and printable documents verified |
 | Ledger, repairs, tasks | Staging role tests, CRUD/loader/form regressions, date/count/total checks | Phone and ordinary paid-user acceptance; owner desktop saves/completion/reopening verified |
 | Pro reports, comparison, CSV | Backend entitlement/precision/isolation tests and UI/API regression tests | Phone and ordinary Pro-user acceptance; owner desktop comparison/filter/download verified |
-| Original equipment/services/maintenance/improvement editors | 128-check normal-session two-company gate; Pro editing roles enabled; add/update forms with scoped readback verification | Real enabled-form save/edit/reopen acceptance and phone testing pending |
+| Original equipment/services/maintenance/improvement editors | 128-check normal-session two-company gate; Pro editing roles enabled; add/update forms with scoped readback verification | Desktop owner add/edit/reopen passed on versioned release 9ab2f62; phone and ordinary paid/viewer rendered acceptance pending; fictional fixture cleanup awaiting approval |
 | Database handoff | Schema-only baseline; clean isolated restore; 44 SQL check groups; grant/policy/key/trigger comparisons; existing-schema refusal | Hosted Supabase platform restore rehearsal and environment setup; local Auth contract is not real authentication |
 | Branding and layout | Shared website colors; responsive CSS and navigation regressions; signed-out desktop sign-in observation without horizontal overflow | Phone acceptance and final contrast-fix review; owner desktop keyboard/theme and printable documents inspected |
 | Advertisements | Labeled placeholders; Pro suppression tests | Outside company: live serving, creative review, privacy/consent and reporting |
@@ -19,7 +19,7 @@ The existing staging app is functional but is **not approved for production or p
 
 Document uploads/attachments and legal-title ownership records are unfinished. Current comparison uses current saved assumptions, not an immutable purchase-time underwriting budget. Money-Making System, Market Map, Deal Radar, alerts, lead generation, dashboard customization and advanced team controls remain incomplete. The Laundromat Division is excluded by the existing owner decision.
 
-The original editors passed their normal-session isolation gate; live rendered form acceptance remains required. Broader changes to the approved paid offering require owner approval; missing features must remain labeled unavailable and must not be sold as complete.
+The original editors passed their normal-session isolation gate and desktop owner form acceptance; ordinary paid/viewer and phone acceptance remain required. Broader changes to the approved paid offering require owner approval; missing features must remain labeled unavailable and must not be sold as complete.
 
 ## Final candidate acceptance
 

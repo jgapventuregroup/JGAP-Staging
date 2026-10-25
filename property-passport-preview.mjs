@@ -176,7 +176,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
         // The on-screen tabs hide inactive sections. Printing must include the complete Passport.
         printable.querySelectorAll('[hidden]').forEach(node=>node.removeAttribute('hidden'));
         printable.querySelectorAll('[aria-hidden="true"]').forEach(node=>node.removeAttribute('aria-hidden'));
-        printable.querySelectorAll('button,form,input,select,textarea,.passport-tabs,[data-activity-editor],[data-original-record-editor]').forEach(node=>node.remove());
+        printable.querySelectorAll('button,form,input,select,textarea,.passport-tabs,[data-activity-editor],[data-original-record-editor],[data-passport-editor]').forEach(node=>node.remove());
         const printWindow=window.open('','_blank');
         if(!printWindow){window.alert('Allow pop-ups to print the Passport');return;}
         try{printWindow.opener=null;}catch{}

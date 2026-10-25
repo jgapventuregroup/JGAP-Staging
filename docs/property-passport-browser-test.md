@@ -62,3 +62,21 @@ The deployed shared runner at commit `771456962d90fa4a3b5a080d7e456439b8c93869` 
 Verified own-company INSERT/UPDATE/readback and foreign-company SELECT/INSERT/UPDATE denial in both directions for equipment, service schedules, maintenance and improvements; company/property transfer denial; service equipment foreign keys; anonymous table and helper denial. Foreign HTTP 200 responses were asserted empty, and relation HTTP 409 responses required SQLSTATE 23503. Generated properties were deleted before PASS. The two exact temporary companies were subsequently removed after confirming all fixture tables empty; remaining company count was zero. No accounts were deleted or lifetime counters reset.
 
 The original editor UI now opens only when Passport access, server advanced-finance write capability, and owner/admin/editor role all agree. The database independently enforces Pro eligibility and company role. Investor/viewer access stays read-only. These results supersede earlier pending-gate status in this document; they do not replace actual enabled form browser acceptance, mobile testing or document upload security work. Next acceptance: create/edit each original record through its real form, reopen and verify persistence on the enabled deployment.
+
+## Enabled original editors: live owner acceptance — October 25, 2026
+
+Normal secure owner-preview login succeeded. A single fictional fixture, `V1 Original Editor QA 2026-10-25 - a91c`, was created through the actual property form. Existing properties were not edited. The first test exposed an invalid original form dispatcher; `b636a13` fixes the argument contract and adds a four-kind dispatch regression. A subsequent browser attempt still showed the earlier error; release `9ab2f62` versions entry scripts and transitive imports together. The browser then confirmed release marker `b3a3140fe61c92e42b86` and opened Passport successfully. Mixed cached assets were a suspected contributor; no cache trace was collected.
+
+Observed actual UI results on that versioned build:
+- Combined equipment + first schedule: heat pump, $0 cost, quarterly filter service (every three months) saved; equipment count 1, schedule count 1.
+- Equipment edit: corrected name, inspected condition and cleared type saved with verified-success notice. Linked schedule display used the corrected equipment name.
+- Service edit: renamed annual inspection, frequency 1/year, cleared notes; verified-success notice and updated tables.
+- Maintenance: created planned inspection at $125.75, then changed to completed/$0 and cleared description; provider retained. Verified-success notice.
+- Improvement: created insulation at $250.25, corrected title/$300.02, cleared category and replaced description; verified-success notice.
+- Closed and reopened Passport through the normal UI. Corrected equipment/service, completed maintenance/$0 and improvement/$300.02 remained in the reloaded tables.
+- Separate Add service form then saved a second schedule at every two quarters for the same equipment; schedule count 2 and equipment count remained 1.
+- Print output contained all four record groups, both schedules and corrected values. DOM checks found zero buttons/forms/inputs/selects/textareas and zero record-edit disclosures. No physical printer was tested. A stray add-section heading was found and its editor container is now excluded from print; that final print cleanup is code-verified, not rerun in the live browser yet.
+
+**Cleanup pending owner approval:** automatic approval review rejected the guarded deletion because database deletions need explicit approval. The one fictional property and its five linked original records remain. No cleanup transaction ran, no lifetime counters were reset, and no original customer property was modified. Delete only this exact fixture after approval; do not delete a company or account.
+
+This closes desktop owner add/edit/reopen acceptance for original records. Phone/device acceptance, ordinary Pro/viewer rendered flows and document uploads remain open. The 128-check separate-session tenant gate is unchanged.
