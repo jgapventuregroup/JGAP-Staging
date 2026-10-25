@@ -209,7 +209,7 @@ test('Passport writer reports database rejection without claiming a save',async(
  await assert.rejects(saveOriginalPassportEntry({kind:'improvement',values:{title:'Roof',improvement_date:'2026-10-21'},client,companyId:'c1',dealId:'d1',getCurrentCompany:()=> 'c1',getCurrentClient:()=>client}),/row-level security denied/);
 });
 
-function updateFixture(kind,values,{wrongId=false,wrongValue=false,denied=false,switchSession=false}={}){
+function updateFixture(kind,values,{wrongId=false,wrongValue=false,denied=false,switchSession=false,nullCost=false}={}){
  const table={asset:'property_assets',service:'property_asset_services',maintenance:'property_maintenance',improvement:'property_improvements'}[kind];
  const requests=[];let current='c1';let saved={id:'entry-1',company_id:'c1',deal_id:'d1',...values};
  const client={from(name){let operation='read',patch,filters={};return {
@@ -224,7 +224,7 @@ function updateFixture(kind,values,{wrongId=false,wrongValue=false,denied=false,
     if(switchSession)current='other';
     saved={...saved,...patch};return {data:{...saved,id:wrongId?'foreign-entry':saved.id},error:null};
    }
-   return {data:{...saved,...(wrongValue?{title:'Unexpected stored title'}:{})},error:null};
+   return {data:{...saved,...(wrongValue?{title:'Unexpected stored title'}:{}),...(nullCost?{cost:null}:{})},error:null};
   }
  }}};
  return {client,requests,context:{kind,values,entryId:'entry-1',client,companyId:'c1',dealId:'d1',getCurrentCompany:()=>current,getCurrentClient:()=>client}};
@@ -252,4 +252,9 @@ test('original record update rejects denied, mismatched, stale and unverified sa
 test('original record update rejects empty identity before database access',async()=>{
  let called=false;const client={from(){called=true}};
  await assert.rejects(saveOriginalPassportEntry({kind:'asset',values:{name:'Boiler'},entryId:' ',client}),/Invalid Passport record ID/);assert.equal(called,false);
+});
+
+test('zero-cost update verification must reject a missing amount rather than coerce null to zero',async()=>{
+ const fixture=updateFixture('improvement',{title:'Insulation',improvement_date:'2026-10-25',cost:0},{nullCost:true});
+ await assert.rejects(saveOriginalPassportEntry(fixture.context),/saved values could not be verified/);
 });

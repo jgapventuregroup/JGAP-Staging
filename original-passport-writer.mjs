@@ -40,7 +40,7 @@ export async function saveOriginalPassportEntry({kind,values,client,companyId,de
   if(readError||!saved||saved.id!==entryId||saved.company_id!==companyId||saved.deal_id!==dealId)throw Error('Record updated, but verification failed. Reopen the Passport before retrying.');
   for(const [key,value] of Object.entries(changes)){
    const actual=saved[key];
-   if(value===null?actual!==null:typeof value==='number'?Number(actual)!==value:actual!==value)throw Error('Record updated, but saved values could not be verified. Reopen the Passport before retrying.');
+   if(value===null?actual!==null:typeof value==='number'?(actual===null||actual===undefined||actual===''||Number(actual)!==value):actual!==value)throw Error('Record updated, but saved values could not be verified. Reopen the Passport before retrying.');
   }
  }
  return data;
