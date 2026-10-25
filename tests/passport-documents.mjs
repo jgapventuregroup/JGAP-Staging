@@ -8,7 +8,7 @@ function fixture({read=true,write=true,wrongPath=false,wrongList=false,changeDur
  const client={rpc:async(name,args)=>{calls.push({op:'authorize',name,args});return {data:{read,write},error:null}},storage:{from(bucket){assert.equal(bucket,DOCUMENT_BUCKET);return {
   upload:async(path,blob,options)=>{calls.push({op:'upload',path,options});uploadedPath=path;if(changeDuring==='upload')company='foreign';return {data:{path:wrongPath?'foreign/path':path},error:null}},
   list:async(prefix,options)=>{calls.push({op:'list',prefix,options});if(changeDuring==='list')company='foreign';return {data:wrongList?[{id:'bad',name:'../../foreign.pdf'}]:uploadedPath?[{id:'object-1',name:uploadedPath.split('/').at(-1),metadata:{size:20}}]:[],error:null}},
-  download:async(path,options,parameters)=>{calls.push({op:'download',path,parameters});if(changeDuring==='download')company='foreign';return {data:new Blob(['%PDF-test'],{type:'application/pdf'}),error:null}}
+  download:async(path,options,parameters)=>{calls.push({op:'download',path,parameters,options});if(changeDuring==='download')company='foreign';return {data:new Blob(['%PDF-test'],{type:'application/pdf'}),error:null}}
  }}}};
  return {calls,context:{client,companyId:a,dealId:d,getCurrentCompany:()=>company,getCurrentClient:()=>client}};
 }
@@ -32,7 +32,8 @@ test('document upload uses immutable scoped path, matching type and exact post-u
  assert.ok(request.path.startsWith(a+'/'+d+'/'));assert.match(request.path,/\/[0-9a-f-]{36}--Receipt\.pdf$/);assert.equal(request.options.upsert,false);assert.equal(request.options.contentType,'application/pdf');assert.equal(entry.filename,'Receipt.pdf');assert.equal(entry.path,request.path);
  const blob=await downloadPassportDocument(f.context,entry);assert.equal(blob.type,'application/pdf');
  await assert.rejects(downloadPassportDocument(f.context,{...entry,path:entry.path.replace(d,'30000000-0000-4000-8000-000000000002')}),/does not belong/);
- assert.equal(f.calls.filter(c=>c.op==='download').length,1);assert.equal(f.calls.find(c=>c.op==='download').parameters.cache,'no-store');
+ assert.equal(f.calls.filter(c=>c.op==='download').length,1);assert.equal(f.calls.find(c=>c.op==='download').parameters.cache,'no-store');assert.match(f.calls.find(c=>c.op==='download').options.cacheNonce,/^[0-9a-f-]{36}$/);
+ const firstNonce=f.calls.find(c=>c.op==='download').options.cacheNonce;await downloadPassportDocument(f.context,entry);assert.notEqual(f.calls.filter(c=>c.op==='download').at(-1).options.cacheNonce,firstNonce,'Each download requires a new origin permission check');
 });
 test('upload response and listing failures report partial save rather than encourage duplicate upload',async()=>{
  for(const options of [{wrongPath:true},{wrongList:true}]){const f=fixture(options);await assert.rejects(uploadPassportDocument(f.context,file()),e=>e.uploaded===true&&/Refresh documents/.test(e.message));assert.equal(f.calls.filter(c=>c.op==='upload').length,1)}

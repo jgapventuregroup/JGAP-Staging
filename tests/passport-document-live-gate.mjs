@@ -18,7 +18,7 @@ function fixture({foreignLeak=false,wrongBytes=false,unverified=false}={}){
     if(index<0||!key.startsWith(companies[index]+'/'+properties[index]+'/')||(index===0&&(state.inactive||state.viewer))||options.upsert)return denied();
     objects.set(key,blob);return {data:{path:key},error:null};
    },
-   download:async(key,options,parameters)=>{assert.equal(parameters.cache,'no-store');
+   download:async(key,options,parameters)=>{assert.equal(parameters.cache,'no-store');assert.match(options.cacheNonce,/^[0-9a-f-]{36}$/);
     if(index<0||(!foreignLeak&&!key.startsWith(companies[index]+'/'+properties[index]+'/'))||(index===0&&state.inactive)||!objects.has(key))return denied();
     return {data:wrongBytes?new Blob(['wrong']):objects.get(key),error:null};
    },

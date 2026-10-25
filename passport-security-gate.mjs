@@ -11,7 +11,7 @@ const storageHttpEvidence=[];
 const observedFetch=account=>async(input,init)=>{
  const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
  const response=await fetch(input,url.origin===origin&&url.pathname.startsWith('/storage/v1/')?{...init,cache:'no-store'}:init);
- if(url.origin===origin&&url.pathname.startsWith('/storage/v1/'))storageHttpEvidence.push({account,method:init?.method||input.method||'GET',endpoint:url.pathname.split('/').slice(0,5).join('/'),status:response.status});
+ if(url.origin===origin&&url.pathname.startsWith('/storage/v1/'))storageHttpEvidence.push({account,method:init?.method||input.method||'GET',endpoint:url.pathname.split('/').slice(0,5).join('/'),status:response.status,cacheControl:response.headers.get('cache-control'),cacheStatus:response.headers.get('cf-cache-status'),cacheNonce:url.searchParams.has('cacheNonce')});
  return response;
 };
 const status=message=>{$('gate-status').textContent=message;};
