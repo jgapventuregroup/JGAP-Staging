@@ -31,6 +31,7 @@ jobs:
           mkdir -p dist/previews
           cp index.html passport-live-isolation-core.mjs passport-security-gate.mjs finance-cpa.mjs config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
           cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html previews/passport-security-gate.html dist/previews/
+          node scripts/version-frontend.mjs dist
       - name: Verify bundled Passport module imports resolve
         run: |
           node --input-type=module <<'NODE'
@@ -47,7 +48,7 @@ jobs:
             if(!fs.existsSync(file))throw Error('Missing preview module: '+relative);
             const source=fs.readFileSync(file,'utf8');
             for(const match of source.matchAll(/(?:import|export)\s+(?:[^'\";]*?\s+from\s+)?['\"](\.[^'\"]+)['\"]/g)){
-              const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(relative),match[1]));
+              const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(relative),match[1].split('?')[0]));
               if(!dependency.startsWith('../'))queue.push(dependency);
             }
           }
