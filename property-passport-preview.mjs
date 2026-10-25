@@ -1,7 +1,7 @@
 import {projectPropertyPassport} from './property-passport.mjs';
 import {loadOriginalPassportRecords} from './original-passport-loader.mjs';
 import {createPassportRecordsTable} from './original-passport-display.mjs';
-import {createOriginalPassportForm,createPassportSystemForm} from './original-passport-forms.mjs';
+import {createOriginalPassportForm,createPassportAddForm} from './original-passport-forms.mjs';
 import {saveOriginalPassportEntry,savePassportSystemWithService} from './original-passport-writer.mjs';
 import {summarizePropertyOperations} from './property-operations.mjs';
 import {describeLedgerPeriod} from './property-ledger.mjs';
@@ -348,7 +348,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
         }
         if(window.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true){
           const editor=document.createElement('section');editor.dataset.passportEditor='true';const heading=document.createElement('h3');heading.textContent='Add Passport records';editor.append(heading);
-          for(const kind of ['asset','service','maintenance','improvement'])editor.append((kind==='asset'?createPassportSystemForm:createOriginalPassportForm)(kind==='asset'?async ({assetValues,serviceValues})=>{
+          for(const kind of ['asset','service','maintenance','improvement'])editor.append(createPassportAddForm(kind,kind==='asset'?async ({assetValues,serviceValues})=>{
             if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)throw Error('Passport context changed');
             try{
               await savePassportSystemWithService({assetValues,serviceValues,client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});

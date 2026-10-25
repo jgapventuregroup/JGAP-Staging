@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createOriginalPassportForm,createPassportSystemForm} from '../original-passport-forms.mjs';
+import {createOriginalPassportForm,createPassportSystemForm,createPassportAddForm} from '../original-passport-forms.mjs';
 
 function fakeElement(tag){
  const node={tag,children:[],attributes:{},disabled:false,value:'',name:'',options:[],
@@ -178,5 +178,16 @@ test('failed existing record save keeps the draft and allows correction',async()
   form.elements.namedItem('name').value='Corrected heat pump';
   await form.listeners.submit({preventDefault(){}});
   assert.equal(form.elements.namedItem('name').value,'Corrected heat pump');assert.equal(form.children.find(n=>n.tag==='button').disabled,false);assert.match(form.children.at(-1).textContent,/security denied/);
+ }finally{globalThis.document=old}
+});
+
+test('live add-form dispatcher passes the record kind and handler for all four original editors',()=>{
+ const old=globalThis.document;globalThis.document={createElement:fakeElement};
+ try{
+  for(const kind of ['asset','service','maintenance','improvement']){
+   const form=createPassportAddForm(kind,async()=>{},{assets:[{id:'asset-1',name:'Heat pump'}]});
+   assert.equal(form.tag,'form');assert.equal(form.children.find(n=>n.tag==='button').disabled,false);
+   const required={asset:'name',service:'service_name',maintenance:'title',improvement:'title'}[kind];assert.ok(form.elements.namedItem(required));
+  }
  }finally{globalThis.document=old}
 });

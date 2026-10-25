@@ -50,3 +50,7 @@ export function createPassportSystemForm(onSubmit){
  form.insertBefore(group,button);
  return form;
 }
+
+export function createPassportAddForm(kind,onSubmit,options={}){
+ return kind==='asset'?createPassportSystemForm(onSubmit):createOriginalPassportForm(kind,onSubmit,options);
+}
