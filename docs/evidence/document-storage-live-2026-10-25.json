@@ -1,0 +1,403 @@
+{
+  "source": "normal authenticated Storage API gate",
+  "captured_on": "2026-10-25",
+  "result": "PASS",
+  "passed": 58,
+  "checks": [
+    "A normal verified authentication",
+    "A memberships loaded",
+    "A controlled editing company",
+    "A no membership in opposite company",
+    "A controlled saved property",
+    "A server Pro editing capability",
+    "B normal verified authentication",
+    "B memberships loaded",
+    "B controlled editing company",
+    "B no membership in opposite company",
+    "B controlled saved property",
+    "B server Pro editing capability",
+    "Two distinct authenticated users",
+    "A exactly one retained fictional fixture",
+    "A exact own file listing",
+    "A download allowed",
+    "A downloaded bytes persist exactly",
+    "B exactly one retained fictional fixture",
+    "B exact own file listing",
+    "B download allowed",
+    "B downloaded bytes persist exactly",
+    "A foreign listing empty",
+    "A foreign download denied",
+    "A foreign upload denied",
+    "A mismatched property upload denied",
+    "A upsert denied",
+    "A after rejected upsert download allowed",
+    "A after rejected upsert downloaded bytes persist exactly",
+    "A public URL unavailable",
+    "B foreign listing empty",
+    "B foreign download denied",
+    "B foreign upload denied",
+    "B mismatched property upload denied",
+    "B upsert denied",
+    "B after rejected upsert download allowed",
+    "B after rejected upsert downloaded bytes persist exactly",
+    "B public URL unavailable",
+    "Bucket rejects disallowed MIME",
+    "Bucket rejects oversized file",
+    "Anonymous listing denied or empty",
+    "Anonymous download denied",
+    "Anonymous upload denied",
+    "A final owner exact own file listing",
+    "B final owner exact own file listing",
+    "Inactive fixture capability revoked",
+    "Inactive document listing empty",
+    "Inactive download denied",
+    "Inactive upload denied",
+    "Active B during inactive A download allowed",
+    "Active B during inactive A downloaded bytes persist exactly",
+    "Viewer fixture role confirmed",
+    "Reactivated viewer read-only capability",
+    "Reactivated viewer A exact own file listing",
+    "Reactivated viewer A download allowed",
+    "Reactivated viewer A downloaded bytes persist exactly",
+    "Viewer upload denied",
+    "Active B during viewer A download allowed",
+    "Active B during viewer A downloaded bytes persist exactly"
+  ],
+  "stages": {
+    "owner": true,
+    "inactive": true,
+    "viewer": true
+  },
+  "retainedFixtures": {
+    "properties": 2,
+    "documentFiles": 2
+  },
+  "cleanupPerformed": false,
+  "fixtureMode": "reused",
+  "uploadsThisRun": 0,
+  "http": [
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200,
+      "cacheControl": "private, max-age=3568, must-revalidate",
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200,
+      "cacheControl": "private, max-age=3567, must-revalidate",
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200,
+      "cacheControl": "private, max-age=3567, must-revalidate",
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "public",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/public",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200,
+      "cacheControl": "private, max-age=3565, must-revalidate",
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "public",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/public",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "anonymous",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "anonymous",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "anonymous",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200,
+      "cacheControl": "private, max-age=3537, must-revalidate",
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/list",
+      "status": 200,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "A",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200,
+      "cacheControl": "private, max-age=3515, must-revalidate",
+      "cacheStatus": null,
+      "cacheNonce": true
+    },
+    {
+      "account": "A",
+      "method": "POST",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 400,
+      "cacheControl": null,
+      "cacheStatus": null,
+      "cacheNonce": false
+    },
+    {
+      "account": "B",
+      "method": "GET",
+      "endpoint": "/storage/v1/object/passport-documents",
+      "status": 200,
+      "cacheControl": "private, max-age=3515, must-revalidate",
+      "cacheStatus": null,
+      "cacheNonce": true
+    }
+  ],
+  "source_commit": "02cb79cbe326eee4011cba7b4a1309b470f44d0d",
+  "positive_upload_evidence": "document-storage-owner-2026-10-25-incomplete.json (owner stage passed before inactive-cache diagnosis)",
+  "notes": [
+    "Fresh downloads carry unique cacheNonce values and browser no-store.",
+    "HTTP 400 denial responses also required the expected Storage logical authorization status in the SDK.",
+    "No credentials, keys, object paths, company IDs, user IDs or private file contents are included.",
+    "Two fictional PDFs, two properties and two temporary companies remain; no deletion was performed."
+  ]
+}

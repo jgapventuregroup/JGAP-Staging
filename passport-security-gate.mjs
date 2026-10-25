@@ -93,7 +93,7 @@ async function runDocumentStage(stage){
   }else if(stage==='inactive'){
    if(!documentGate)throw Error('Run owner document checks first');await documentGate.runInactiveChecks();$('gate-document-viewer').disabled=false;status('Inactive document access checks passed. Next: reactivate only disposable Company A and change its test member to viewer.');
   }else{
-   if(!documentGate)throw Error('Run earlier document checks first');await documentGate.runViewerChecks();status('PASS: real Storage owner/inactive/viewer checks completed. Fictional files and test companies remain; customer upload controls stay disabled pending evidence review.');
+   if(!documentGate)throw Error('Run earlier document checks first');await documentGate.runViewerChecks();status('PASS: real Storage owner/inactive/viewer checks completed. Fictional files and test companies remain; this test does not change customer control enablement.');
   }
   showDocumentEvidence();
  }catch(error){status('Document gate stopped: '+(error.message||'Unknown test error')+'. Do not remove or retry fixtures without review.');if(documentGate)showDocumentEvidence();if(stage!=='owner')button.disabled=false;}
