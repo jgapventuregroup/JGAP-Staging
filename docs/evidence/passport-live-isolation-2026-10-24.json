@@ -1,0 +1,822 @@
+{
+  "captured_on": "2026-10-24",
+  "runner_commit": "771456962d90fa4a3b5a080d7e456439b8c93869",
+  "environment": "staging qfszapteuxuogoselprp",
+  "authentication": "Two distinct normally signed-in, email-verified test accounts",
+  "scope": "Two exclusive temporary Pro test companies; existing companies and plans unchanged",
+  "notes": [
+    "200 foreign read/update responses were asserted to contain empty arrays by the runner.",
+    "409 service relation checks required foreign-key SQLSTATE 23503.",
+    "No tokens, keys, emails, request bodies, company IDs or customer rows are included.",
+    "Editors remained disabled during verification; cleanup must complete before PASS is returned."
+  ],
+  "result": "PASS",
+  "passed": 128,
+  "originalWritersEnabled": false,
+  "evidence": [
+    {
+      "account": "A",
+      "endpoint": "/auth/v1/user",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/company_members",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/rpc/can_access_passport",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/auth/v1/user",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/company_members",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/rpc/can_access_passport",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/rpc/create_company_deal",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/rpc/create_company_deal",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/rpc/create_company_deal",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/rpc/create_company_deal",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "POST",
+      "status": 201
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 401
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 401
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 401
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 401
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/rpc/can_access_passport",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/rpc/has_owner_preview_access",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_assets",
+      "method": "PATCH",
+      "status": 401
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "PATCH",
+      "status": 401
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_maintenance",
+      "method": "PATCH",
+      "status": 401
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "POST",
+      "status": 403
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 403
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/property_improvements",
+      "method": "PATCH",
+      "status": 401
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/property_asset_services",
+      "method": "POST",
+      "status": 409
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/rpc/can_access_passport",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "anonymous",
+      "endpoint": "/rest/v1/rpc/has_owner_preview_access",
+      "method": "POST",
+      "status": 401
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/deals",
+      "method": "DELETE",
+      "status": 200
+    },
+    {
+      "account": "B",
+      "endpoint": "/rest/v1/deals",
+      "method": "DELETE",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/deals",
+      "method": "DELETE",
+      "status": 200
+    },
+    {
+      "account": "A",
+      "endpoint": "/rest/v1/deals",
+      "method": "DELETE",
+      "status": 200
+    }
+  ]
+}

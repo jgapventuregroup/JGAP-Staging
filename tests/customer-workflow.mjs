@@ -255,7 +255,7 @@ for(const [plan,billing_status,allowed,expectPassport,expectAds] of [
  assert.equal(el('secondary-financing').hidden,!expectPassport,'Secondary financing follows server paid authorization');
  assert.equal(el('secondary-financing').open,expectPassport,'Paid financing controls should be expanded and easy to find');
  assert.ok(adSlots.every(slot=>slot.hidden===!expectAds),plan+'/'+billing_status+' ad placement eligibility');
- assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Plan changes cannot open original record writers');
+ assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Plan labels alone cannot open original record writers');
 }
 membership={plan:'investor',billing_status:'active'};passportAllowed=true;
 for(const capability of [{read:false,write:true},{read:true,write:false},{read:true,write:true}]){
@@ -272,17 +272,24 @@ membership={plan:'pro',billing_status:'active'};passportAllowed=true;financeCapa
 el('company').value='b';await el('company').onchange();
 assert.equal(context.window.JGAPFinanceContext.scope().canRead,true);
 assert.equal(context.window.JGAPFinanceContext.scope().canWrite,false);
+assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Read-only Pro cannot open original editors');
 const financeFilters={month:'2026-10',dealId:null,reconciled:null,taxTreatment:null};
 await context.window.JGAPFinanceContext.load('b',financeFilters);
 const bookkeepingEntry={entry_id:'selected-entry',company_id:'b',deal_id:'selected-property'};
 await assert.rejects(context.window.JGAPFinanceContext.save('b',bookkeepingEntry,{vendor_name:'Fictional payee'}),/not authorized/,'Read-only capability must never invoke a save');
 financeCapability={read:true,write:true};el('company').value='b';await el('company').onchange();
+assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,true,'Server-authorized Pro owner can edit original records');
+await el('login').onclick(); // Refresh cached memberships so Company A has its viewer fixture role.
+el('company').value='a';await el('company').onchange();
+assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Viewer role remains read-only even with a stale or inconsistent server write capability');
+el('company').value='b';await el('company').onchange();
 await context.window.JGAPFinanceContext.save('b',bookkeepingEntry,{vendor_name:'Fictional payee'});
 const financeWrite=calls.filter(call=>call.name==='save_property_bookkeeping').at(-1);
 assert.equal(financeWrite.args.p_entry_id,'selected-entry');assert.equal(financeWrite.args.p_deal_id,'selected-property');
 await assert.rejects(context.window.JGAPFinanceContext.save('b',{...bookkeepingEntry,company_id:'foreign'},{}),/workspace did not match/);
 await assert.rejects(context.window.JGAPFinanceContext.load('a',financeFilters),/not authorized/);
 financeCapability={read:false,write:true};el('company').value='b';await el('company').onchange();
+assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Write-only malformed capability must not open original editors');
 assert.equal(context.window.JGAPFinanceContext.scope().canRead,false,'Server report denial wins over Pro label');
 assert.equal(context.window.JGAPFinanceContext.scope().canWrite,false,'Write capability requires read capability');
 await assert.rejects(context.window.JGAPFinanceContext.load('b',financeFilters),/not authorized/);
@@ -301,6 +308,8 @@ console.log('PASS: paid CELCO/HELOC controls, backend calculation, Free denial a
 await el('logout').onclick();
 assert.equal(el('deals').children.length, 0);
 assert.equal(context.window.JGAP_OPERATIONS_WRITES_READY,false,'Sign-out revokes activity editors');
+assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Sign-out revokes original editors');
+assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_TABLES_READY,false,'Sign-out revokes original record reads');
 assert.equal(el('workspace').classList.contains('hidden'), true);
 assert.equal(el('password').value, '');
 console.log('PASS: customer workflow — explicit workspace choice, refreshing sessions, read-only analysis, stale financing, failed switches, owner access, sign-out');
