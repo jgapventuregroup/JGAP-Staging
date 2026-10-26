@@ -89,3 +89,6 @@ Added fieldset minimum-size/legend wrapping rules for the optional service sched
 
 ## Ordinary Pro document form acceptance — October 26, 2026
 Passed on deployed `85d1039`: select the disposable Pro workspace, open Passport/Documents, upload fictional PDF, observe verified success, close/reopen Passport, and download through the listed button. The downloaded 1,460 bytes exactly matched the original. See `passport-document-storage.md` for digest and retained-file inventory. Nothing was deleted. Mobile, viewer UI, printed document filename output and hosted recovery remain unverified.
+
+## Document print inventory — October 26, 2026
+The ordinary Pro live Print Passport page included both listed filenames and zero interactive controls. It also included a transient download-success notice; the print clone cleanup now removes Documents status messages and wraps long filenames. Recheck that cleanup after deployment. This verifies the generated print page only, not physical printing or an exhaustive inventory beyond loaded document pages.

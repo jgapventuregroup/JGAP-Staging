@@ -178,13 +178,13 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
         // The on-screen tabs hide inactive sections. Printing must include the complete Passport.
         printable.querySelectorAll('[hidden]').forEach(node=>node.removeAttribute('hidden'));
         printable.querySelectorAll('[aria-hidden="true"]').forEach(node=>node.removeAttribute('aria-hidden'));
-        printable.querySelectorAll('button,form,input,select,textarea,.passport-tabs,[data-activity-editor],[data-original-record-editor],[data-passport-editor]').forEach(node=>node.remove());
+        printable.querySelectorAll('button,form,input,select,textarea,.passport-tabs,[data-passport-documents] [role="status"],[data-activity-editor],[data-original-record-editor],[data-passport-editor]').forEach(node=>node.remove());
         const printWindow=window.open('','_blank');
         if(!printWindow){window.alert('Allow pop-ups to print the Passport');return;}
         try{printWindow.opener=null;}catch{}
         const doc=printWindow.document;
         doc.title=p.name+' — Property Passport';
-        const style=doc.createElement('style');style.textContent='body{font:15px system-ui,sans-serif;color:#172b42;max-width:760px;margin:35px auto;padding:0 18px}section{break-inside:avoid;margin:18px 0}h2,h3{color:#173b5c}p{margin:7px 0}.passport-notes-copy{white-space:pre-wrap;overflow-wrap:anywhere}';
+        const style=doc.createElement('style');style.textContent='body{font:15px system-ui,sans-serif;color:#172b42;max-width:760px;margin:35px auto;padding:0 18px}section{break-inside:avoid;margin:18px 0}h2,h3{color:#173b5c}p{margin:7px 0}[data-passport-documents]{overflow-wrap:anywhere}.passport-notes-copy{white-space:pre-wrap;overflow-wrap:anywhere}';
         doc.head.append(style);doc.body.append(printable);
         printWindow.focus();printWindow.print();
       };
