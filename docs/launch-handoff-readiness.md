@@ -1,5 +1,8 @@
 # The Key Ahead Investor App — Handoff Readiness (2026-10-24)
 
+## Current owner scope
+Finish only Market Map, in-app alerts, dashboard customization and advanced team controls; preserve completed features. `remaining-v1-scope.md` supersedes historical requirements to finish external Radar, lead generation and further suite expansion. Payments/distribution/production remain the outside company’s work.
+
 ## Current checkpoint — October 26, 2026
 Private Pro documents, seller-financing comparison, saved-deal review and the consolidated Money-Making overview are implemented. Normal-session document/playbook/print checks passed; eleven bounded overview/Radar desktop checks passed on `f8d848c` (see `evidence/money-radar-desktop-2026-10-26.json`). Populated overview, property cash-source totals and positive saved-Radar signals now passed seven further browser groups (see `evidence/money-radar-populated-2026-10-26.json`). Physical phones, ordinary viewer UI, hosted restore/recovery, legal ownership records and the remaining advertised Pro tools are still open. No full launch-ready claim is made. Three fictional PDFs remain in the two disposable document workspaces; no new cleanup is authorized. Payments, live ads and production deployment remain the external company's work. Older milestones below are historical.
 
@@ -150,3 +153,6 @@ A consolidated current-value/debt/matched-equity and recorded-month overview is 
 
 ## Retained populated QA fixtures / viewer gate
 Two new fictional overview properties and two ledger entries remain in the existing disposable document-test workspace. The original test property/files and all real customer records were unchanged; nothing was deleted. Viewer acceptance needs a separate isolated viewer workspace. Automatic review blocked that workspace/membership/Pro-fixture creation before execution because explicit approval is required. Do not retry or alter existing workspace roles as a workaround. Complete the named creation only after owner authorization; no existing plan, real customer workspace or permissions need changing.
+
+## Dashboard customization checkpoint
+The personal Pro dashboard preference feature is implemented with per-user/workspace RLS, stored order/visibility, non-destructive defaults and verified saves. Five staging rollback groups and local restore/UI tests passed; normal-session and device acceptance remain open. Source and migration history are documented in the handoff/baseline files. No customer row, existing role, subscription plan or file was changed by the rollback checks. This is the first of the four remaining scoped features, not a full-product completion claim.

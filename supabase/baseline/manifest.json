@@ -210,5 +210,14 @@
       "name": "pro_money_making_overview"
     },
     "verification": "local baseline plus add-on restore; four staging SQL-role rollback groups; normal-session/browser acceptance pending"
+  },
+  "dashboard_customization": {
+    "setup": "supabase/features/dashboard-customization.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261026182334",
+      "name": "pro_dashboard_customization"
+    },
+    "verification": "local baseline plus add-on restore and five staging SQL-role rollback groups; normal-session acceptance pending"
   }
 }

@@ -1,5 +1,8 @@
 # The Key Ahead Investor App — developer handoff
 
+## Current owner scope
+Finish only Market Map, in-app alerts, dashboard customization and advanced team controls. See `remaining-v1-scope.md`; this supersedes historical full-suite/external-discovery/lead-generation completion requirements below. Preserve all existing completed features. Do not modify the marketing website; its plan claims must be reconciled by the handoff company before paid launch.
+
 Legal owner: JGAP Venture Group LLC. Public brand: The Key Ahead. Tagline: Your Future Has a Front Door.
 
 Continue `jgapventuregroup/JGAP-Staging` on `main`. This is the existing investor application. Do not replace it, create another repository, or change the separately completed marketing website. This document describes staging; it does not authorize production work or paid services.
@@ -205,3 +208,10 @@ The Pro overview now brings current recorded value/debt/matched equity and whole
 
 ## Populated overview/Radar browser acceptance
 `docs/evidence/money-radar-populated-2026-10-26.json` records seven passed check groups covering populated value/debt/paired equity, zero/unknown coverage, recorded monthly and per-property totals, positive price-gap/due signals and combined filters. Two fictional properties plus two ledger entries remain in the existing disposable Pro workspace. No real customer record, existing file or membership/plan was altered and nothing was deleted. Ordinary viewer browser acceptance remains blocked pending explicit approval to create `V1 Viewer QA 2026-10-26 - read only` with test B owner, test A viewer, test Pro access and fictional records. Automatic review rejected that creation before execution; zero such companies were confirmed. Physical-device and unfinished-feature gates remain.
+
+## Personal dashboard customization implementation
+Pro users, including company viewers, can choose visibility/order for four personal dashboard sections. Stored layouts are per authenticated user and selected workspace, not company-wide settings or expanded company edit rights. RLS and `get_dashboard_preferences` / `save_dashboard_preferences` enforce current paid/member access and prevent other-member reads/writes. Explicit grants deny identity updates/deletion; invalid, duplicate, unknown and all-hidden layouts are rejected. A downgrade retains data but hides/disallows paid preferences; reactivation restores it. Restore defaults saves defaults without deleting the row.
+
+The frontend moves actual DOM nodes into stable slots, preserving keyboard/reading order. Company selection, membership and ad placement stay outside customization. Free/Investor keep their default dashboard and cannot call paid preference RPCs. Company/account changes reset layouts and editors; earlier dashboard property labels now clear even when the new workspace fails to load. Save reads back exact layout/user/company before success; failed writes retain drafts, and persisted-but-unverified writes require reload. No other person's layout is modified.
+
+Canonical setup/history: baseline README/manifest and `supabase/features/dashboard-customization.sql`. Local RLS/restoration and seven UI tests plus the existing customer workflow pass; five staging SQL-role groups passed with zero retained rows. These do not replace normal-session or physical-device acceptance. Advisors retained prior findings; no new finding involved this invoker/RLS design. Rollback first removes frontend customization calls and restores default DOM slots, then can revoke the new RPC grants; do not drop customer preference rows or old app tables as a rollback shortcut.

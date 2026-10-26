@@ -1,6 +1,6 @@
 # The Key Ahead Investor — approved membership feature allocation
 
-Approved direction: preserve Free exactly as currently implemented; provide a useful subset of original JGAP tools in Investor; make the complete restored investment/business-management suite available in Pro.
+Current owner scope (October 26): preserve Free/Investor and completed Pro capabilities; finish only Market Map, in-app alerts, dashboard customization and advanced team controls. See `remaining-v1-scope.md`. Earlier full-suite recovery requirements are superseded for this handoff.
 
 **Public brand:** The Key Ahead Investor. **Legal business:** JGAP Venture Group LLC.
 
@@ -14,8 +14,10 @@ Approved direction: preserve Free exactly as currently implemented; provide a us
 | Original equipment/services/maintenance/improvements editing | No | Read-only history while eligible | Pro-only writes for owner/admin/editor; authenticated isolation gate passed October 24 |
 | Income, expenses and cash flow | No change to Free | Basic property financial tracking | Advanced finance, current saved-estimate/month comparison and bookkeeping reporting |
 | Repairs, notes, follow-ups | No change to Free | Basic | Advanced including vendors, work history and reporting |
-| Money-Making System | No change to Free | — | Full |
-| Market Map, Deal Radar, Alerts, Lead Generation | No change to Free | — | Full, after validating original modules |
+| Money-Making System | No change to Free | — | Existing overview, reports and seller-financing tools retained; no further expansion in current scope |
+| Market Map | No change to Free | — | Saved-property geographic view in remaining scope |
+| In-app alerts | No change to Free | — | Existing-record follow-up/task/maintenance alerts in remaining scope |
+| External Deal Radar / Lead Generation | No change to Free | — | Excluded from further V1 build by owner; existing saved-deal review retained |
 | Laundromat Division | Out of scope for current release | Out of scope for current release | Deferred for possible future release |
 | Dashboard customization and team permissions | No change to Free | — | Full, with secure company roles |
 | Ads | Planned; not yet active | Planned; not yet active | No ads |
@@ -28,7 +30,7 @@ Approved direction: preserve Free exactly as currently implemented; provide a us
 4. Preserve staging/production isolation and company-level row security. Server/database enforcement is required for paid entitlements; hiding buttons alone is insufficient.
 5. On downgrade or cancellation, retain customer data, limit new paid-only actions, and avoid destructive deletion.
 6. Paid checkout, Stripe, advertisements, real payment verification, and production release remain **web development company handoff items**.
-7. Prioritize a functional Investor basic Property Passport, finance view, and repair/task records; then restore Pro's Money-Making System, financial dashboard, Market Map and advanced real-estate modules. The Laundromat Division is deferred and must not be included in the current release.
+7. The remaining build is only the four features in `remaining-v1-scope.md`. Preserve completed Passport, finance, repair/task and Pro tools. Do not resume external Radar, lead-generation or other feature expansion without a new owner instruction. The Laundromat Division remains excluded.
 8. Recheck original module dependencies, tables, migrations, permissions, and browser workflows before declaring any migration complete.
 
 ## October 24 owner clarification

@@ -172,6 +172,8 @@ companies[0].member_role='viewer';
 console.log('PASS: owner changes offer, saves company-scoped record, and reopens persisted price');
 
 failCompanyB = true; el('company').value = 'b'; await el('company').onchange();
+assert.equal(el('dashboard-recent-properties').children.length,0,'A failed workspace change must clear earlier dashboard property labels');
+assert.equal(el('dashboard-followups').children.length,0,'A failed workspace change must clear earlier follow-ups');
 assert.equal(el('deals').children.length, 0);
 assert.equal(el('pipeline-deals').children.length, 0);
 assert.equal(el('export-properties').disabled, true);
