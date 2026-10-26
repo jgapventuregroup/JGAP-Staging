@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-26",
+  "tested_commit": "d66b6bc7bc36121abc0849730a3324e8ff564836",
+  "release_marker": "551ddbc6791378479e86",
+  "method": "Normal verified Pro test-account browser reads; two controlled fictional properties and two ledger entries prepared under authenticated test role in the existing disposable Pro workspace",
+  "checks": [
+    {
+      "name": "all_saved_populated_overview",
+      "outcome": "PASS",
+      "observed": {
+        "records": 3,
+        "value": "210000.01",
+        "debt": "100000.02",
+        "paired_equity": "109999.99",
+        "coverage": "2 of 3"
+      }
+    },
+    {
+      "name": "closed_stage_scope_and_zero_debt",
+      "outcome": "PASS",
+      "observed": {
+        "records": 2,
+        "coverage": "2 of 2",
+        "zero_debt_record_included": true
+      }
+    },
+    {
+      "name": "recorded_month_activity",
+      "outcome": "PASS",
+      "observed": {
+        "income": "1000.01",
+        "expenses": "100.02",
+        "net": "899.99",
+        "entry_count": 2
+      }
+    },
+    {
+      "name": "property_cash_source_report",
+      "outcome": "PASS",
+      "observed": "One property row matches the same two entries and 899.99 net; properties without entries are not fabricated as zero rows"
+    },
+    {
+      "name": "positive_price_gap_filter",
+      "outcome": "PASS",
+      "observed": {
+        "matches": 1,
+        "total_saved": 3,
+        "gap": "19999.99"
+      }
+    },
+    {
+      "name": "positive_due_followup_filter",
+      "outcome": "PASS",
+      "observed": {
+        "matches": 1,
+        "date": "2026-10-26"
+      }
+    },
+    {
+      "name": "combined_due_and_stage_filter",
+      "outcome": "PASS",
+      "observed": "Due plus lead stage produces zero matches; scheduled record is closed"
+    }
+  ],
+  "fixture_inventory": {
+    "existing_workspace": "V1 document gate 2026-10-25 - e4a2 A",
+    "new_properties": [
+      "V1 Overview QA 2026-10-26 - matched",
+      "V1 Overview QA 2026-10-26 - zero debt"
+    ],
+    "new_ledger_entries": 2,
+    "retained": true,
+    "deleted_records_or_files": 0,
+    "existing_customer_records_changed": 0,
+    "plan_or_role_changes": 0
+  },
+  "viewer_gate": {
+    "status": "BLOCKED_BEFORE_CREATION",
+    "reason": "Automatic approval review requires specific approval for persistent viewer workspace/memberships/Pro setup",
+    "confirmed_created_workspaces": 0
+  },
+  "limits": [
+    "Ordinary viewer browser acceptance pending approval of named isolated test workspace",
+    "Physical phone/mobile Safari acceptance remains open",
+    "External Radar/Market Map/alerts/lead generation/customization/team features remain unfinished"
+  ]
+}
