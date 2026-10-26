@@ -193,3 +193,6 @@ Recovered a bounded comparison tool inside Pro Financial Reports, with server-si
 
 ## Latest ordinary Pro desktop acceptance
 `evidence/pro-playbook-desktop-2026-10-26.json` records nine passed desktop check groups on `310bf52`, including actual calculator RPC results, invalid-term handling, Free-workspace UI denial and document print cleanup. It closes the seller-playbook desktop and transient print-message live-review gaps. Physical phones, viewer UI and a nonempty cash-source breakdown remain open. No records/files/plans changed; full Money-Making System completion is still not claimed.
+
+## Saved Deal Radar and original advanced-tool audit
+`docs/advanced-pro-recovery.md` records original module blob IDs, missing legacy tables and external-map/feed dependencies. The new read-only Saved Deal Radar page provides active Pro/verified-preview company-scoped saved-price gaps, data verification flags and due follow-ups. It does not perform external discovery or geocoding. Four staging SQL-role rollback groups and local restored-schema/UI tests passed. Setup requires the separate later-baseline add-on `supabase/features/saved-deal-radar.sql`; migration version `20261026110332`. Normal-session/device acceptance remains open. No records, emails, feeds, contacts or permissions were added to customer workspaces.

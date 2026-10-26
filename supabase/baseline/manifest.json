@@ -192,5 +192,14 @@
       "name": "pro_seller_financing_playbook"
     },
     "verification": "local baseline plus add-on restore; five staging SQL-role rollback test groups; signed-in/device acceptance pending"
+  },
+  "saved_deal_radar": {
+    "setup": "supabase/features/saved-deal-radar.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261026110332",
+      "name": "pro_saved_deal_radar"
+    },
+    "verification": "baseline plus add-on restored locally; four staging SQL-role rollback groups; normal-session/browser acceptance pending"
   }
 }

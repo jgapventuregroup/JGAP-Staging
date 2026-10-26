@@ -141,3 +141,6 @@ See `docs/developer-handoff.md` for architecture, configuration, database invent
 
 ## Current original-editor status — October 25, 2026
 The authenticated security gate is complete (128 checks; sanitized evidence linked above). Activation commit `26273b7` enables original editors for backend-authorized Pro editing roles/verified owner preview. Local `npm test` passed. Earlier pending-gate notes describe prior milestones. Real enabled-form acceptance and mobile/document/platform work remain open; this is not a production or full handoff-ready declaration. Require all four workflows on the latest final commit, including documentation corrections.
+
+## Advanced Pro recovery checkpoint — October 26, 2026
+The saved-deal review component of Radar is implemented behind backend Pro authorization; normal-session/device review remains open. It reviews saved records only. Full external Radar, geographic Market Map, alerts and lead generation are still unfinished; see `advanced-pro-recovery.md`. Original legacy modules must not be loaded wholesale into staging. No production/website/ad/payment changes or customer-row transfers occurred.

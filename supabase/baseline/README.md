@@ -37,3 +37,6 @@ The application-schema baseline intentionally excludes Supabase-managed Storage 
 
 ## Seller-financing calculator add-on
 After installing the application baseline in an approved empty environment, apply `supabase/features/seller-financing.sql` once using the database owner. This read-only Pro RPC is a later add-on, not part of the captured application baseline. Do not replay all historical migrations. It creates no tables or customer rows and does not grant subscription changes. `tests/seller-financing.mjs` restores baseline + add-on locally and verifies formulas, roles, company membership and plan/status denial. Hosted Auth/API acceptance remains separate.
+
+## Saved-deal Radar add-on
+After the application baseline in an approved empty environment, apply `supabase/features/saved-deal-radar.sql` once as database owner. This later read-only Pro RPC does not create customer rows/tables or enable external discovery. `tests/saved-deal-radar-security.mjs` restores baseline + add-on locally; staging SQL-role rollback checks passed separately. See `docs/advanced-pro-recovery.md` for remote migration history, setup, evidence and limits. Do not replay all old migrations or rerun setup against staging.
