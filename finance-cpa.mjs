@@ -97,7 +97,49 @@ export function financeReportCSV(report){
  return '\uFEFF'+[headers,...rows].map(row=>row.map(cell).join(',')).join('\r\n');
 }
 
-export function mountFinance({root,getContext,loadReport,saveDetails,download}){
+export function validateSellerInputs(input){
+ const keys=['price','noi','closing','other_costs','rate','years','balloon_months'];
+ if(!input||keys.some(key=>typeof input[key]!=='number'||!Number.isFinite(input[key])||Math.abs(input[key])>1e12))throw Error('Complete all seller-financing inputs');
+ if(input.price<=0||input.closing<0||input.other_costs<0||input.rate<0||input.rate>100||!Number.isInteger(input.years)||input.years<1||input.years>50||!Number.isInteger(input.balloon_months)||input.balloon_months<1||input.balloon_months>input.years*12)throw Error('Check the price, costs, rate, amortization and balloon month');
+ return Object.fromEntries(keys.map(key=>[key,input[key]]));
+}
+export function validateSellerResult(result,companyId,inputs){
+ if(result?.company_id!==companyId||!result.inputs||Object.keys(inputs).some(key=>result.inputs[key]!==inputs[key])||!Array.isArray(result.scenarios)||result.scenarios.length!==3)throw Error('Seller comparison did not match this workspace and inputs');
+ for(const [i,row] of result.scenarios.entries()){
+  if(row.down_percent!==[10,15,20][i])throw Error('Invalid seller scenario');
+  for(const key of ['down_payment','note_amount','monthly_payment','cash_required','balloon_balance'])if(financeCents(row[key])<0n)throw Error('Invalid seller amount');
+  financeCents(row.monthly_cash_flow);
+ }
+ return result;
+}
+export function mountSellerPlaybook({root,getContext,calculate}){
+ let sequence=0;const scope=getContext();if(!scope?.canRead||!scope.companyId)return;
+ const companyId=scope.companyId,el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
+ const panel=el('details');panel.className='toolbox-item';panel.append(el('summary','Seller-Financing Playbook · Pro'));
+ panel.append(el('p','Compare 10%, 15% and 20% down seller-note scenarios. These are estimates; no property values are saved.'));
+ const form=el('form');form.className='grid';form.setAttribute('aria-label','Seller-financing comparison');const fields={};
+ for(const [key,label,defaultValue] of [['price','Purchase price',300000],['noi','Monthly NOI before debt',3000],['closing','Closing, repairs and other upfront cash',10000],['other_costs','Other monthly debt or costs outside NOI',0],['rate','Seller annual interest rate (%)',6],['years','Amortization (years)',30],['balloon_months','Balloon due after payment number',60]]){
+  const labelNode=el('label',label),input=el('input');input.type='number';input.required=true;input.step=['years','balloon_months'].includes(key)?'1':'any';input.value=String(defaultValue);labelNode.append(input);form.append(labelNode);fields[key]=input;
+ }
+ const button=el('button','Compare seller terms');button.type='submit';form.append(button);const message=el('p');message.setAttribute('role','status');const results=el('div');results.className='plan-table-wrap';
+ panel.append(form,message,results,el('p','NOI is income after vacancy and operating expenses (taxes, insurance, maintenance, management and reserves), before debt. Include each cost once. Cash required excludes the later balloon. The balloon is remaining principal immediately after the selected payment; no refinance is assumed. Fees, late/default charges and actual lender rounding are not modeled. Example inputs are not financing offers.'));root.append(panel);
+ const current=ticket=>sequence===ticket&&panel.isConnected&&getContext()?.companyId===companyId&&getContext()?.canRead===true;
+ const invalidate=()=>{sequence++;results.replaceChildren();message.textContent='Inputs changed. Compare again for current results.';button.disabled=false;};
+ for(const input of Object.values(fields)){input.addEventListener('input',invalidate);input.addEventListener('change',invalidate);}
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();const ticket=++sequence;if(!current(ticket))return;results.replaceChildren();button.disabled=true;message.textContent='Calculating…';
+  try{
+   const raw=Object.fromEntries(Object.entries(fields).map(([key,input])=>[key,input.value.trim()===''?NaN:Number(input.value)]));const inputs=validateSellerInputs(raw);
+   const response=await calculate(companyId,inputs);if(!current(ticket))return;const r=validateSellerResult(response,companyId,inputs);
+   const table=el('table');table.className='plan-table';const head=el('thead'),tr=el('tr');for(const name of ['Down','Down payment','Seller note','Monthly payment','Monthly cash flow','Upfront cash','Balance after payment '+inputs.balloon_months]){const th=el('th',name);th.setAttribute('scope','col');tr.append(th);}head.append(tr);table.append(head);
+   const body=el('tbody');for(const row of r.scenarios){const tr=el('tr');for(const value of [row.down_percent+'%',...['down_payment','note_amount','monthly_payment','monthly_cash_flow','cash_required','balloon_balance'].map(key=>formatFinanceMoney(row[key]))])tr.append(el('td',value));body.append(tr);}table.append(body);results.append(table);message.textContent='Calculated using '+inputs.rate+'% annual interest and '+inputs.years+' years amortization. No records changed.';
+  }catch(error){if(current(ticket))message.textContent='Could not compare seller terms: '+(error?.message||'Unknown error');}
+  finally{if(current(ticket))button.disabled=false;}
+ });
+ return panel;
+}
+
+export function mountFinance({root,getContext,loadReport,saveDetails,download,calculateSeller}){
  let sequence=0,activeCompany=null,report=null;
  const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);return node;};
  const clear=()=>{sequence++;activeCompany=null;report=null;root.replaceChildren();};
@@ -106,6 +148,7 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download}){
   if(!scope?.companyId){root.append(el('p','Select a workspace to view financial reports.'));return;}
   if(!scope.canRead){root.append(el('p','Financial Reports requires active Pro access. Billing is not connected; this page cannot activate a subscription.'));return;}
   activeCompany=scope.companyId;
+  if(typeof calculateSeller==='function')mountSellerPlaybook({root,getContext,calculate:calculateSeller});
   const controls=el('form');controls.setAttribute('aria-label','Financial report filters');controls.className='grid';
   const field=(label,type,options)=>{
    const wrapper=el('label',label);const input=el(options?'select':'input');
@@ -209,7 +252,7 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download}){
 if(typeof window!=='undefined'&&typeof document!=='undefined'){
  const root=document.getElementById('finance-view');
  if(root){
-  window.JGAPFinance=mountFinance({root,getContext:()=>window.JGAPFinanceContext?.scope(),loadReport:(company,filters)=>window.JGAPFinanceContext.load(company,filters),saveDetails:(company,entry,patch)=>window.JGAPFinanceContext.save(company,entry,patch),download:(csv,filename)=>{
+  window.JGAPFinance=mountFinance({root,getContext:()=>window.JGAPFinanceContext?.scope(),loadReport:(company,filters)=>window.JGAPFinanceContext.load(company,filters),calculateSeller:(company,inputs)=>window.JGAPFinanceContext.calculateSeller(company,inputs),saveDetails:(company,entry,patch)=>window.JGAPFinanceContext.save(company,entry,patch),download:(csv,filename)=>{
    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }});
   if(document.getElementById('finance')?.classList?.contains('current'))window.JGAPFinance.open();

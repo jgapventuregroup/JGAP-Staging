@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {financePropertyBreakdown,financeCents,formatFinanceMoney,validateFinanceFilters,validateBookkeeping,validateFinanceReport,financeReportCSV,mountFinance,validateFinanceEstimate,financeDifference} from '../finance-cpa.mjs';
+import {mountSellerPlaybook,validateSellerInputs,validateSellerResult,financePropertyBreakdown,financeCents,formatFinanceMoney,validateFinanceFilters,validateBookkeeping,validateFinanceReport,financeReportCSV,mountFinance,validateFinanceEstimate,financeDifference} from '../finance-cpa.mjs';
 const filters={month:'2026-10',dealId:null,reconciled:null,taxTreatment:null};
 const entry=(id,type,amount,category,month='2026-10')=>({entry_id:id,company_id:'company-A',deal_id:'deal-A',property_name:'Fictional duplex',entry_date:month+'-01',entry_type:type,amount,category,description:'Recorded transaction',vendor_name:'',payment_method:'',account_name:'',tax_treatment:'review',receipt_reference:'',reconciled:false,bookkeeping_notes:''});
 function report(selection=filters){return {company_id:'company-A',month:selection.month,deal_id:selection.dealId,reconciled:selection.reconciled,tax_treatment:selection.taxTreatment,entries:[entry('entry-1','income','1000.01','Rent',selection.month),entry('entry-2','expense','100.02','Repairs',selection.month)],totals:{income:'1000.01',expenses:'100.02',net:'899.99',unreconciled:2,count:2},categories:[{category:'Rent',income:'1000.01',expenses:'0',net:'1000.01'},{category:'Repairs',income:'0',expenses:'100.02',net:'-100.02'}]};}
@@ -126,3 +126,24 @@ test('cash-source recovery groups duplicate names by property ID with exact cent
  const empty={...report(),entries:[],categories:[],totals:{income:'0',expenses:'0',net:'0',count:0,unreconciled:0}};
  assert.deepEqual(financePropertyBreakdown(empty),[]);
 });
+
+const sellerInputs={price:300000,noi:3000,closing:10000,other_costs:0,rate:6,years:30,balloon_months:60};
+const sellerResponse=(company,inputs)=>({company_id:company,inputs,scenarios:[10,15,20].map(down_percent=>({down_percent,down_payment:'30000.00',note_amount:'270000.00',monthly_payment:'1618.79',monthly_cash_flow:'1381.21',cash_required:'40000.00',balloon_balance:'251246.76'}))});
+test('seller input and response validation reject blanks, wrong workspace and mismatched inputs',()=>{
+ assert.deepEqual(validateSellerInputs(sellerInputs),sellerInputs);
+ for(const patch of [{price:NaN},{noi:Infinity},{rate:101},{years:1.5},{balloon_months:361},{price:0}])assert.throws(()=>validateSellerInputs({...sellerInputs,...patch}));
+ assert.throws(()=>validateSellerResult(sellerResponse('other',sellerInputs),'company-A',sellerInputs));
+ assert.throws(()=>validateSellerResult(sellerResponse('company-A',{...sellerInputs,rate:7}),'company-A',sellerInputs));
+});
+test('seller playbook requires Pro context, invalidates changed inputs and discards late workspace results',dom(async()=>{
+ let scope={companyId:'company-A',canRead:false},calls=0,release;
+ const root=new Node('div');assert.equal(mountSellerPlaybook({root,getContext:()=>scope,calculate:()=>calls++}),undefined);assert.equal(root.children.length,0);
+ scope.canRead=true;
+ mountSellerPlaybook({root,getContext:()=>scope,calculate:async(company,inputs)=>{calls++;return sellerResponse(company,inputs)}});
+ const form=all(root).find(n=>n.tagName==='FORM');await form.listeners.submit({preventDefault(){}});
+ assert.equal(calls,1);assert.ok(all(root).some(n=>n.textContent==='$251,246.76'));
+ const price=all(form).find(n=>n.tagName==='INPUT');price.value='';price.listeners.input();assert.ok(!all(root).some(n=>n.textContent==='$251,246.76'));await form.listeners.submit({preventDefault(){}});assert.equal(calls,1,'Blank price cannot become zero silently');
+ const delayed=new Node('div');mountSellerPlaybook({root:delayed,getContext:()=>scope,calculate:(company,inputs)=>new Promise(resolve=>release=()=>resolve(sellerResponse(company,inputs)))});
+ const pending=all(delayed).find(n=>n.tagName==='FORM').listeners.submit({preventDefault(){}});scope={companyId:'company-B',canRead:true};release();await pending;
+ assert.ok(!all(delayed).some(n=>n.textContent==='$251,246.76'));
+}));

@@ -183,5 +183,14 @@
       }
     ],
     "customer_controls": "enabled in staging after normal authenticated Storage API gate passed; rendered form/device acceptance separate"
+  },
+  "seller_financing": {
+    "setup": "supabase/features/seller-financing.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261026104340",
+      "name": "pro_seller_financing_playbook"
+    },
+    "verification": "local baseline plus add-on restore; five staging SQL-role rollback test groups; signed-in/device acceptance pending"
   }
 }

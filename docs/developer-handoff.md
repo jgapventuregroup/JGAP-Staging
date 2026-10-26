@@ -187,3 +187,6 @@ Ordinary Pro (not owner preview) uploaded a fictional PDF through the actual Doc
 
 ## Money-Making System recovery boundary — October 26, 2026
 See `finance-recovery.md` for the original module audit. The Pro reports now include a recorded cash-source breakdown by exact property ID using existing backend authorization and exact-cent totals. It does not mix estimated rent into recorded income or restore legacy Analyzer patches/personal laundry reserves. This is a bounded recovery step; the full Money-Making System and other advertised advanced tools remain incomplete. New table signed-in/device acceptance is pending.
+
+## Pro seller-financing playbook — October 26, 2026
+Recovered a bounded comparison tool inside Pro Financial Reports, with server-side Pro/current-company authorization. It is a read-only scenario calculator, not saved loan terms or a complete Money-Making System. See `finance-recovery.md` for inputs, formulas, balloon assumptions, staging rollback test evidence, setup and rollback. New baseline environments must apply the separate `supabase/features/seller-financing.sql` add-on; the captured baseline itself is unchanged. Signed-in/device acceptance remains open.
