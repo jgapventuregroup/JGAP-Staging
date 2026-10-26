@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-26",
+  "source_commit": "f8d848c1469508ce38dbe536d12cf394daad84dd",
+  "release_marker": "551ddbc6791378479e86",
+  "method": "normal verified test account in existing disposable Pro workspace; existing Free workspace restriction checks",
+  "viewport_width": 1363,
+  "horizontal_overflow": false,
+  "checks": [
+    {
+      "name": "overview_closed_stage_empty_state",
+      "outcome": "PASS",
+      "observed": "0 records; all balances Not recorded; 0 of 0 covered"
+    },
+    {
+      "name": "overview_all_saved_unknown_coverage",
+      "outcome": "PASS",
+      "observed": "1 record; unknown balances remain Not recorded; 0 of 1 covered"
+    },
+    {
+      "name": "month_change_invalidation_and_reload",
+      "outcome": "PASS",
+      "observed": "2026-10 to 2026-09 clears old figures; reloaded heading matches selected month"
+    },
+    {
+      "name": "empty_recorded_month_label",
+      "outcome": "PASS",
+      "observed": "No transactions recorded; no claim of verified zero performance"
+    },
+    {
+      "name": "overview_to_radar_navigation",
+      "outcome": "PASS"
+    },
+    {
+      "name": "radar_saved_record_missing_fields",
+      "outcome": "PASS",
+      "observed": "1 existing fictional property; five missing/zero fields shown; missing prices do not create a gap"
+    },
+    {
+      "name": "radar_due_and_gap_filters",
+      "outcome": "PASS",
+      "observed": "unscheduled follow-up and missing prices produce 0 of 1 matching records"
+    },
+    {
+      "name": "radar_missing_data_and_search",
+      "outcome": "PASS",
+      "observed": "unmatched search shows no matches; matching test-name search restores 1 of 1"
+    },
+    {
+      "name": "radar_portfolio_shortcut",
+      "outcome": "PASS"
+    },
+    {
+      "name": "free_workspace_restrictions",
+      "outcome": "PASS",
+      "observed": "both Pro pages show entitlement notice without controls or prior-company results"
+    },
+    {
+      "name": "pro_workspace_restored",
+      "outcome": "PASS"
+    }
+  ],
+  "saved_record_mutations": 0,
+  "file_uploads": 0,
+  "deletions": 0,
+  "plan_or_role_changes": 0,
+  "limits": [
+    "No populated overview or positive price-gap/due-follow-up browser case was created; formulas and positive fixtures remain supported by existing SQL/module evidence",
+    "No physical phone/mobile Safari acceptance",
+    "No ordinary viewer browser acceptance",
+    "No full external Deal Radar or complete Pro launch claim"
+  ]
+}

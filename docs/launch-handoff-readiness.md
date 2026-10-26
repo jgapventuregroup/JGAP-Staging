@@ -1,7 +1,7 @@
 # The Key Ahead Investor App — Handoff Readiness (2026-10-24)
 
 ## Current checkpoint — October 26, 2026
-Private Pro document upload/list/download is implemented. The 58-check normal-session Storage gate and ordinary Pro desktop upload/reopen/exact-byte-download acceptance passed; see `passport-document-storage.md`. Three fictional PDFs remain in the two disposable document workspaces; no new cleanup is authorized. Physical-phone acceptance, ordinary viewer UI, hosted restore/recovery, legal ownership records and advanced Pro completion remain open. Payments, live ads and production deployment remain the external company's work. Older milestone descriptions below are historical; they do not override this checkpoint.
+Private Pro documents, seller-financing comparison, saved-deal review and the consolidated Money-Making overview are implemented. Normal-session document/playbook/print checks passed; eleven bounded overview/Radar desktop checks passed on `f8d848c` (see `evidence/money-radar-desktop-2026-10-26.json`). Populated overview/positive Radar signal browser cases, physical phones, ordinary viewer UI, hosted restore/recovery, legal ownership records and the remaining advertised Pro tools are still open. No full launch-ready claim is made. Three fictional PDFs remain in the two disposable document workspaces; no new cleanup is authorized. Payments, live ads and production deployment remain the external company's work. Older milestones below are historical.
 
 ## Delivery decision
 The external website/app company will implement subscription payments and final deployment. Preserve this existing app; do not rebuild or create another repository. Do not alter the completed marketing website without separate approval.

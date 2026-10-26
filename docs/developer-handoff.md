@@ -199,3 +199,6 @@ Recovered a bounded comparison tool inside Pro Financial Reports, with server-si
 
 ## Consolidated Money-Making overview
 The Pro overview now brings current recorded value/debt/matched equity and whole-workspace recorded-month activity together, with coverage and clear separation of snapshots from historical activity. See `finance-recovery.md` for scope, formulas, exclusions, test evidence and rollback. Canonical later-baseline add-on: `supabase/features/money-making-overview.sql`, remote migration version `20261026112123`. Existing tools are linked, not replaced. Normal-session/device acceptance remains open. The remaining full advertised Pro tools still require implementation; do not describe this as a complete launch.
+
+## Overview/Radar bounded normal-session acceptance
+`docs/evidence/money-radar-desktop-2026-10-26.json` records eleven desktop checks on `f8d848c` for overview unknown/empty coverage, month invalidation/reload, Radar missing-data/search/empty filters/navigation, Free restrictions and restored Pro access. The existing fixtures were read only; zero saved records/files/plans/roles changed or deleted. This closes those specific signed-in gaps. Populated-value/positive-signal, ordinary viewer and physical-device browser cases remain open; full external Pro tool completion is unchanged.
