@@ -219,5 +219,14 @@
       "name": "pro_dashboard_customization"
     },
     "verification": "local baseline plus add-on restore and five staging SQL-role rollback groups; normal-session acceptance pending"
+  },
+  "in_app_alerts": {
+    "setup": "supabase/features/in-app-alerts.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261026184246",
+      "name": "pro_in_app_alerts"
+    },
+    "verification": "local baseline plus add-on restoration and five staging SQL-role rollback groups; normal-session acceptance pending"
   }
 }

@@ -156,3 +156,6 @@ Two new fictional overview properties and two ledger entries remain in the exist
 
 ## Dashboard customization checkpoint
 The personal Pro dashboard preference feature is implemented with per-user/workspace RLS, stored order/visibility, non-destructive defaults and verified saves. Five staging rollback groups and local restore/UI tests passed; normal-session and device acceptance remain open. Source and migration history are documented in the handoff/baseline files. No customer row, existing role, subscription plan or file was changed by the rollback checks. This is the first of the four remaining scoped features, not a full-product completion claim.
+
+## In-app alerts checkpoint
+The second of the four scoped features now has backend/UI implementation: source-derived due alerts plus personal review state and a navigation count. Local and five staging SQL-role security groups passed, with complete rollback. Normal-session dashboard customization and alert save/source-routing checks remain open. No email/SMS/push or external discovery was added. Team controls and Market Map are still to implement; no full-product completion claim is made.
