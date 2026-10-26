@@ -144,3 +144,6 @@ The authenticated security gate is complete (128 checks; sanitized evidence link
 
 ## Advanced Pro recovery checkpoint — October 26, 2026
 The saved-deal review component of Radar is implemented behind backend Pro authorization; normal-session/device review remains open. It reviews saved records only. Full external Radar, geographic Market Map, alerts and lead generation are still unfinished; see `advanced-pro-recovery.md`. Original legacy modules must not be loaded wholesale into staging. No production/website/ad/payment changes or customer-row transfers occurred.
+
+## Completion-focused Money-Making checkpoint
+A consolidated current-value/debt/matched-equity and recorded-month overview is implemented, using existing saved records and Pro backend authorization. Unknown balances are not zero, closed pipeline status is not legal ownership, and monthly activity is explicitly separate from valuation scope. Local and staging SQL-role checks passed; signed-in/device acceptance remains open. Existing seller-financing, financial reports and saved-deal review are linked from the overview. No website, live payment/ad or production changes. Remaining advertised Pro features have not been silently excluded; `advanced-pro-recovery.md` tracks them.

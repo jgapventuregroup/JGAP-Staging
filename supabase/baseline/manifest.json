@@ -201,5 +201,14 @@
       "name": "pro_saved_deal_radar"
     },
     "verification": "baseline plus add-on restored locally; four staging SQL-role rollback groups; normal-session/browser acceptance pending"
+  },
+  "money_making_overview": {
+    "setup": "supabase/features/money-making-overview.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261026112123",
+      "name": "pro_money_making_overview"
+    },
+    "verification": "local baseline plus add-on restore; four staging SQL-role rollback groups; normal-session/browser acceptance pending"
   }
 }

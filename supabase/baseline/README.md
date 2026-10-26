@@ -40,3 +40,6 @@ After installing the application baseline in an approved empty environment, appl
 
 ## Saved-deal Radar add-on
 After the application baseline in an approved empty environment, apply `supabase/features/saved-deal-radar.sql` once as database owner. This later read-only Pro RPC does not create customer rows/tables or enable external discovery. `tests/saved-deal-radar-security.mjs` restores baseline + add-on locally; staging SQL-role rollback checks passed separately. See `docs/advanced-pro-recovery.md` for remote migration history, setup, evidence and limits. Do not replay all old migrations or rerun setup against staging.
+
+## Money-Making overview add-on
+Apply `supabase/features/money-making-overview.sql` once after the application baseline in an approved empty environment. It reuses the baseline Pro report helper; neither other calculator nor Radar add-ons are prerequisites. This read-only function creates no rows/tables. Local baseline + add-on restoration and four staging SQL-role rollback groups passed; normal-session/device acceptance remains separate. Staging remote migration `pro_money_making_overview` is version `20261026112123`. Do not rerun on staging or replay all old migrations.
