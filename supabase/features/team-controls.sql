@@ -5,7 +5,7 @@ alter table public.company_invitations add column expires_at timestamptz not nul
 alter table public.company_invitations add column invited_by uuid references auth.users(id);
 -- Writes remain unavailable through the direct Data API. The private dispatcher is
 -- privileged only because membership writes must never be granted to clients.
-create function jgap_private.manage_team(p_action text,p_company uuid,p_target uuid default null,p_email text default null,p_role text default null)
+create or replace function jgap_private.manage_team(p_action text,p_company uuid,p_target uuid default null,p_email text default null,p_role text default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare actor uuid:=(select auth.uid());actor_email text;result jsonb;inv public.company_invitations;target_role text;
 begin
@@ -44,12 +44,13 @@ begin
  elsif p_action='revoke' then
   update public.company_invitations set status='revoked' where id=p_target and company_id=p_company and status='pending';
   if not found then raise exception 'Pending invitation unavailable' using errcode='22023';end if;
- elsif p_action='role' then
-  if p_role is null or p_role not in ('owner','admin','editor','viewer') then raise exception 'Valid member role required' using errcode='22023';end if;
+ elsif p_action in ('role','remove') then
+  if p_action='role' and (p_role is null or p_role not in ('owner','admin','editor','viewer')) then raise exception 'Valid member role required' using errcode='22023';end if;
   select role into target_role from public.company_members where company_id=p_company and user_id=p_target;
   if not found then raise exception 'Member unavailable' using errcode='22023';end if;
-  if target_role='owner' and p_role<>'owner' and (select count(*) from public.company_members where company_id=p_company and role='owner')<=1 then raise exception 'Keep at least one workspace owner' using errcode='22023';end if;
-  update public.company_members set role=p_role where company_id=p_company and user_id=p_target;
+  if target_role='owner' and (p_action='remove' or p_role<>'owner') and (select count(*) from public.company_members where company_id=p_company and role='owner')<=1 then raise exception 'Keep at least one workspace owner' using errcode='22023';end if;
+  if p_action='remove' then delete from public.company_members where company_id=p_company and user_id=p_target;
+  else update public.company_members set role=p_role where company_id=p_company and user_id=p_target;end if;
  else raise exception 'Unknown team operation' using errcode='22023';
  end if;
  return jsonb_build_object('ok',true);
