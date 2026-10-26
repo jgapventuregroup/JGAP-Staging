@@ -1,6 +1,6 @@
 # Property Passport private documents — staging implementation
 
-Status: the normal authenticated Storage API gate passed 58 fresh-request checks after the initial real uploads. Pro/verified-preview controls are enabled in staging after evidence review. Actual rendered upload/download and phone acceptance remain separate; removal/replacement, malware scanning and safe previews are not delivered.
+Status: the normal authenticated Storage API gate passed 58 fresh-request checks after the initial real uploads. Pro/verified-preview controls are enabled in staging after evidence review. Ordinary Pro desktop upload/reopen/download acceptance passed October 26; phone acceptance remains open; removal/replacement, malware scanning and safe previews are not delivered.
 
 ## Access and storage
 - Private `passport-documents` bucket on staging `qfszapteuxuogoselprp` only. No public URLs, new paid provider, production configuration or existing customer files changed.
@@ -32,6 +32,11 @@ Evidence: `evidence/document-storage-live-2026-10-25.json`, runner `02cb79c`. Th
 
 A unique SDK `cacheNonce` per download, plus browser `cache: no-store`, made the fresh inactive requests fail as required. The final run reused exactly those two PDFs, created zero additional positive objects and passed 58 checks using 35 observed Storage requests. Nonce presence was recorded without recording nonce values or object paths. Pro read/write, foreign list/download/upload denial in both directions, wrong-property denial, overwrite rejection with unchanged bytes, unavailable public URLs, anonymous denial, MIME/size rejection, inactive denial with an active-company control, viewer read-only and reactivation retention passed. HTTP 400 rejection responses also required the expected logical Storage error status; generic malformed/server failures did not count.
 
-The two disposable companies and properties named `V1 document gate 2026-10-25 - e4a2 A/B` and their two fictional PDFs remain. Only these disposable rows had temporary status/role changes; Company A was restored to active Pro/owner after testing. Existing companies/memberships/subscriptions were not changed. No delete operation was performed.
+The two disposable companies and properties named `V1 document gate 2026-10-25 - e4a2 A/B` and their two gate PDFs remain. Only these disposable rows had temporary status/role changes; Company A was restored to active Pro/owner after testing. Existing companies/memberships/subscriptions were not changed. No delete operation was performed.
 
 All app downloads now request a unique cache nonce and no-store. New app uploads request cacheControl 0. Already downloaded or cached copies cannot be revoked; do not claim retroactive removal of copies. Review hosted CDN behavior as part of production setup.
+
+### Ordinary Pro desktop form acceptance — October 26, 2026
+On the deployed staging build from `85d1039`, normally signed-in Account A selected only the disposable Pro workspace. The actual Documents tab listed the existing gate PDF. File chooser selection and Upload document persisted `TKA-fictional-document-ui-20261026.pdf`, with the app reporting “Document uploaded and verified.” After closing/reopening Passport and returning to Documents, the file remained listed. Its Download button produced a 1,460-byte PDF exactly matching the uploaded bytes (SHA-256 `0a161d2d114a4699d1da6bd48cc77df7dff1c72438e8a961d7c2a484211023c3`). No owner-preview exception was needed.
+
+The additional fictional PDF remains: three fictional PDFs total across the two disposable workspaces. Nothing was deleted; existing company plans/memberships and customer records were unchanged. This verifies the ordinary Pro desktop form, not physical phone, mobile Safari, viewer UI, antivirus, removal/replacement, or hosted recovery. Narrow-screen filename wrapping and document-control sizing were subsequently added; that CSS change is source-reviewed, not device-verified.

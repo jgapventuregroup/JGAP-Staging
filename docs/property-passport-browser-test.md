@@ -86,3 +86,6 @@ After the owner explicitly approved deleting only the named fictional QA propert
 
 ## Narrow-screen and accessible-name follow-up
 Added fieldset minimum-size/legend wrapping rules for the optional service schedule, explicit 44px disclosure/save targets, 16px form input text and narrow-screen button/tab wrapping. Passport toggle labels now retain the property name when opened, closed or reset. Existing browser-logic regression checks cover the accessible label lifecycle. This is a CSS/code inspection improvement, not a claim of physical phone or mobile Safari acceptance.
+
+## Ordinary Pro document form acceptance — October 26, 2026
+Passed on deployed `85d1039`: select the disposable Pro workspace, open Passport/Documents, upload fictional PDF, observe verified success, close/reopen Passport, and download through the listed button. The downloaded 1,460 bytes exactly matched the original. See `passport-document-storage.md` for digest and retained-file inventory. Nothing was deleted. Mobile, viewer UI, printed document filename output and hosted recovery remain unverified.

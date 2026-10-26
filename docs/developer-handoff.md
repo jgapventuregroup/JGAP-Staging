@@ -68,7 +68,7 @@ The incremental financial-write guard is in `supabase/migrations/20261024133246_
 | Notes/follow-ups | Existing deal notes and pipeline stage/date; not a separate task-history system |
 | Systems, equipment, service schedules, maintenance, improvements | Existing readers and writers; active Pro/verified preview owner/admin/editor writes enabled after the 128-check real-session gate; Investor/viewer history read-only |
 | Income/expense ledger, repairs and tasks | Basic connected records, history, add/edit, repair completion/costs and task completion/reopening. Cash totals are all recorded ledger entries, separate from repair costs; not CPA-ready advanced accounting |
-| Documents | Upload/storage permissions and complete document management not implemented |
+| Documents | Private Pro upload/list/download verified with 58 real-session API checks and ordinary Pro desktop form acceptance; replacement/removal, scanning, mobile and hosted file recovery remain open |
 | History | Existing stored dates/records only; no comprehensive versioned property history |
 | Advanced Pro suite | Financial Reports and bookkeeping CSV are restored in a bounded scope (see `finance-recovery.md`). Money-Making System, Market Map, Deal Radar, alerts, lead generation, customization and advanced team controls remain incomplete |
 | Laundromat Division | Deferred; excluded from this release |
@@ -181,3 +181,6 @@ See `passport-document-storage.md` for the private bucket, Pro/company/property 
 
 ## Real document API gate passed and staging controls enabled
 The two normally signed-in verified test users passed 58 fresh Storage API checks, with original successful upload evidence preserved separately. Inactive cached downloads initially failed the test, including with browser no-store alone; the app and gate now send a unique `cacheNonce` plus no-store, and the fresh inactive test passed. See `passport-document-storage.md` and the three sanitized evidence files, including the incomplete attempts. The two disposable Pro companies/properties and two fictional PDFs remain; status/role changes were confined to those companies and restored. No files or records were deleted. Staging document controls were enabled only after reviewing the passing API evidence; actual form and device acceptance remain required.
+
+## Document desktop acceptance — October 26, 2026
+Ordinary Pro (not owner preview) uploaded a fictional PDF through the actual Documents form, reopened Passport and downloaded the identical 1,460 bytes. See `passport-document-storage.md` for the digest, retained-fixture inventory and boundaries. Three fictional PDFs now remain across the two disposable test workspaces; no deletion was performed. This supersedes older statements that actual document form acceptance is pending. Physical phone/viewer UI and hosted recovery remain open.
