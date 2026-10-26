@@ -190,3 +190,6 @@ See `finance-recovery.md` for the original module audit. The Pro reports now inc
 
 ## Pro seller-financing playbook — October 26, 2026
 Recovered a bounded comparison tool inside Pro Financial Reports, with server-side Pro/current-company authorization. It is a read-only scenario calculator, not saved loan terms or a complete Money-Making System. See `finance-recovery.md` for inputs, formulas, balloon assumptions, staging rollback test evidence, setup and rollback. New baseline environments must apply the separate `supabase/features/seller-financing.sql` add-on; the captured baseline itself is unchanged. Signed-in/device acceptance remains open.
+
+## Latest ordinary Pro desktop acceptance
+`evidence/pro-playbook-desktop-2026-10-26.json` records nine passed desktop check groups on `310bf52`, including actual calculator RPC results, invalid-term handling, Free-workspace UI denial and document print cleanup. It closes the seller-playbook desktop and transient print-message live-review gaps. Physical phones, viewer UI and a nonempty cash-source breakdown remain open. No records/files/plans changed; full Money-Making System completion is still not claimed.

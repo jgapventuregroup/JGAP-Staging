@@ -43,3 +43,6 @@ The additional fictional PDF remains: three fictional PDFs total across the two 
 
 ### Printed inventory review — October 26, 2026
 The live ordinary Pro print page contained both listed fictional filenames and zero buttons/forms/inputs/selects/textareas. A transient “Download prepared.” status leaked into print; the print clone now removes document status messages and wraps long document names. This cleanup is source-verified pending deployment/live recheck. Print contains the loaded filename inventory, not attached file bytes or a guarantee that unloaded pagination pages were included. No physical printer was tested.
+
+### Print cleanup live recheck — October 26, 2026
+On deployed `310bf52`, after a fresh authenticated download set the on-screen “Download prepared.” notice, Print Passport included both existing filenames, zero interactive controls, `overflow-wrap:anywhere`, and no transient download notice. The regenerated print page passed. No upload or deletion occurred. This supersedes the earlier pending live print-cleanup check; physical printing, unloaded pagination coverage and mobile acceptance remain separate.

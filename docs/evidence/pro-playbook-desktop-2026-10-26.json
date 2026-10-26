@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-26",
+  "source_commit": "310bf52a87546aa8e120df1d61d59d91b0751b3d",
+  "release_marker": "889b04fb09f5db3de6f9",
+  "method": "normal verified test account; rendered desktop UI; existing disposable Pro workspace and existing Free workspace",
+  "viewport_width": 1363,
+  "horizontal_overflow": false,
+  "checks": [
+    {
+      "name": "default_seller_scenarios",
+      "outcome": "PASS",
+      "observed": {
+        "down_percent": [
+          10,
+          15,
+          20
+        ],
+        "monthly_payment": [
+          "1618.79",
+          "1528.85",
+          "1438.92"
+        ],
+        "balloon_after_60": [
+          "251246.76",
+          "237288.61",
+          "223330.46"
+        ]
+      }
+    },
+    {
+      "name": "input_changes_clear_old_results",
+      "outcome": "PASS"
+    },
+    {
+      "name": "zero_interest",
+      "outcome": "PASS",
+      "observed": {
+        "ten_percent_monthly_payment": "750.00",
+        "balance_after_60": "225000.00"
+      }
+    },
+    {
+      "name": "balloon_after_term_rejected",
+      "outcome": "PASS",
+      "observed": {
+        "attempted_month": 361,
+        "term_months": 360
+      }
+    },
+    {
+      "name": "full_term_balance",
+      "outcome": "PASS",
+      "observed": {
+        "balance_after_360": [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      }
+    },
+    {
+      "name": "free_workspace_pro_access_denied",
+      "outcome": "PASS"
+    },
+    {
+      "name": "pro_workspace_access_restored",
+      "outcome": "PASS"
+    },
+    {
+      "name": "empty_recorded_month_explicitly_labeled",
+      "outcome": "PASS"
+    },
+    {
+      "name": "document_print_cleanup",
+      "outcome": "PASS",
+      "observed": {
+        "listed_filename_count": 2,
+        "interactive_control_count": 0,
+        "download_status_in_print": false,
+        "filename_overflow_wrap": "anywhere"
+      }
+    }
+  ],
+  "mutations": {
+    "saved_records_changed": 0,
+    "uploaded_files": 0,
+    "deleted_records_or_files": 0,
+    "membership_changes": 0
+  },
+  "limits": [
+    "No physical phone or mobile Safari acceptance",
+    "No ordinary Pro viewer browser acceptance",
+    "No nonempty cash-source breakdown rendered acceptance; only empty month observed",
+    "No physical printer acceptance",
+    "No full Money-Making System completion claim"
+  ]
+}

@@ -92,3 +92,6 @@ Passed on deployed `85d1039`: select the disposable Pro workspace, open Passport
 
 ## Document print inventory — October 26, 2026
 The ordinary Pro live Print Passport page included both listed filenames and zero interactive controls. It also included a transient download-success notice; the print clone cleanup now removes Documents status messages and wraps long filenames. Recheck that cleanup after deployment. This verifies the generated print page only, not physical printing or an exhaustive inventory beyond loaded document pages.
+
+## Pro playbook and print recheck — October 26, 2026
+See `evidence/pro-playbook-desktop-2026-10-26.json` for ordinary Pro seller-calculator results, Free workspace refusal, empty cash-source report handling and regenerated document print cleanup on `310bf52`. The print page retained two filenames and zero interactive controls while excluding the on-screen download-status message. No records, files or memberships were modified or deleted. Physical device/viewer/nonempty cash-source checks remain open.
