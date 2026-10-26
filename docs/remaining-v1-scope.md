@@ -15,6 +15,10 @@ No external Deal Radar discovery feeds, lead generation/CRM, additional Money-Ma
 
 The outside company still handles payments, app packaging/distribution, live ads, production hosting and launch. Those responsibilities are separate from implementation of the four features above.
 
+## Near-handoff reminder — owner request, October 26, 2026
+
+When the app is close to done, remind the owner to add an app download/access button or link to the existing website, with a website payment path, as interim distribution until the app-store listing with its own icon is available. A daily milestone reminder is enabled. This is a deferred launch-handoff item; do not implement it during the four-feature app build, edit the website, or activate payments now. Confirm the supported install/access method and payment integration with the handoff company before implementation; do not promise native downloads or store availability prematurely.
+
 Existing company isolation, Free five-lifetime-property behavior, Investor restrictions, Pro ad-free behavior, ownership checks and website branding remain required. Phone, viewer, restore/recovery and final release acceptance still matter. Green CI alone does not declare the complete product ready to sell.
 
 This owner decision supersedes earlier requirements to finish all advertised external Radar, lead-generation and other advanced modules before this handoff. The handoff company must reconcile public plan claims with the agreed delivered scope before paid launch; this is not authorization to edit the marketing website.
