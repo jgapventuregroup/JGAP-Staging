@@ -72,6 +72,19 @@ export function validateFinanceReport(report,companyId,filters){
  for(const row of report.categories){const sums=categories.get(row.category);if(!sums||categoryNames.has(row.category)||financeCents(row.income)!==sums.income||financeCents(row.expenses)!==sums.expenses||financeCents(row.net)!==sums.income-sums.expenses)throw Error('Invalid category total');categoryNames.add(row.category);}
  return report;
 }
+// Recover the original cash-source snapshot using recorded transactions only.
+// Group by immutable property ID; identical display names must stay separate.
+export function financePropertyBreakdown(report){
+ validateFinanceReport(report,report?.company_id,{month:report?.month,dealId:report?.deal_id,reconciled:report?.reconciled,taxTreatment:report?.tax_treatment});
+ const properties=new Map();
+ for(const entry of report.entries){
+  const row=properties.get(entry.deal_id)||{dealId:entry.deal_id,name:entry.property_name||'Unnamed property',income:0n,expenses:0n,count:0};
+  row[entry.entry_type==='income'?'income':'expenses']+=financeCents(entry.amount);row.count++;properties.set(entry.deal_id,row);
+ }
+ const amount=cents=>(cents<0n?'-':'')+String((cents<0n?-cents:cents)/100n)+'.'+String((cents<0n?-cents:cents)%100n).padStart(2,'0');
+ return [...properties.values()].sort((a,b)=>a.name.localeCompare(b.name)||a.dealId.localeCompare(b.dealId)).map(row=>({dealId:row.dealId,name:row.name,income:amount(row.income),expenses:amount(row.expenses),net:amount(row.income-row.expenses),count:row.count}));
+}
+
 export function financeReportCSV(report){
  const cell=value=>{
   let text=String(value??'');
@@ -120,6 +133,11 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download}){
   const render=selected=>{
    body.replaceChildren();const stats=el('div');stats.className='metric-grid';
    for(const [label,value] of [['Income',formatFinanceMoney(selected.totals.income)],['Expenses',formatFinanceMoney(selected.totals.expenses)],['Net recorded cash flow',formatFinanceMoney(selected.totals.net)],['Unreconciled',selected.totals.unreconciled]]){const card=el('div');card.className='metric';card.append(el('span',label),el('strong',value));stats.append(card);}body.append(stats);
+   body.append(el('h2','Recorded cash flow by property'));
+   body.append(el('p','Recorded transactions for '+selected.month+' and the selected filters only. Estimated rent is not added to recorded income. Properties without entries are not shown; missing records do not establish zero income or profit.'));
+   const propertyRows=financePropertyBreakdown(selected);
+   if(propertyRows.length)body.append(table(['Property','Recorded income','Recorded expenses','Recorded net','Entries'],propertyRows.map(row=>[row.name,formatFinanceMoney(row.income),formatFinanceMoney(row.expenses),formatFinanceMoney(row.net),row.count])));
+   else body.append(el('p','No property transactions recorded for these filters.'));
    const estimate=selected.estimate;
    body.append(el('h2','Current saved estimate vs recorded month'));
    if(!selected.deal_id)body.append(el('p','Select one property to compare its saved monthly assumptions with recorded results.'));

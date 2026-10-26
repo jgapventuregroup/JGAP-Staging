@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {financeCents,formatFinanceMoney,validateFinanceFilters,validateBookkeeping,validateFinanceReport,financeReportCSV,mountFinance,validateFinanceEstimate,financeDifference} from '../finance-cpa.mjs';
+import {financePropertyBreakdown,financeCents,formatFinanceMoney,validateFinanceFilters,validateBookkeeping,validateFinanceReport,financeReportCSV,mountFinance,validateFinanceEstimate,financeDifference} from '../finance-cpa.mjs';
 const filters={month:'2026-10',dealId:null,reconciled:null,taxTreatment:null};
 const entry=(id,type,amount,category,month='2026-10')=>({entry_id:id,company_id:'company-A',deal_id:'deal-A',property_name:'Fictional duplex',entry_date:month+'-01',entry_type:type,amount,category,description:'Recorded transaction',vendor_name:'',payment_method:'',account_name:'',tax_treatment:'review',receipt_reference:'',reconciled:false,bookkeeping_notes:''});
 function report(selection=filters){return {company_id:'company-A',month:selection.month,deal_id:selection.dealId,reconciled:selection.reconciled,tax_treatment:selection.taxTreatment,entries:[entry('entry-1','income','1000.01','Rent',selection.month),entry('entry-2','expense','100.02','Repairs',selection.month)],totals:{income:'1000.01',expenses:'100.02',net:'899.99',unreconciled:2,count:2},categories:[{category:'Rent',income:'1000.01',expenses:'0',net:'1000.01'},{category:'Repairs',income:'0',expenses:'100.02',net:'-100.02'}]};}
@@ -114,3 +114,15 @@ test('empty recorded months and invalid assumptions never display fabricated com
   assert.ok(all(f.root).some(node=>node.textContent.startsWith(options.empty?'No transactions are recorded':'Complete or correct the saved Analyzer assumptions')));
  }
 }));
+
+test('cash-source recovery groups duplicate names by property ID with exact cents and no estimated rent',()=>{
+ const r=report();r.entries[1].deal_id='deal-B';r.entries[1].property_name=r.entries[0].property_name;
+ r.estimate={status:'property_required'};
+ const rows=financePropertyBreakdown(r);
+ assert.equal(rows.length,2);
+ assert.deepEqual(rows.map(x=>[x.dealId,x.income,x.expenses,x.net,x.count]),[['deal-A','1000.01','0.00','1000.01',1],['deal-B','0.00','100.02','-100.02',1]]);
+ const one=financePropertyBreakdown(report());assert.equal(one[0].net,'899.99');assert.equal(one[0].count,2);
+ const invalid=report();invalid.entries[0].company_id='foreign';assert.throws(()=>financePropertyBreakdown(invalid),/unexpected transaction/);
+ const empty={...report(),entries:[],categories:[],totals:{income:'0',expenses:'0',net:'0',count:0,unreconciled:0}};
+ assert.deepEqual(financePropertyBreakdown(empty),[]);
+});

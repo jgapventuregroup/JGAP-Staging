@@ -53,3 +53,10 @@ The fixture cleanup check found zero leftover test companies. These are SQL-role
 
 ## Current saved estimate versus recorded month
 The Pro report now includes a current saved-estimate comparison for a single property and unfiltered month. See the developer runbook for the `estimate` response, calculation/rounding rules, migration mapping, rollback and six grouped SQL tests. This is an incremental addition to the existing recovered report. It does not provide frozen underwriting versions or certify recorded data completeness; the CSV continues to contain recorded transactions only.
+
+## Money-Making System cash-source recovery — October 26, 2026
+Reviewed original `JGAP-Venture-Group/money-making-system.js` blob `65af19423c6b68db58552fa75997c3179a4fa569`. Its snapshot selects the first membership rather than the chosen workspace, relies on legacy `properties`/`financial_transactions` tables, combines estimated rent with recorded transaction income, and embeds personal laundry reserves and targets. Its trailing Analyzer monkey patches must not replace the working current Analyzer.
+
+The current Pro Financial Reports now selectively recovers recorded income, expenses, net and entry counts by exact property ID for the selected month/filters. It reuses the existing server-authorized report and validated transaction rows; no schema, paid entitlement or Free experience changed. Amounts use exact BigInt cents. Two properties with identical names stay separate. Estimates are never added to recorded income, and absent properties are not shown as verified zeros. Existing filtered/subset report labels apply. The table uses the existing scrollable table container and safe text rendering.
+
+This is one recovered building block, not completion of the full Money-Making System. Portfolio value/debt/equity coverage, seller-financing playbook, acquisition strategy and the other advanced modules remain unfinished. No hard-coded personal reserves, laundry division, bank feeds, ads or payments were added. Focused finance regressions cover grouping, exact amounts, empty history and foreign-row rejection; signed-in acceptance of the new table remains open.

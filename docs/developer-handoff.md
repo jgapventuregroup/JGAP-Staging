@@ -184,3 +184,6 @@ The two normally signed-in verified test users passed 58 fresh Storage API check
 
 ## Document desktop acceptance — October 26, 2026
 Ordinary Pro (not owner preview) uploaded a fictional PDF through the actual Documents form, reopened Passport and downloaded the identical 1,460 bytes. See `passport-document-storage.md` for the digest, retained-fixture inventory and boundaries. Three fictional PDFs now remain across the two disposable test workspaces; no deletion was performed. This supersedes older statements that actual document form acceptance is pending. Physical phone/viewer UI and hosted recovery remain open.
+
+## Money-Making System recovery boundary — October 26, 2026
+See `finance-recovery.md` for the original module audit. The Pro reports now include a recorded cash-source breakdown by exact property ID using existing backend authorization and exact-cent totals. It does not mix estimated rent into recorded income or restore legacy Analyzer patches/personal laundry reserves. This is a bounded recovery step; the full Money-Making System and other advertised advanced tools remain incomplete. New table signed-in/device acceptance is pending.
