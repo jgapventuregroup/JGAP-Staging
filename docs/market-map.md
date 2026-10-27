@@ -23,3 +23,8 @@ Local tests cover real zero/missing/invalid coordinates, exact workspace/propert
 All four hosted `tests/staging-market-map.sql` groups passed: coordinate/identity/foreign integrity; viewer and expired-seat controls; Free/Investor/inactive restrictions and retained reactivation; anonymous denial. Every fixture rolled back; retained fixture-company count was zero. No new advisor findings were introduced.
 
 Normal authenticated screen acceptance, actual Leaflet rendering/network inspection, street opt-in/error behavior, populated multi-pin/overlap/long-name cases and physical phone checks remain open. No physical-device or real-session map acceptance is claimed from controlled DOM/SQL tests. The completed marketing website, live ads and live payments remain unchanged.
+
+
+## Owner desktop acceptance — October 27, 2026
+
+Normal browser sign-in loaded the disposable Pro workspace on `1b34036`. Observed empty-location state, exact search, no rendered tile images by default, verification-checkbox enforcement, synthetic-pin save/reload/reopen, opt-in real street rendering/attribution, hide/reset behavior, exact Property Passport navigation, Free denial and Pro return. Screenshot and boundaries are in `evidence/four-feature-owner-desktop-2026-10-27.json`. Only one synthetic pin was used and retained; multi-pin, viewer, physical-phone, browser click-to-select and tile-error acceptance remain open. Earlier normal-session-pending status is superseded only for these observed owner cases. No real address was geocoded or property location disclosed.

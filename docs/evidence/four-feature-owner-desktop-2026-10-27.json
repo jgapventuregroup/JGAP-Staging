@@ -1,0 +1,108 @@
+{
+  "date": "2026-10-27",
+  "source_commit": "1b34036c30f511784d6418d085e6473bf04e8a3f",
+  "environment": "Published staging app; normal email/password browser sign-in; existing fictional account A",
+  "scope": "Desktop owner acceptance in existing disposable Pro workspace plus its original Free workspace",
+  "checks": [
+    {
+      "name": "dashboard_save_reload",
+      "result": "PASS",
+      "observed": "Hidden tools and reordered follow-ups persisted after Reload saved layout."
+    },
+    {
+      "name": "dashboard_restore_defaults",
+      "result": "PASS",
+      "observed": "Original all-visible default order restored and verified."
+    },
+    {
+      "name": "alert_review_persistence",
+      "result": "PASS",
+      "observed": "Review/unreview persisted with badge 1\u21920\u21921 and Reviewed/Unreviewed filters; original state restored."
+    },
+    {
+      "name": "alert_source_routing",
+      "result": "PASS",
+      "observed": "Opened exact QA Pipeline card; follow-up remained 2026-10-26."
+    },
+    {
+      "name": "map_unknown_and_filter",
+      "result": "PASS",
+      "observed": "Initially 0 mapped/3 unlocated; searching exact QA name yielded one matching property."
+    },
+    {
+      "name": "map_verification_guard",
+      "result": "PASS",
+      "observed": "Save refused without explicit verification checkbox; no pin saved by that attempt."
+    },
+    {
+      "name": "map_save_reopen",
+      "result": "PASS",
+      "observed": "Fictional 36.595,-82.188 pin saved/reloaded and remained after navigating away/back."
+    },
+    {
+      "name": "map_street_opt_in",
+      "result": "PASS",
+      "observed": "Default view had zero map img elements; opted-in tiles visibly rendered with OSM attribution; Hide street map worked and reopened view reset opt-in."
+    },
+    {
+      "name": "map_property_route",
+      "result": "PASS",
+      "observed": "Open saved property opened exact QA Property Passport, preserving known values and notes."
+    },
+    {
+      "name": "team_default_seat_display",
+      "result": "PASS",
+      "observed": "1 member, 0 reservations, 1 total; invitation creation disabled without added paid seats. No membership operation performed."
+    },
+    {
+      "name": "friend_link_copy",
+      "result": "PASS",
+      "observed": "Clipboard contained only public staging/#join URL; no person-directed message sent."
+    },
+    {
+      "name": "free_map_denial",
+      "result": "PASS",
+      "observed": "Map gated after switching to existing Free workspace; former Pro pin/form absent."
+    },
+    {
+      "name": "free_alert_denial",
+      "result": "PASS",
+      "observed": "Exact Alerts target showed Pro requirement with no old Pro source data."
+    },
+    {
+      "name": "free_team_denial",
+      "result": "PASS",
+      "observed": "Owner-management API denial displayed while own pending-inbox section remained; no management controls exposed."
+    },
+    {
+      "name": "ad_visibility",
+      "result": "PASS",
+      "observed": "Reserved ad placements visible in tested Free dashboard/map/alerts/team views; absent in tested Pro views."
+    },
+    {
+      "name": "pro_reentry",
+      "result": "PASS",
+      "observed": "Switching back restored Pro map/Passport access; street tiles remained off by default."
+    }
+  ],
+  "retained_test_changes": [
+    "One fictional map pin on V1 Overview QA 2026-10-26 - matched at latitude 36.595 / longitude -82.188. This is synthetic QA, not a claimed property location.",
+    "Dashboard preferences now hold original default configuration after save/reload/reset testing.",
+    "Personal alert review is unreviewed again; source follow-up/tasks were not changed."
+  ],
+  "not_changed": [
+    "Real properties, files and company permissions/plans",
+    "Live billing/advertising",
+    "Marketing website"
+  ],
+  "not_performed": [
+    "Physical phone or emulated narrow viewport acceptance",
+    "Viewer-account screen acceptance",
+    "Team invitation acceptance/role/removal mutations through the browser",
+    "Multi-pin, overlap, manual click-to-select and provider tile-error browser cases",
+    "Single-session infrastructure configuration/two-browser enforcement",
+    "Hosted restore/recovery rehearsal"
+  ],
+  "observed_anomaly": "One initial Alerts click landed on Deal Intelligence. Exact label retry with data-page=alerts opened the correct page. Cause undetermined; no code change attributed to this event. General navigation review remains open.",
+  "screenshot": "map-owner-desktop-2026-10-27.jpg"
+}

@@ -171,3 +171,8 @@ Nine hosted team/seat rollback groups passed October 27 with zero retained fixtu
 ## Market Map implementation checkpoint — October 27, 2026
 
 The final scoped feature has an implementation: Pro saved-property map, search, matching property list, manual verified coordinates, click-to-select position, correction/reload, and saved-property navigation. Street tiles are opt-in per view; the bundled map library and pin view require no map provider request. No geocoder, external listings, valuation or market-history feed is implemented or promised. Four hosted SQL-role rollback groups passed; zero retained fixture companies. Local UI/security, packaging, full suite and Edge checks passed. Actual signed-in map interaction, street-map network behavior, physical-phone review and cross-feature acceptance still remain. Implementation of all four features is not final product acceptance or authorization to launch paid subscriptions.
+
+
+## Owner desktop review — October 27, 2026
+
+Sixteen bounded groups passed on deployed `1b34036`, recorded with retained fixture details and limitations in `docs/evidence/four-feature-owner-desktop-2026-10-27.json`. This closes selected owner browser gaps for dashboard, alerts, map, team-seat display and public link copy, plus Free gating/tested ad visibility. It does not close viewer/team mutation, physical-phone, broad navigation, provider single-session, concurrency or hosted restore/recovery acceptance. A synthetic map pin remains; original dashboard/alert effective states were restored. Nothing was deleted, and real user assets, memberships and plans remain unchanged.

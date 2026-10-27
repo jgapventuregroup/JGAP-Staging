@@ -4,10 +4,10 @@ Build these four features only, preserving the existing app and completed featur
 
 | Feature | Agreed working scope | Acceptance |
 | --- | --- | --- |
-| Dashboard customization | Pro user can show/hide/reorder tools, metrics, recent properties and follow-ups; personal per workspace, persisted, resettable. Company/membership/ad controls remain governed by the existing app. | Backend and local UI checks passed; deployed signed-in acceptance pending. |
-| In-app alerts | Due follow-ups, tasks and maintenance from existing records; readable, actionable in the app. | Backend, local UI and staging SQL-role checks passed; normal-session acceptance pending. No email/SMS/push delivery in this scope. |
-| Advanced team controls | Secure workspace invitations, roles and permissions, including last-owner safeguards and authorization. | Team screen and backend implemented; local UI/security tests and four staging rollback groups passed. Normal-session, concurrent-owner and phone acceptance pending. Member removal and named-seat controls passed hosted rollback checks October 27; removal UI enabled. Normal-session, concurrency and phone acceptance remain open. |
-| Market Map | Geographic view of saved properties with controlled location handling. | Implemented saved-property pins, verified coordinates and optional street tiles; four hosted rollback groups plus local UI/security checks passed. Normal-session/phone acceptance pending. No geocoder or market-data feed. |
+| Dashboard customization | Pro user can show/hide/reorder tools, metrics, recent properties and follow-ups; personal per workspace, persisted, resettable. Company/membership/ad controls remain governed by the existing app. | Owner desktop save/reload/reset passed October 27; viewer and phone acceptance pending. |
+| In-app alerts | Due follow-ups, tasks and maintenance from existing records; readable, actionable in the app. | Owner desktop review/unreview/badge/source-routing passed October 27; viewer, other source types and phone acceptance pending. No email/SMS/push delivery in this scope. |
+| Advanced team controls | Secure workspace invitations, roles and permissions, including last-owner safeguards and authorization. | Team screen and backend implemented; local UI/security tests and four staging rollback groups passed. Owner desktop seat display and full-capacity invitation lock passed October 27. Member removal/seat controls passed hosted rollback checks; ordinary recipient/team mutation, concurrency and phone acceptance pending. |
+| Market Map | Geographic view of saved properties with controlled location handling. | Implemented saved-property pins, verified coordinates and optional street tiles; four hosted rollback groups plus local UI/security checks passed. Owner desktop single-pin save/reopen, street opt-in and Passport route passed October 27; viewer/multi-pin/phone acceptance pending. No geocoder or market-data feed. |
 
 ## Explicit exclusions from further build work
 
@@ -34,3 +34,8 @@ One included named user; Pro additional paid seats required for all additional r
 ## Session lifecycle checkpoint — October 27, 2026
 
 Signed-out/unexpected-identity events now clear private app state; normal refresh and newer sessions are preserved. Local customer workflow covers these cases. No provider Auth session settings or hosting plan changed. Native single-session enforcement requires a supported paid Supabase infrastructure plan and operator configuration; actual same-account/two-browser acceptance remains open. This is distinct from the implemented named-team-seat limits.
+
+
+## Normal owner desktop acceptance — October 27, 2026
+
+Sixteen bounded check groups passed on `1b34036`; see `docs/evidence/four-feature-owner-desktop-2026-10-27.json`. Original dashboard configuration and personal alert state were restored. A synthetic map pin remains on an existing QA property; do not delete it or other fixtures without the owner's specific cleanup authorization. No real property/file/member/plan was modified. Viewer, team mutation, physical-phone, broad navigation, session configuration and hosted recovery gates remain; a single unexplained Alerts navigation discrepancy is recorded, not silently treated as a fixed bug.
