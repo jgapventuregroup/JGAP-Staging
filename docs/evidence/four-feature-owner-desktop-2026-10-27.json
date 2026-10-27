@@ -104,5 +104,47 @@
     "Hosted restore/recovery rehearsal"
   ],
   "observed_anomaly": "One initial Alerts click landed on Deal Intelligence. Exact label retry with data-page=alerts opened the correct page. Cause undetermined; no code change attributed to this event. General navigation review remains open.",
-  "screenshot": "map-owner-desktop-2026-10-27.jpg"
+  "screenshot": "map-owner-desktop-2026-10-27.jpg",
+  "followup_2026_10_27": {
+    "source_commit": "09fbcffabe11164888c0d7dd2d39b22db4cea5bb",
+    "checks": [
+      {
+        "requested": "Alerts \u00b7 Pro",
+        "visible_page": "alerts",
+        "result": "PASS"
+      },
+      {
+        "requested": "Market Map \u00b7 Pro",
+        "visible_page": "map",
+        "result": "PASS"
+      },
+      {
+        "requested": "Team access \u00b7 Pro",
+        "visible_page": "team",
+        "result": "PASS"
+      },
+      {
+        "requested": "Dashboard",
+        "visible_page": "dashboard",
+        "result": "PASS"
+      },
+      {
+        "requested": "Alerts \u00b7 Pro",
+        "visible_page": "alerts",
+        "result": "PASS"
+      },
+      {
+        "name": "map_click_to_select_preview",
+        "result": "PASS",
+        "observed": "Map click filled provisional latitude 36.595607 / longitude -82.185588 and kept verification unchecked; no Save action performed."
+      },
+      {
+        "name": "discard_unsaved_selection",
+        "result": "PASS",
+        "observed": "Navigate away/reopen restored the retained 36.595 / -82.188 pin and input values."
+      }
+    ],
+    "anomaly_status": "Earlier initial navigation mismatch did not recur during five traced transitions. Cause remains unproven; no speculative code change made. A stale CUA getScreenshot result was separately observed; fresh tab.screenshot matched DOM state. Do not infer this explains the earlier mismatch.",
+    "limits": "Desktop only. Browser zoom attempt did not change CSS viewport width; no narrow/mobile acceptance claim. No permissions, plans, real records or saved map coordinates changed."
+  }
 }

@@ -28,3 +28,8 @@ Normal authenticated screen acceptance, actual Leaflet rendering/network inspect
 ## Owner desktop acceptance — October 27, 2026
 
 Normal browser sign-in loaded the disposable Pro workspace on `1b34036`. Observed empty-location state, exact search, no rendered tile images by default, verification-checkbox enforcement, synthetic-pin save/reload/reopen, opt-in real street rendering/attribution, hide/reset behavior, exact Property Passport navigation, Free denial and Pro return. Screenshot and boundaries are in `evidence/four-feature-owner-desktop-2026-10-27.json`. Only one synthetic pin was used and retained; multi-pin, viewer, physical-phone, browser click-to-select and tile-error acceptance remain open. Earlier normal-session-pending status is superseded only for these observed owner cases. No real address was geocoded or property location disclosed.
+
+
+## Follow-up owner interaction check — October 27, 2026
+
+Live map click-to-select populated provisional coordinates and left verification unchecked. Navigating away/reopening restored the original retained QA pin, proving no automatic save from selection. Five traced successive navigation targets matched their requested pages; the earlier unexplained mismatch did not recur and no speculative code change was made. Evidence is appended to the existing owner-desktop JSON. This closes the selected owner click-to-select/cancel case, not viewer/multi-pin/phone or general navigation acceptance. Available browser controls did not produce a narrower CSS viewport; phone testing is still unverified.
