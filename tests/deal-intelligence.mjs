@@ -45,3 +45,14 @@ cards = review([{ ...record, city: 'Nashville' }]); assert.match(cards[0].childr
 el('intelligence-json').value = '{broken'; el('review-intelligence').onclick(); assert.equal(el('intelligence-results').children.length, 0);
 context.window.JGAPDealIntelligence.clear(); assert.equal(el('intelligence-json').value, ''); assert.equal(el('intelligence-results').children.length, 0);
 console.log('PASS: reused Deal Intelligence — missing figures, explicit offers, buying box, safe rendering, viewer refusal, company switching, Free limits and clear review');
+
+scope={companyId:'a',role:'owner'};fail=false;
+const manualSubmit=()=>el('intelligence-property-form').onsubmit({preventDefault(){}});
+el('intelligence-address').value='123 Example Lane, Example City, TN 00000';
+el('intelligence-price').value='200000';el('intelligence-rent').value='1800';el('intelligence-expenses').value='';el('intelligence-units').value='2';
+manualSubmit();cards=el('intelligence-results').children;assert.equal(cards.length,1);assert.equal(cards[0].children.find(x=>x.tag==='button').disabled,true,'Unknown expense cannot silently become zero');assert.match(cards[0].children[2].textContent,/expenses: Not supplied/);
+el('intelligence-expenses').value='0';manualSubmit();cards=el('intelligence-results').children;save=cards[0].children.find(x=>x.tag==='button');offer=cards[0].children.find(x=>x.tag==='label').children[0];assert.equal(save.disabled,false);assert.equal(offer.value,'');const beforeManual=saves.length;await save.onclick();assert.equal(saves.length,beforeManual);offer.value='175000';await save.onclick();assert.equal(saves.length,beforeManual+1);assert.equal(saves.at(-1).listing.expenses_monthly,0);assert.equal(saves.at(-1).listing.planned_offer,175000);assert.match(saves.at(-1).listing.external_id,/^manual:/);
+for(const [field,value] of [['units','2.5'],['price','-1'],['rent','not a number']]){const previous=el('intelligence-'+field).value;el('intelligence-'+field).value=value;manualSubmit();assert.equal(el('intelligence-results').children.length,0);el('intelligence-'+field).value=previous;}
+scope={companyId:'a',role:'viewer'};manualSubmit();assert.equal(el('intelligence-results').children[0].children.find(x=>x.tag==='button').disabled,true);
+context.window.JGAPDealIntelligence.clear();for(const field of ['address','price','rent','expenses','type','units'])assert.equal(el('intelligence-'+field).value,'');assert.equal(el('intelligence-advanced').open,false);
+console.log('PASS: plain property review keeps unknowns separate from zero, requires an explicit offer, rejects invalid inputs, enforces viewer access and clears drafts');

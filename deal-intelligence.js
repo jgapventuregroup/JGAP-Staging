@@ -4,21 +4,22 @@
   const money = value => value == null ? 'Not supplied' : value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
   const safeAmount = value => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1e12;
   let previewCompany = null;
-  function clear() { previewCompany = null; el('intelligence-json').value = ''; el('intelligence-source').value = ''; el('intelligence-results').replaceChildren(); el('intelligence-status').textContent = ''; }
+  const manualFields=['address','price','rent','expenses','type','units'];
+  function clear() { for(const field of manualFields)el('intelligence-'+field).value='';el('intelligence-advanced').open=false;previewCompany = null; el('intelligence-json').value = ''; el('intelligence-source').value = ''; el('intelligence-results').replaceChildren(); el('intelligence-status').textContent = ''; }
   window.JGAPDealIntelligence = { clear };
   el('clear-intelligence').onclick = clear;
-  el('review-intelligence').onclick = () => {
+  function review(manualRow=null) {
     el('intelligence-results').replaceChildren();
     const scope = window.JGAPIntelligenceContext?.scope();
     if (!scope) { el('intelligence-status').textContent = 'Choose a company workspace before reviewing listings.'; return; }
     previewCompany = scope.companyId;
     try {
       const raw = el('intelligence-json').value.trim();
-      if (!raw || raw.length > 250000) throw Error('Paste listing JSON up to 250,000 characters.');
-      const payload = JSON.parse(raw);
+      if (!manualRow && (!raw || raw.length > 250000)) throw Error('Paste listing JSON up to 250,000 characters.');
+      const payload = manualRow || JSON.parse(raw);
       const rows = Array.isArray(payload) ? payload : payload?.listings || payload?.properties || payload?.data || [payload];
       if (!Array.isArray(rows) || !rows.length || rows.length > 100 || rows.some(row => !row || typeof row !== 'object' || Array.isArray(row))) throw Error('Use one listing or an array of up to 100 listing objects.');
-      const source = el('intelligence-source').value.trim() || 'Supplied listing';
+      const source = el('intelligence-source').value.trim() || (manualRow?'Manually entered property':'Supplied listing');
       let incomplete = 0;
       for (const rawRow of rows) {
         const listing = window.JGAPDealIntelligenceAdapter.normalize(rawRow, source);
@@ -35,13 +36,14 @@
         screening.textContent = 'Original JGAP buying box: ' + (!city || !state || !listing.property_type || listing.units == null ? 'Market/type/unit information is incomplete.' : market && type && listing.units >= 2 && listing.units <= 20 ? 'Within the listed market/type/2–20 unit screen.' : 'Outside the listed market/type/2–20 unit screen.');
         const metrics = document.createElement('p');
         metrics.textContent = 'Supplied cap rate: ' + (listing.cap_rate == null ? 'Not supplied' : listing.cap_rate + '%') + ' (target 8%) · Supplied DSCR: ' + (listing.dscr ?? 'Not supplied') + ' (target 1.20) · Supplied cash flow: ' + money(listing.cash_flow_monthly) + ' (target $500/month). These are source claims, not calculated or verified results.';
+        if(manualRow){sourceLine.textContent=source+' · Details entered by you; verify against the listing or seller.';screening.textContent='Your planned offer is entered below and kept separate from the asking price.';metrics.textContent='After saving, open My properties → Analyze to add financing and calculate the deal.';}
         const feedback = document.createElement('p'); feedback.setAttribute('role', 'status');
         const offerLabel = document.createElement('label'); offerLabel.textContent = 'Your planned offer ($)';
         const offer = document.createElement('input'); offer.type = 'number'; offer.min = '0'; offer.step = '0.01'; offer.value = ''; offerLabel.append(offer);
         const save = document.createElement('button'); save.type = 'button'; save.textContent = 'Save as a property';
         save.disabled = !valid || !['owner', 'admin', 'editor'].includes(scope.role);
         offer.disabled = save.disabled;
-        feedback.textContent = !valid ? 'To save, supply a listing ID, address, nonnegative asking price, monthly rent and expenses. Missing values are not filled with estimates.' : save.disabled ? 'Your company role is read-only.' : 'Enter your planned offer. Saving uses one lifetime Free property slot. Review the address first; Free property identity is locked after saving.';
+        feedback.textContent = !valid ? (manualRow?'To save, enter a full address, asking price, monthly rent and monthly operating expenses in the form, then review again. Unknown figures are not treated as zero.':'To save, supply a listing ID, address, nonnegative asking price, monthly rent and expenses. Missing values are not filled with estimates.') : save.disabled ? 'Your company role is read-only.' : 'Enter your planned offer. Saving uses one lifetime Free property slot. Review the address first; Free property identity is locked after saving.';
         save.onclick = async () => {
           const active = window.JGAPIntelligenceContext?.scope();
           if (!active || active.companyId !== previewCompany || active.companyId !== scope.companyId || save.disabled) return;
@@ -65,7 +67,17 @@
         }
         el('intelligence-results').append(card);
       }
-      el('intelligence-status').textContent = rows.length + ' listings reviewed. ' + incomplete + ' missing or invalid save inputs. Nothing is saved until you select Save as a property.';
+      el('intelligence-status').textContent = rows.length + (manualRow?' property reviewed. ':' listings reviewed. ') + incomplete + ' missing or invalid save inputs. Nothing is saved until you select Save as a property.';
     } catch (error) { el('intelligence-results').replaceChildren(); el('intelligence-status').textContent = 'Unable to review listings: ' + error.message; }
+  }
+  el('review-intelligence').onclick=()=>review();
+  el('intelligence-property-form').onsubmit=event=>{
+    event.preventDefault();
+    try{
+      const address=el('intelligence-address').value.trim();if(address.length<2||address.length>150)throw Error('Enter a full property address of 2 to 150 characters.');
+      const amount=field=>{const raw=el('intelligence-'+field).value.trim();if(!raw)return null;const value=Number(raw);if(!safeAmount(value))throw Error('Enter a valid nonnegative amount, or leave unknown figures blank.');return value;};
+      const unitsText=el('intelligence-units').value.trim(),units=unitsText?Number(unitsText):null;if(units!==null&&(!Number.isSafeInteger(units)||units<1))throw Error('Enter a whole number of rental units, or leave it blank.');
+      review({external_id:'manual:'+address.toLowerCase(),address,asking_price:amount('price'),rent_monthly:amount('rent'),expenses_monthly:amount('expenses'),property_type:el('intelligence-type').value||null,units});
+    }catch(error){el('intelligence-results').replaceChildren();el('intelligence-status').textContent=error.message;}
   };
 })();
