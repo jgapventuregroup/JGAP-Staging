@@ -32,6 +32,32 @@ The resumed normal-browser sequence completed October 27: B changed viewer → e
 
 Physical-phone acceptance, remaining map cases, other alert sources, revoked-session behavior after membership removal, competing-seat transactions, provider single-session behavior and hosted database/Storage recovery remain open. Private document upload/list/download has prior owner desktop evidence; replacement/removal and scanning remain excluded. No production launch, live billing or live ads are authorized.
 
+## Latest live usability and map navigation — October 27, 2026
+
+The current-release browser check refreshed the older page, signed in as QA A and used retained fictional workspaces. These bounded checks passed:
+
+- The simple Deal Intelligence property form rendered, with Advanced import collapsed by default.
+- Blank monthly expenses remained unknown and blocked saving; an explicit zero remained $0 and enabled offer entry.
+- Reviewing moved keyboard focus to the result summary. Attempting Save with no offer blocked submission and focused the offer field.
+- Clear entries and review cleared the preview. No test property was created and no property slot was consumed.
+- Advanced JSON instructions and the Analyzer financial-term glossary expanded correctly.
+- Opening Market Map while a workspace was loading automatically replaced the temporary Pro-access warning after permissions loaded; no second click was needed.
+- Selecting the retained “matched” finance fixture in the map opened its exact Passport; the Passport shortcut returned to that same map selection.
+- The Passport Street address editor remained blank for an absent address, rather than substituting the property name.
+
+The “matched” fixture name refers to finance data, not a successful address lookup. Retained QA properties used here have no street address. Successful signed-in geocoding/street tiles still require an appropriate public-address fixture; none was added during these checks. No membership, subscription, saved address, note, file or alert state changed. These desktop observations do not close physical-phone acceptance. Later map handler versions preserve street-name substrings and reject partial street matches; local/Edge checks and CI passed, but actual signed-in location rendering is still unverified.
+
+## Remaining execution gates and constraints
+
+1. Verify successful automatic address lookup and visible street tiles with a suitable public-address test record, preserving real data. Keep map navigation evidence above.
+2. Complete physical-phone usability and remaining role/source-specific rendered checks.
+3. Test revoked-session behavior after membership removal and genuinely competing seat transactions. Completed owner-side role/removal tests above must not be repeated without a relevant change.
+4. Verify provider single-session configuration and two-browser behavior. Supabase’s native control requires infrastructure Pro or higher, separate from this app’s customer Pro plan. Current provider configuration/plan entitlement was not verified; no paid upgrade is authorized.
+5. Perform hosted database/private-file recovery. A proposed recovery project was quoted at $0/month, then creation was rejected because the owner already has two active free projects. No project was created. Do not pause/delete/overwrite staging or production, buy an upgrade, or bypass this limit. Local restored-schema checks remain valid but do not replace the hosted rehearsal.
+6. Run final smoke checks and all four workflows on the actual handoff candidate before acceptance.
+
+The owner authorized the proposed recovery setup only if it costs nothing. Recovery is currently blocked by free-project capacity. At this checkpoint the development/browser environment became unavailable; further local or browser checks cannot be claimed until it returns. Connected GitHub/Notion work can continue. Environment loss does not invalidate the completed observations or authorize new infrastructure.
+
 ## Final candidate acceptance
 
 1. Require successful runs of all four main workflows on the exact handoff commit: JGAP staging checks, Staging app tests, JGAP V1 Verification, Publish JGAP staging website. A queued, missing or older run is not a pass.
