@@ -60,3 +60,8 @@ Record date, source/target identifiers, backup timestamp and method, exact app c
 ## Provider references
 
 Reviewed October 27, 2026: [database backups](https://supabase.com/docs/guides/platform/backups), [backup/restore using CLI](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore), and [changelog](https://supabase.com/changelog). Recheck applicable provider changes and installed CLI help before executing commands.
+
+
+## Combined local installation evidence — October 27, 2026
+
+`tests/complete-database-install.mjs` installs the baseline, all eight canonical feature add-ons in the order above and the private-document SQL integration into one clean local database. It verifies the private bucket and disabled owner preview, runs all 13 existing team/seat/map security groups against the combined stack, and checks that those rollback suites retain no fixture companies, memberships, properties or feature rows. The standard test command includes this check. Local Auth/Storage tables are explicit test contracts, not hosted services or recovered file bytes. Hosted recovery and normal-session acceptance remain required.
