@@ -313,3 +313,8 @@ The team screen permits one pending membership/invitation mutation at a time wit
 ## Navigation regression coverage — October 27, 2026
 
 The customer-workflow harness now builds all 15 workspace page targets and every page-link button from the shipped HTML. It executes each declared link, verifies the exact visible page, destination focus, programmatic focusability and a single active sidebar destination, and checks that signed-out page clicks do not focus private views. This covers shared navigation wiring in the controlled DOM harness; it does not replace rendered browser, physical-phone or assistive-technology acceptance, nor explain the earlier one-time Alerts navigation discrepancy.
+
+
+## Whole-app bundle verification — October 27, 2026
+
+The packaging regression now starts from every local script referenced by the shipped app HTML, plus the security-gate entry, rather than Passport roots alone. It traverses static imports/re-exports and literal dynamic imports. Tests remove map, alerts, team, dashboard and configuration entry scripts individually and verify failure, then verify a missing lazy dependency is rejected. External URLs remain external dependencies; this check does not prove CDN availability or production origin configuration. Pages and preview asset allowlists still match, and tests use the actual packaged/versioned files.

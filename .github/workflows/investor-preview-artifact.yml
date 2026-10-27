@@ -32,13 +32,15 @@ jobs:
           cp index.html market-map.mjs leaflet.js leaflet.css leaflet-LICENSE.txt team-controls.mjs in-app-alerts.mjs dashboard-customization.mjs money-making-overview.mjs saved-deal-radar.mjs passport-document-live-gate.mjs passport-documents.mjs passport-live-isolation-core.mjs passport-security-gate.mjs finance-cpa.mjs config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
           cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html previews/passport-security-gate.html dist/previews/
           node scripts/version-frontend.mjs dist
-      - name: Verify bundled Passport module imports resolve
+      - name: Verify all bundled app imports resolve
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import path from 'node:path';
           const root='dist';
-          const queue=['property-passport-preview.mjs','passport-security-gate.mjs'];
+          const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+          const queue=[...html.matchAll(/<script\b[^>]*\bsrc=['"]([^'"]+)['"]/g)].map(match=>match[1].split('?')[0]).filter(source=>! /^(?:https?:|\/\/)/.test(source));
+          queue.push('passport-security-gate.mjs');
           const visited=new Set();
           while(queue.length){
             const relative=queue.shift();
@@ -47,12 +49,12 @@ jobs:
             const file=path.join(root,relative);
             if(!fs.existsSync(file))throw Error('Missing preview module: '+relative);
             const source=fs.readFileSync(file,'utf8');
-            for(const match of source.matchAll(/(?:import|export)\s+(?:[^'\";]*?\s+from\s+)?['\"](\.[^'\"]+)['\"]/g)){
-              const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(relative),match[1].split('?')[0]));
+            for(const match of source.matchAll(/(?:import|export)\s+(?:[^'\";]*?\s+from\s+)?['\"](\.[^'\"]+)['\"]|import\s*\(\s*['\"](\.[^'\"]+)['\"]/g)){
+              const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(relative),(match[1]||match[2]).split('?')[0]));
               if(!dependency.startsWith('../'))queue.push(dependency);
             }
           }
-          console.log('Verified '+visited.size+' bundled Passport modules');
+          console.log('Verified '+visited.size+' bundled app scripts and modules');
           NODE
       - uses: actions/upload-artifact@v4
         with:

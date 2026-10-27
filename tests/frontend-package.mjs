@@ -26,6 +26,14 @@ test('actual preview import check traverses modules and rejects a missing transi
    let result=run();assert.equal(result.status,0,result.stderr);
    const count=Number(result.stdout.match(/Verified (\d+) bundled/)?.[1]);
    assert.ok(count>10,'Import traversal must not silently stop at the entry module');
+   for(const entry of ['market-map.mjs','in-app-alerts.mjs','team-controls.mjs','dashboard-customization.mjs','config.js']){
+    const filename=path.join(directory,'dist',entry),bytes=fs.readFileSync(filename);fs.unlinkSync(filename);
+    result=run();assert.notEqual(result.status,0,'Missing entry script must fail packaging: '+entry);assert.ok(result.stderr.includes('Missing preview module: '+entry));fs.writeFileSync(filename,bytes);
+   }
+   fs.writeFileSync(path.join(directory,'dist','package-probe.mjs'),"const later=()=>import('./missing-lazy-child.mjs');");
+   fs.appendFileSync(path.join(directory,'dist','index.html'),'<script type="module" src="package-probe.mjs"></script>');
+   result=run();assert.notEqual(result.status,0,'Missing literal dynamic import must fail packaging');assert.match(result.stderr,/missing-lazy-child/);
+   fs.writeFileSync(path.join(directory,'dist','missing-lazy-child.mjs'),'export const ready=true');
    fs.unlinkSync(path.join(directory,'dist','original-passport-writer.mjs'));
    result=run();assert.notEqual(result.status,0,'Missing transitive dependency must fail packaging');
    assert.match(result.stderr,/Missing preview module: original-passport-writer\.mjs/);
