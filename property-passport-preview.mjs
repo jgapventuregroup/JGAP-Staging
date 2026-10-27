@@ -114,7 +114,7 @@ function setEligibility(next){
   expandedButton=null;
   eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true,canWrite:next?.canWrite===true};
 }
-function addAction({line,deal,companyId,companyName,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
+function addAction({line,deal,openMap,companyId,companyName,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
   if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
   const button=document.createElement('button');
   button.type='button';
@@ -168,6 +168,7 @@ function addAction({line,deal,companyId,companyName,client,getCurrentCompany,get
       close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
       close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;markPassportButton(button,false);if(expandedButton===button)expandedButton=null;}};
       panel.append(close);
+      if(typeof openMap==='function'){const mapButton=document.createElement('button');mapButton.type='button';mapButton.textContent='View on Market Map · Pro';mapButton.onclick=()=>{if(current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client)openMap();};panel.append(mapButton);}
       // Recovered from the original Passport: browser print of the open record.
       // Print only this Passport, not the rest of the app workspace.
       const print=document.createElement('button');

@@ -25,8 +25,8 @@ test('Passport preview requires active entitlement and ignores stale company res
    const preview=window.JGAPPassportPreview;
    const line=node('p');
    const deal={id:'deal-1',name:'Duplex'};
-   let company='c1',client={};
-   const options={line,deal,companyId:'c1',client,getCurrentCompany:()=>company,getCurrentClient:()=>client,
+   let company='c1',client={},mapOpens=0;
+   const options={line,deal,openMap:()=>mapOpens++,companyId:'c1',client,getCurrentCompany:()=>company,getCurrentClient:()=>client,
      fetchDeal:async()=>({id:'deal-1',company_id:'c1',name:'Duplex',monthly_rent:1200})};
    preview.addAction(options);
    assert.equal(line.children.length,0,'No Passport action on Free or unverified plan');
@@ -45,6 +45,7 @@ test('Passport preview requires active entitlement and ignores stale company res
    assert.equal(line.afterNode?.attributes['aria-label'],'Property Passport');
    assert.equal(line.afterNode.children[0].textContent,'Duplex — Property Passport');
    const openPanel=line.afterNode;
+   const mapButton=openPanel.children.find(node=>node.textContent==='View on Market Map · Pro');assert.ok(mapButton);mapButton.onclick();assert.equal(mapOpens,1);company='other';mapButton.onclick();assert.equal(mapOpens,1,'Stale Passport cannot open another workspace map');company='c1';
    assert.equal(line.children[0].attributes['aria-expanded'],'true','Opening Passport updates expanded state');
    assert.equal(line.children[0].attributes['aria-label'],'Close property passport for Duplex','Expanded control identifies the selected property');
    const financialRows=openPanel.children.flatMap(child=>child.tag==='section'?child.children.filter(row=>row.tag==='p'):child.tag==='p'?[child]:[]).map(child=>child.children.map(part=>part.textContent).join(''));

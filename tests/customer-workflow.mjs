@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const script = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(x => x[1]).find(Boolean);
 // Regression checks for shared app navigation and responsive visibility.
-assert.match(html, /const showPage=page=>[\s\S]*?target\.focus\?\.\(\{preventScroll:true\}\)/, 'Navigation should focus the destination page');
+assert.match(html, /const showPage=\(page,mapDealId=null\)=>[\s\S]*?target\.focus\?\.\(\{preventScroll:true\}\)/, 'Navigation should focus the destination page');
 assert.match(html, /el\.setAttribute\?\.\('aria-current','page'\)/, 'Active sidebar destination should be announced');
 assert.match(html, /\[hidden\]\{display:none!important\}/, 'Hidden content must remain hidden throughout the app');
 assert.match(html, /@media\(prefers-reduced-motion:reduce\)/, 'Navigation must respect reduced-motion preferences');
@@ -106,6 +106,8 @@ for(const button of navigationButtons){
  assert.equal(target.tabindex,'-1');assert.equal(target.focusOptions.preventScroll,true);
  for(const sidebar of navigationButtons.filter(node=>node.inSidebar))assert.equal(sidebar['aria-current'],sidebar.dataset.page===button.dataset.page?'page':undefined,'Sidebar announces only the active destination');
 }
+const mapOpens=[];context.window.JGAPMarketMap={open:id=>mapOpens.push(id),clear(){}};
+const freeMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View on Market Map · Pro');assert.ok(freeMap);freeMap.onclick();assert.equal(el('plans').classList.contains('current'),true);assert.equal(mapOpens.length,0,'Free shortcut opens plan information without loading the map');
 console.log('PASS: every declared navigation button opens and focuses its exact page with one active sidebar destination');
 assert.equal(el('metric-count').textContent, '1');
 assert.equal(el('new-deal-form').hidden, true, 'Viewers cannot add properties');
@@ -292,6 +294,7 @@ console.log('PASS: backend Passport denial wins over client plan labels; Pro ad-
 membership={plan:'pro',billing_status:'active'};passportAllowed=true;financeCapability={read:true,write:false};
 el('company').value='b';await el('company').onchange();
 assert.equal(context.window.JGAPFinanceContext.scope().canRead,true);
+
 assert.equal(context.window.JGAPFinanceContext.scope().canWrite,false);
 assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Read-only Pro cannot open original editors');
 const financeFilters={month:'2026-10',dealId:null,reconciled:null,taxTreatment:null};
@@ -303,6 +306,7 @@ assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,true,'Server-aut
 await el('login').onclick(); // Refresh cached memberships so Company A has its viewer fixture role.
 el('company').value='a';await el('company').onchange();
 assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Viewer role remains read-only even with a stale or inconsistent server write capability');
+const proMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View on Market Map · Pro');assert.ok(proMap);proMap.onclick();assert.equal(mapOpens.at(-1),deal.id,'Pro viewer shortcut carries the exact saved property ID');const beforeStaleMap=mapOpens.length;el('company').value='b';await el('company').onchange();proMap.onclick();assert.equal(mapOpens.length,beforeStaleMap,'Old property shortcut cannot open a different workspace map');el('company').value='a';await el('company').onchange();
 el('company').value='b';await el('company').onchange();
 await context.window.JGAPFinanceContext.save('b',bookkeepingEntry,{vendor_name:'Fictional payee'});
 const financeWrite=calls.filter(call=>call.name==='save_property_bookkeeping').at(-1);

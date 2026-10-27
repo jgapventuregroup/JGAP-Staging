@@ -50,3 +50,8 @@ The map fits pins using the shortest longitude arc, avoiding an almost-worldwide
 ## Street-tile failure handling — October 27, 2026
 
 A failed tile request now shows a visible status explaining that saved pins and the property list remain available and that toggling streets off/on retries loading. This status is separate from location-save messages. Errors from hidden, removed or destroyed tile layers cannot replace the current view’s status. Local UI/adapter regression coverage verifies the fallback, retained property navigation and stale-error suppression. Actual rendered network-failure acceptance remains pending.
+
+
+## Saved-property shortcut — owner-approved October 27, 2026
+
+Saved-property actions and Property Passport include View on Market Map · Pro. Current server-authorized Pro readers, including licensed viewers, open the exact selected property by ID, even when property names match. The map focuses the single pin and opens its popup; Show all saved properties restores the full workspace view. If coordinates are missing, editing roles receive location-entry guidance and viewers are directed to a workspace editor. A missing/deleted property shows an unavailable notice. Free/Investor shortcuts open plan information without loading map records. Stale workspace/account actions are ignored; the existing map API still independently authorizes every read. No saved coordinates, membership entitlements or real property records are modified by navigation. Controlled tests cover exact ID selection, missing locations/records, all-properties return, Pro viewer/Free behavior and stale actions; live browser acceptance remains pending.
