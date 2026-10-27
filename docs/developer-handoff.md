@@ -308,3 +308,8 @@ See [hosted recovery runbook](hosted-recovery-runbook.md) for separate empty ins
 ## Team request coordination — October 27, 2026
 
 The team screen permits one pending membership/invitation mutation at a time within its current view. Duplicate and competing actions are ignored until the request and membership refresh settle, with a saving status shown. Regression coverage delays a revoke, attempts a concurrent removal/invitation, and verifies subsequent actions after success or failure. Backend authorization and seat serialization remain authoritative; this UI guard does not prove competing database-transaction or live browser acceptance.
+
+
+## Navigation regression coverage — October 27, 2026
+
+The customer-workflow harness now builds all 15 workspace page targets and every page-link button from the shipped HTML. It executes each declared link, verifies the exact visible page, destination focus, programmatic focusability and a single active sidebar destination, and checks that signed-out page clicks do not focus private views. This covers shared navigation wiring in the controlled DOM harness; it does not replace rendered browser, physical-phone or assistive-technology acceptance, nor explain the earlier one-time Alerts navigation discrepancy.

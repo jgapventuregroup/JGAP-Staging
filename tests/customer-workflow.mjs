@@ -19,7 +19,8 @@ class Element {
   setAttribute(k, v) { this[k] = v; }
   removeAttribute(k) { delete this[k]; }
   addEventListener(k, fn) { this.listeners[k] = fn; }
-  focus() {}
+  focus(options) { this.focusCount=(this.focusCount||0)+1; this.focusOptions=options; }
+  closest(selector) { return selector==='#workspace-nav'&&this.inSidebar?el('workspace-nav'):null; }
   scrollIntoView() {}
 }
 const elements = new Map();
@@ -54,9 +55,16 @@ const fakeClient = {
   },
   from(table) { let fields={},operation=null;const predicates={}; const query = { select() { return query; }, eq(key,value) { predicates[key]=value;return query; },order(){return query;},insert(value){fields=value;operation='insert';return query;},update(value){fields=value;operation='update';return query;},single:async()=>{calls.push({name:'table-write',table,operation,fields,predicates});if(table==='deals'&&operation==='update'){if(predicates.company_id!==deal.company_id||predicates.id!==deal.id)return {data:null,error:Error('Wrong company')};Object.assign(deal,fields);return {data:{id:deal.id,...fields},error:null};}return {data:{id:'lender-fixture',company_id:fields.company_id||predicates.company_id,...fields},error:null};},then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject);}, maybeSingle: async () => ({ data: membership, error: null }) }; return query; },
 };
-const context = { document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: selector => selector==='[data-tka-ad-slot]'?adSlots:[], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
+// Build navigation targets from the shipped markup, rather than assuming an empty menu.
+const pageNodes=[...html.matchAll(/<section\b([^>]+)>/g)].filter(match=>/class="page(?: |")/.test(match[1])).map(match=>{const id=match[1].match(/id="([^"]+)"/)[1],node=el(id);node.id=id;node.classList.add('page');if(/class="page current"/.test(match[1]))node.classList.add('current');return node;});
+const navStart=html.indexOf('<nav id="workspace-nav"'),navEnd=html.indexOf('</nav>',navStart);
+const navigationButtons=[...html.matchAll(/<button\b[^>]*data-page="([^"]+)"[^>]*>/g)].map(match=>{const node=new Element('button');node.dataset.page=match[1];node.inSidebar=match.index>navStart&&match.index<navEnd;return node;});
+const context = { document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: selector => selector==='[data-tka-ad-slot]'?adSlots:selector==='.page'?pageNodes:selector==='[data-page]'?navigationButtons:[], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
 context.window.JGAPPassportPreview={clear(){passportEligibility=null},setEligibility(value){passportEligibility=value},addAction(options){if(!passportEligibility?.enabled)return;const button=new Element('button');button.onclick=async()=>{await options.fetchDeal();calls.push({name:'open-passport',companyId:options.companyId,dealId:options.deal.id});};options.line.append(button);return button;}};
 vm.runInNewContext(script, context);
+const signedOutFocus=pageNodes.map(node=>node.focusCount||0);
+for(const button of navigationButtons)button.onclick();
+assert.deepEqual(pageNodes.map(node=>node.focusCount||0),signedOutFocus,'Signed-out navigation cannot focus private workspace pages');
 onboardingMode = true;
 el('email').value = 'new-user@example.com';
 el('password').value = 'synthetic-password';
@@ -89,6 +97,16 @@ el('company').value = ''; await el('company').onchange();
 assert.match(el('workspace-status').textContent, /Choose a company workspace/);
 assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'Blank workspace selection must not load company data');
 el('company').value = 'a'; await el('company').onchange();
+assert.equal(pageNodes.length,15,'All current workspace pages are included in navigation coverage');
+for(const button of navigationButtons){
+ const target=el(button.dataset.page),before=target.focusCount||0;button.onclick();
+ assert.equal(pageNodes.filter(node=>node.classList.contains('current')).length,1,'Exactly one destination is visible');
+ assert.equal(target.classList.contains('current'),true,'Button opens its declared destination: '+button.dataset.page);
+ assert.equal(target.focusCount,before+1,'Destination receives keyboard focus: '+button.dataset.page);
+ assert.equal(target.tabindex,'-1');assert.equal(target.focusOptions.preventScroll,true);
+ for(const sidebar of navigationButtons.filter(node=>node.inSidebar))assert.equal(sidebar['aria-current'],sidebar.dataset.page===button.dataset.page?'page':undefined,'Sidebar announces only the active destination');
+}
+console.log('PASS: every declared navigation button opens and focuses its exact page with one active sidebar destination');
 assert.equal(el('metric-count').textContent, '1');
 assert.equal(el('new-deal-form').hidden, true, 'Viewers cannot add properties');
 assert.equal(passportEligibility.canWrite,false,'Viewer cannot receive a Passport notes editor');
