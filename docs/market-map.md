@@ -38,3 +38,5 @@ Live map click-to-select populated provisional coordinates and left verification
 ## Coordinate readback verification — October 27, 2026
 
 After a successful save response, the app now verifies that the exact property is present in the reloaded workspace and both coordinates match the submitted position within the database’s six-decimal rounding precision. Missing or different coordinates produce a saved-but-unverified warning and retain the draft instead of reporting verified success. Regression tests cover missing rows, either coordinate mismatching, absent coordinates, zero and rounding. This is local regression evidence; live browser acceptance of this correction remains open.
+
+Manual edits to either coordinate now clear the verification checkbox. Regression coverage confirms that saving is blocked until the changed values are explicitly confirmed again; click-to-select already clears confirmation. No coordinates are changed automatically.

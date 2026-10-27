@@ -20,3 +20,12 @@ test('save readback refuses success for missing or different coordinates and pre
 test('save readback accepts database six-decimal rounding including zero',dom(async()=>{
  const f=setup({afterSave:rows=>rows.map(r=>({...r,latitude:Number(r.latitude.toFixed(6)),longitude:Number(r.longitude.toFixed(6))}))});await f.view.open();const form=all(f.root).find(n=>n.tagName==='FORM'),inputs=all(form).filter(n=>n.tagName==='INPUT');inputs[0].value='0';inputs[1].value='-82.1881234';inputs[2].checked=true;await form.onsubmit({preventDefault(){}});assert.ok(all(f.root).some(n=>n.textContent==='Verified location saved and reloaded.'));
 }));
+
+
+test('editing either coordinate invalidates confirmation and blocks saving until reconfirmed',dom(async()=>{
+ for(const changed of [0,1]){
+  const f=setup();await f.view.open();const form=all(f.root).find(n=>n.tagName==='FORM'),inputs=all(form).filter(n=>n.tagName==='INPUT');inputs[2].checked=true;inputs[changed].value=changed===0?'36.59':'-82.18';inputs[changed].listeners.input();assert.equal(inputs[2].checked,false);
+  await form.onsubmit({preventDefault(){}});assert.equal(f.writes.length,0);assert.ok(all(f.root).some(n=>n.textContent==='Confirm that you verified this property location.'));
+  inputs[2].checked=true;await form.onsubmit({preventDefault(){}});assert.equal(f.writes.length,1);
+ }
+}));
