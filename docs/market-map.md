@@ -1,5 +1,23 @@
 # Saved-property Market Map — October 27, 2026
 
+## Current default — Google Maps Embed, approved October 27, 2026
+
+Property shortcuts and the main map screen now use the selected saved street address for Google Maps Embed. No latitude/longitude entry or separate geocoding API is needed. The exact property ID controls selection; users can switch properties with a selector. The prior local portfolio pin map remains available through Portfolio pins · advanced; its preserved behavior/evidence below is not the default property experience.
+
+**Activation pending:** `window.JGAP_GOOGLE_MAPS_EMBED_KEY` in `config.js` is intentionally empty. No Google Cloud account, billing account or key was created by this change. Without a configured key, the app provides an address-based Open in Google Maps link and a clear preview-unavailable message. It does not generate a fake/no-key embedded map. A configured Embed key creates the iframe automatically when the user opens the property map. Google receives that selected address and connection information; property names/notes/company IDs/session values are not included in the URL. An ambiguous address can return an ambiguous result; the app never claims Google has verified parcel or unit boundaries.
+
+### Required owner Google setup
+
+1. In an owner-controlled Google Cloud project, enable billing and **Maps Embed API**. Google currently documents Embed requests as no-charge/unlimited; unrelated APIs have separate billing. Setup instructions: https://developers.google.com/maps/documentation/embed/quickstart .
+2. Create a browser API key restricted to **Maps Embed API**. Apply website/referrer restrictions for the staging origin `https://jgapventuregroup.github.io/*`; add only the separately approved production origin at deployment. The iframe uses `strict-origin-when-cross-origin`, so restrictions must accept the origin-level referrer, not depend on a full property URL path. Google key guidance: https://developers.google.com/maps/api-security-best-practices .
+3. Set that restricted browser key in `config.js`, deploy, and test a fictional known address from the approved origin. Do not enable paid geocoding, Places or JavaScript Maps APIs for this implementation. No server/service-account credential belongs in public configuration.
+4. Check missing/ambiguous addresses, changed-address refresh, iframe denial/network failure, Google Maps app/browser fallback, keyboard navigation and a phone. Cross-origin iframe load does not prove geocoding accuracy or a working key; inspect the actual rendered map. This activation/live acceptance is still pending.
+
+Official references checked October 27: https://developers.google.com/maps/documentation/embed/usage-and-billing , https://developers.google.com/maps/documentation/embed/get-started , https://developers.google.com/maps/documentation/urls/get-started . The no-charge finding is specific to Embed, not a permanent guarantee for all Google services.
+
+Local regression coverage includes encoded address URLs, exact-ID selection with duplicate names, no-coordinate usage, empty key/address/missing property, Pro/viewer access, Free denial, stale responses and navigation fallback. No property coordinates, records, subscriptions or live billing were changed.
+
+
 ## Delivered scope
 
 Pro users can view/search saved properties and mapped pins, open their existing property record, and choose whether to load street tiles. Owners/admins/editors can enter or click-to-select a location, confirm it is verified, and save/reopen it. Viewers have the equivalent property list and read-only pins. Unlocated properties are explicit; addresses are never guessed or sent to an automatic geocoder. Coordinates support latitude -85 to 85 and longitude -180 to 180 (the displayed map projection); real 0,0 is retained. This is a saved-property map, not a market-price/history feed or external listing service.
