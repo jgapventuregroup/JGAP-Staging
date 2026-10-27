@@ -4,8 +4,9 @@ const roadText=value=>String(value).toLowerCase().replace(/[^a-z0-9 ]/g,' ').spl
 export function matchNominatim(data,address){
  if(!Array.isArray(data))throw Error('Invalid provider response');
  const number=address.trim().match(/^(\d+[a-zA-Z-]*)\b/)?.[1]?.toLowerCase();
- const queryRoad=roadText(lookupAddress(address));
- const candidates=data.filter(item=>{if(!item||typeof item!=='object'||![item.lat,item.lon].every(value=>(typeof value==='string'&&value.trim()!=='')||typeof value==='number'))return false;const lat=Number(item.lat),lon=Number(item.lon);const road=roadText(item.address?.road||item.address?.pedestrian||'');return number&&road&&queryRoad.includes(road)&&String(item.address?.house_number||'').toLowerCase()===number&&Number(item.place_rank)>=28&&Number.isFinite(lat)&&Number.isFinite(lon)&&lat>=-85&&lat<=85&&lon>=-180&&lon<=180&&typeof item.display_name==='string';});
+ const cleanedAddress=lookupAddress(address),streetOnly=cleanedAddress.includes(',');
+ const queryRoad=roadText(cleanedAddress.split(',')[0]).replace(/^\d+[a-z-]*\s+/,'');
+ const candidates=data.filter(item=>{if(!item||typeof item!=='object'||![item.lat,item.lon].every(value=>(typeof value==='string'&&value.trim()!=='')||typeof value==='number'))return false;const lat=Number(item.lat),lon=Number(item.lon);const road=roadText(item.address?.road||item.address?.pedestrian||'');return number&&road&&(streetOnly?queryRoad===road:queryRoad===road||queryRoad.startsWith(road+' '))&&String(item.address?.house_number||'').toLowerCase()===number&&Number(item.place_rank)>=28&&Number.isFinite(lat)&&Number.isFinite(lon)&&lat>=-85&&lat<=85&&lon>=-180&&lon<=180&&typeof item.display_name==='string';});
  if(!candidates.length)return {status:'not_found',latitude:null,longitude:null,matched_address:null};
  const first=candidates[0];if(candidates.some(item=>Math.abs(Number(item.lat)-Number(first.lat))>0.0001||Math.abs(Number(item.lon)-Number(first.lon))>0.0001))return {status:'ambiguous',latitude:null,longitude:null,matched_address:null};
  return {status:'matched',latitude:Number(first.lat),longitude:Number(first.lon),matched_address:first.display_name.slice(0,1000)};
@@ -28,7 +29,7 @@ export function createPropertyGeocoder({baseUrl,anonKey,serviceKey,providerUrl='
    let row;try{row=await load();}catch{return reply({error:'Property map access denied'},403);}
    const address=typeof row.address==='string'?row.address.trim():'';if(!address||address.length>300)return reply({company_id:companyId,deal_id:dealId,address,status:'missing_address'});
    const endpoint=new URL(providerUrl);if(endpoint.protocol!=='https:')return reply({error:'Lookup is not configured'},503);
-   const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('building-address-v2\n'+endpoint.href+'\n'+address.toLowerCase().replace(/\s+/g,' '))))).map(byte=>byte.toString(16).padStart(2,'0')).join('');
+   const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('building-address-v3\n'+endpoint.href+'\n'+address.toLowerCase().replace(/\s+/g,' '))))).map(byte=>byte.toString(16).padStart(2,'0')).join('');
    const serviceHeaders={apikey:serviceKey,Authorization:'Bearer '+serviceKey,'Content-Type':'application/json'};
    const query=new URLSearchParams({company_id:'eq.'+companyId,deal_id:'eq.'+dealId,address_hash:'eq.'+hash,select:'status,latitude,longitude,matched_address,updated_at'});
    const cachedResponse=await fetcher(base+'/rest/v1/property_geocode_cache?'+query,{headers:serviceHeaders,signal:AbortSignal.timeout(8000)});if(!cachedResponse.ok)throw Error('Cache unavailable');const cached=await cachedResponse.json();

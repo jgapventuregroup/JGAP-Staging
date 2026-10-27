@@ -29,3 +29,12 @@ test('unit cleanup preserves street-name substrings and strips only separate uni
  for(const unit of [' #20',' Apt 20',' Apt. 20',' Unit A',' Suite 3-B',' Ste. 4',', Apt 20'])assert.equal(lookupAddress('90 Example Grove Cir'+unit+', Bristol TN'),'90 Example Grove Cir, Bristol TN');
  const captain={...match,display_name:'123 Captain Jones Road, Bristol TN',address:{house_number:'123',road:'Captain Jones Road'}};assert.equal(matchNominatim([captain],'123 Captain Jones Rd Apt 2, Bristol TN').status,'matched');
 });
+
+
+test('building matches require the requested street rather than a street-name substring',()=>{
+ const building=road=>({...match,address:{house_number:'90',road}});
+ for(const [requested,returned] of [['Old Main Street','Main Street'],['North Main Street','Main Street'],['Main Street Extension','Main Street'],['Main Street','Main Street Extension'],['Stone Road','One Road']])assert.equal(matchNominatim([building(returned)],'90 '+requested+', Bristol TN').status,'not_found');
+ for(const requested of ['90 Example Grove Cir, Bristol TN','90 Example Grove Circle Bristol TN'])assert.equal(matchNominatim([building('Example Grove Circle')],requested).status,'matched');
+ assert.equal(matchNominatim([building('North Main Street')],'90 N Main St, Bristol TN').status,'matched');
+ assert.equal(matchNominatim([building('Main Street')],'90 Old Main Street Bristol TN').status,'not_found');
+});
