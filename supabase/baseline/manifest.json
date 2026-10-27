@@ -262,5 +262,15 @@
       "name": "pro_saved_property_map"
     },
     "verification": "local restored-schema and UI/security checks; four hosted rollback groups; zero retained fixtures; normal-session and phone acceptance pending"
+  },
+  "property_identity_preview": {
+    "setup": "supabase/features/property-identity-preview.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261027171415",
+      "name": "owner_preview_property_identity"
+    },
+    "source_migration": "supabase/migrations/20261027171347_owner_preview_property_identity.sql",
+    "verification": "Local owner-preview contract and ordinary Free/inactive/role/company tests; five hosted profile rollback groups passed. Actual owner-form save pending."
   }
 }

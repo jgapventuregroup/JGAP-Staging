@@ -61,3 +61,7 @@ After baseline and canonical `supabase/features/team-controls.sql`, apply `supab
 
 ## Saved-property Market Map add-on
 Apply `supabase/features/market-map.sql` once after the application baseline in an approved empty environment. It adds a Pro-scoped location table and invoker map/load/save RPCs; full app seat enforcement still requires the team and seat add-ons. Remote staging version `20261027102201` is already installed; do not rerun there or replay old migrations after canonical setup. Four hosted rollback groups and local baseline+team+seats+map restoration passed. No map provider, geocoder, property coordinates or third-party credentials are provisioned by SQL. Normal-session/device acceptance remains open.
+
+
+## Property identity preview alignment add-on
+Apply `supabase/features/property-identity-preview.sql` once after the baseline in an approved empty environment. The trigger honors the existing server-verified owner-preview helper only for a current workspace owner, in addition to active Investor/Pro subscriptions. Ordinary Free/inactive users remain locked. The baseline preview helper remains false; this add-on introduces no identity whitelist, membership change, seat entitlement, subscription change or property mutation. Local preview contract and hosted ordinary role/Free denial checks are separate from live owner-form acceptance.

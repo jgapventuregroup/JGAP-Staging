@@ -31,7 +31,8 @@ Apply the baseline once to a confirmed empty approved target, then these canonic
 6. `supabase/features/team-controls.sql`
 7. `supabase/features/team-seats.sql` (requires team controls)
 8. `supabase/features/market-map.sql`
-9. `supabase/storage/passport-documents.sql` (requires hosted Storage)
+9. `supabase/features/property-identity-preview.sql` (uses the existing preview helper; new baselines keep it disabled)
+10. `supabase/storage/passport-documents.sql` (requires hosted Storage)
 
 Paths above are repository-relative. The Storage setup is an empty-target integration, not a file restore or idempotent repair script. It creates a private 10 MiB PDF/JPEG/PNG bucket with scoped read/insert policies; client replacement/deletion is not enabled. Install approved configuration separately, then create fictional test identities through normal verified signup. New baseline owner preview is disabled; company ownership alone does not confer Pro access.
 
@@ -64,4 +65,4 @@ Reviewed October 27, 2026: [database backups](https://supabase.com/docs/guides/p
 
 ## Combined local installation evidence — October 27, 2026
 
-`tests/complete-database-install.mjs` installs the baseline, all eight canonical feature add-ons in the order above and the private-document SQL integration into one clean local database. It verifies the private bucket and disabled owner preview, runs all 13 existing team/seat/map security groups against the combined stack, and checks that those rollback suites retain no fixture companies, memberships, properties or feature rows. The standard test command includes this check. Local Auth/Storage tables are explicit test contracts, not hosted services or recovered file bytes. Hosted recovery and normal-session acceptance remain required.
+`tests/complete-database-install.mjs` installs the baseline, all nine canonical feature add-ons in the order above and the private-document SQL integration into one clean local database. It verifies the private bucket and disabled owner preview, runs all 13 existing team/seat/map security groups against the combined stack, and checks that those rollback suites retain no fixture companies, memberships, properties or feature rows. The standard test command includes this check. Local Auth/Storage tables are explicit test contracts, not hosted services or recovered file bytes. Hosted recovery and normal-session acceptance remain required.
