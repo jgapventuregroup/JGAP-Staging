@@ -6,7 +6,7 @@ Build these four features only, preserving the existing app and completed featur
 | --- | --- | --- |
 | Dashboard customization | Pro user can show/hide/reorder tools, metrics, recent properties and follow-ups; personal per workspace, persisted, resettable. Company/membership/ad controls remain governed by the existing app. | Backend and local UI checks passed; deployed signed-in acceptance pending. |
 | In-app alerts | Due follow-ups, tasks and maintenance from existing records; readable, actionable in the app. | Backend, local UI and staging SQL-role checks passed; normal-session acceptance pending. No email/SMS/push delivery in this scope. |
-| Advanced team controls | Secure workspace invitations, roles and permissions, including last-owner safeguards and authorization. | Team screen and backend implemented; local UI/security tests and four staging rollback groups passed. Normal-session, concurrent-owner and phone acceptance pending. Member-removal backend is installed and tested locally; its screen control remains disabled pending staging verification after connector errors. |
+| Advanced team controls | Secure workspace invitations, roles and permissions, including last-owner safeguards and authorization. | Team screen and backend implemented; local UI/security tests and four staging rollback groups passed. Normal-session, concurrent-owner and phone acceptance pending. Member removal and named-seat controls passed hosted rollback checks October 27; removal UI enabled. Normal-session, concurrency and phone acceptance remain open. |
 | Market Map | Geographic view of saved properties with controlled location handling. | To implement and verify; choose mapping/geocoding approach without silently sharing saved addresses with third parties. |
 
 ## Explicit exclusions from further build work
@@ -24,3 +24,8 @@ Existing company isolation, Free five-lifetime-property behavior, Investor restr
 This owner decision supersedes earlier requirements to finish all advertised external Radar, lead-generation and other advanced modules before this handoff. The handoff company must reconcile public plan claims with the agreed delivered scope before paid launch; this is not authorization to edit the marketing website.
 
 The 10–15 focused-workday estimate discussed with the owner is a planning estimate, not a guaranteed calendar delivery date. Do not invent completion percentages or silently expand scope.
+
+
+## Approved seat and ad addition — October 26–27, 2026
+
+One included named user; Pro additional paid seats required for all additional roles. Implemented server-side capacity/reservations, expiring trusted entitlements and denied unlicensed record access. Four hosted seat groups and all five team groups passed with no retained fixtures. No live seat billing, seat price or shared-password/session enforcement is activated. Reserved ad slots now cover all 14 workspace pages for Free/Investor using existing tier visibility rules; Pro has no ads. Printed output hides all ad slots. The marketing website remains unchanged.

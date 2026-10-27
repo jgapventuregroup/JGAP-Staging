@@ -236,12 +236,22 @@
       "version": "20261026191237",
       "name": "pro_team_controls"
     },
-    "verification": "local restored-schema/UI checks and exact five-group staging script pass locally; first four groups passed hosted before removal extension; hosted removal/advisor verification blocked by connector internal errors; removal UI disabled; normal-session, concurrency and phone acceptance pending",
+    "verification": "all five hosted rollback groups passed October 27, member-removal UI enabled; normal-session/concurrency/phone acceptance pending",
     "followup_migrations": [
       {
         "version": "20261026191436",
         "name": "pro_team_member_removal"
       }
     ]
+  },
+  "team_seats": {
+    "setup": "supabase/features/team-seats.sql",
+    "requires": "supabase/features/team-controls.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261027100249",
+      "name": "pro_named_team_seats"
+    },
+    "verification": "local restored-schema and four hosted seat rollback groups passed; zero retained fixtures; normal-session/concurrency/phone acceptance pending; no live seat billing or password-sharing session controls"
   }
 }

@@ -10,6 +10,7 @@ begin
  insert into public.companies(name) values('V1 rollback team B') returning id into d;
  insert into public.company_members(company_id,user_id,role) values(c,a,'owner'),(d,b,'owner');
  update public.company_subscriptions set plan='pro',billing_status='active' where company_id in(c,d);
+ insert into public.company_team_seats(company_id,additional_seats,valid_until) values(c,2,now()+interval '1 day');
  perform set_config('request.jwt.claim.sub',a::text,true);perform set_config('request.jwt.claims',jsonb_build_object('sub',a,'role','authenticated')::text,true);execute 'set local role authenticated';
  r:=public.manage_workspace_team('list',c);if jsonb_array_length(r->'members')<>1 then raise exception 'Roster wrong';end if;
  blocked:=false;begin perform public.manage_workspace_team('list',d);exception when insufficient_privilege then blocked:=true;end;if not blocked then raise exception 'Foreign roster allowed';end if;

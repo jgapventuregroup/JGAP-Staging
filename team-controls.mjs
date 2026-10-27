@@ -24,16 +24,19 @@ export function mountTeamControls({root,getContext,request,refreshMemberships,co
     const accept=el('button','Accept workspace invitation');accept.type='button';accept.onclick=()=>{if(current()&&confirm('Join '+invite.company_name+' as '+invite.role+'?'))return action(accept,'accept',invite.company_id,invite.id);};item.append(accept);inboxSection.append(item);
    }root.append(inboxSection);
    if(!scope.canManage){message.textContent='Workspace management requires an owner role and active Pro access. You can accept invitations above with any account plan.';return;}
-   const data=await request('list',scope.companyId);if(!current())return;
+   let data;try{data=await request('list',scope.companyId);}catch(error){if(current())message.textContent='Workspace management requires active Pro owner access: '+(error?.message||'Unavailable');return;}if(!current())return;
    if(!Array.isArray(data?.members)||!Array.isArray(data?.invitations))throw Error('Team response unavailable');
    message.textContent='Manage access to the selected workspace. Invitations expire after seven days. No invitation emails are sent; ask the recipient to sign in and open Team access.';
+   const seats=data.seats;if(!seats||!['included','additional','total','members','reserved','available'].every(key=>Number.isInteger(seats[key])&&seats[key]>=0)||typeof seats.over_limit!=='boolean')throw Error('Team seat allowance could not be verified');
+   const seatSummary=el('section');seatSummary.append(el('h2','Team seats'),el('p',seats.members+' members · '+seats.reserved+' reserved invitations · '+seats.total+' total seats'),el('p','One named user is included. Each additional owner, admin, editor or viewer requires a paid seat. Additional-seat purchasing is not connected in staging.'));
+   if(seats.over_limit)seatSummary.append(el('p','This workspace is over its seat allowance. New invitations and acceptances are blocked. Review members and pending invitations before launch.'));root.append(seatSummary);
    const form=el('form');form.append(el('h2','Invite a workspace member'));
    const email=el('input');email.id='team-email';email.type='email';email.required=true;email.maxLength=254;email.autocomplete='off';
    const label=el('label','Recipient email');label.setAttribute('for',email.id);form.append(label,email);
    const role=el('select');role.id='team-invite-role';for(const name of ['viewer','editor','admin']){const option=el('option',name);option.value=name;role.append(option);}role.value='viewer';
    const roleLabel=el('label','Workspace role');roleLabel.setAttribute('for',role.id);form.append(roleLabel,role);
    form.append(el('p','Viewer: read records. Editor: edit property records. Admin: edit records with administrative access. Owner: manage team access; promote an existing member below.'));
-   const invite=el('button','Create workspace invitation');invite.type='submit';form.append(invite);form.onsubmit=event=>{event.preventDefault();return action(invite,'invite',scope.companyId,null,email.value.trim(),role.value);};root.append(form);
+   const invite=el('button','Create workspace invitation');invite.type='submit';invite.disabled=seats.available<=0;form.append(invite);if(invite.disabled)form.append(el('p','No seats available. Paid additional seats are required before inviting another member.'));form.onsubmit=event=>{event.preventDefault();return action(invite,'invite',scope.companyId,null,email.value.trim(),role.value);};root.append(form);
    const members=el('section');members.append(el('h2','Workspace members'));
    for(const member of data.members){
     if(!member.user_id||!roles.includes(member.role))throw Error('Member response unavailable');

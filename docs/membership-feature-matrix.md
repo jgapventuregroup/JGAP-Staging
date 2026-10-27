@@ -35,3 +35,10 @@ Current owner scope (October 26): preserve Free/Investor and completed Pro capab
 
 ## October 24 owner clarification
 CELCO / HELOC secondary financing is a paid Investor/Pro feature. This explicitly replaces the prior Free availability of the separate secondary-loan estimator. Other existing Free Deal Analyzer, maximum-offer, Pipeline and Intelligence behavior stays unchanged. Verified staging owner preview remains a separate authorized exception. Secondary financing is now calculated through a backend entitlement check, not merely hidden controls.
+
+
+## Named seats and advertising — approved October 26; implemented October 27, 2026
+
+Each workspace subscription includes one named user. Pro collaboration requires paid additional seats for every additional owner/admin/editor/viewer. Pending invitations reserve capacity. Seat quantities and expiry are trusted-backend controlled; customers cannot grant themselves seats. No additional-seat price, live billing, checkout, live advertising, email delivery, or external tracking is activated. Free and Investor retain reserved ad placements throughout the app; Pro stays ad-free. Invite a friend remains available in all three tiers and grants no workspace access.
+
+Included-seat allocation prioritizes the earliest owner, then stable membership order. Expired/reduced additional-seat capacity denies unlicensed record access without deleting memberships or shared records; renewal restores access. The existing verified staging-founder preview remains unchanged, is not customer team licensing, and is disabled in a fresh baseline. Seat-sharing controls do not yet prevent multiple people using the same credentials; provider session controls remain a handoff/acceptance item.

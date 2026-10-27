@@ -1,0 +1,41 @@
+-- Isolated fictional workspace; all seats, invitations and membership changes roll back.
+begin;
+create temporary table seat_results(check_name text,outcome text);
+do $test$
+declare a uuid;b uuid;c uuid;i uuid;r jsonb;blocked boolean;
+begin
+ select id into strict a from auth.users where email='jgap-test-a@example.com' and email_confirmed_at is not null;
+ select id into strict b from auth.users where email='jgap-test-b@example.com' and email_confirmed_at is not null;
+ insert into public.companies(name) values('V1 rollback named seats') returning id into c;
+ insert into public.company_members(company_id,user_id,role) values(c,a,'owner');
+ update public.company_subscriptions set plan='pro',billing_status='active' where company_id=c;
+ insert into public.deals(company_id,name) values(c,'V1 rollback shared seat property');
+ perform set_config('request.jwt.claim.sub',a::text,true);perform set_config('request.jwt.claims',jsonb_build_object('sub',a,'role','authenticated')::text,true);execute 'set local role authenticated';
+ r:=public.manage_workspace_team('list',c);if (r->'seats'->>'total')::int<>1 then raise exception 'Expected one included seat';end if;
+ blocked:=false;begin perform public.manage_workspace_team('invite',c,null,'jgap-test-b@example.com','viewer');exception when invalid_parameter_value then blocked:=true;end;if not blocked then raise exception 'Unpaid invite allowed';end if;
+ if has_table_privilege('authenticated','public.company_team_seats','INSERT') or has_table_privilege('authenticated','public.company_team_seats','UPDATE') then raise exception 'Client seat grants allowed';end if;
+ execute 'reset role';insert into seat_results values('One included user; unpaid invitations and client seat grants blocked','PASS');
+ insert into public.company_team_seats(company_id,additional_seats,valid_until) values(c,1,now()+interval '1 day');execute 'set local role authenticated';
+ r:=public.manage_workspace_team('invite',c,null,'jgap-test-b@example.com','viewer');i:=(r->>'id')::uuid;
+ r:=public.manage_workspace_team('list',c);if (r->'seats'->>'available')::int<>0 or (r->'seats'->>'reserved')::int<>1 then raise exception 'Reservation count wrong';end if;
+ blocked:=false;begin perform public.manage_workspace_team('invite',c,null,'seat-overflow@example.invalid','admin');exception when invalid_parameter_value then blocked:=true;end;if not blocked then raise exception 'Overbooking allowed';end if;
+ execute 'reset role';update public.company_team_seats set additional_seats=0 where company_id=c;
+ perform set_config('request.jwt.claim.sub',b::text,true);perform set_config('request.jwt.claims',jsonb_build_object('sub',b,'role','authenticated')::text,true);execute 'set local role authenticated';
+ blocked:=false;begin perform public.manage_workspace_team('accept',c,i);exception when invalid_parameter_value then blocked:=true;end;if not blocked then raise exception 'Acceptance without paid seat allowed';end if;
+ execute 'reset role';update public.company_team_seats set additional_seats=1 where company_id=c;execute 'set local role authenticated';perform public.manage_workspace_team('accept',c,i);
+ if not public.is_company_member(c) or not exists(select 1 from public.deals where company_id=c) then raise exception 'Licensed member access missing';end if;
+ execute 'reset role';insert into seat_results values('Pending reservations, overbooking denial and paid recipient acceptance','PASS');
+ update public.company_team_seats set valid_until=now()-interval '1 second' where company_id=c;execute 'set local role authenticated';
+ if public.is_company_member(c) or public.can_access_passport(c) or exists(select 1 from public.deals where company_id=c) then raise exception 'Expired seat retained property access';end if;
+ blocked:=false;begin insert into public.deals(company_id,name) values(c,'Denied unpaid write');exception when insufficient_privilege then blocked:=true;end;if not blocked then raise exception 'Expired seat wrote property';end if;
+ execute 'reset role';update public.company_team_seats set valid_until=now()+interval '1 day' where company_id=c;execute 'set local role authenticated';if not public.is_company_member(c) then raise exception 'Reactivation failed';end if;
+ execute 'reset role';insert into seat_results values('Expiry denies reads/writes and reactivation restores retained membership','PASS');
+ perform set_config('request.jwt.claim.sub',a::text,true);perform set_config('request.jwt.claims',jsonb_build_object('sub',a,'role','authenticated')::text,true);execute 'set local role authenticated';perform public.manage_workspace_team('remove',c,b);
+ r:=public.manage_workspace_team('list',c);if (r->'seats'->>'available')::int<>1 then raise exception 'Removal did not free seat';end if;
+ r:=public.manage_workspace_team('invite',c,null,'jgap-test-b@example.com','editor');perform public.manage_workspace_team('revoke',c,(r->>'id')::uuid);
+ r:=public.manage_workspace_team('list',c);if (r->'seats'->>'available')::int<>1 then raise exception 'Revocation did not free reservation';end if;
+ execute 'reset role';if not exists(select 1 from public.deals where company_id=c and name='V1 rollback shared seat property') then raise exception 'Shared property removed';end if;
+ insert into seat_results values('Removal/revocation releases capacity and retains shared property','PASS');
+end $test$;
+select * from seat_results;
+rollback;
