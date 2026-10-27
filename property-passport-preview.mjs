@@ -45,6 +45,30 @@ export function createPassportNotesEditor({record,client,companyId,isCurrent,onS
   return form;
 }
 
+export function createPropertyAddressEditor({record,client,companyId,isCurrent,onSaved=()=>{}}){
+ const form=document.createElement('form');form.setAttribute('aria-label','Edit property name and address');
+ const title=document.createElement('h3');title.textContent='Update property name and address';
+ const nameLabel=document.createElement('label');nameLabel.textContent='Property name';const name=document.createElement('input');name.type='text';name.required=true;name.maxLength=150;name.value=record.name||'';nameLabel.append(name);
+ const addressLabel=document.createElement('label');addressLabel.textContent='Street address';const address=document.createElement('input');address.type='text';address.required=true;address.maxLength=150;address.value=record.property_address||record.name||'';addressLabel.append(address);
+ const hint=document.createElement('p');hint.textContent='Active Investor or Pro access is required to change the saved property identity. Existing records stay attached. Review any saved map pin after changing the address.';
+ const button=document.createElement('button');button.type='submit';button.textContent='Save name and address';const status=document.createElement('p');status.setAttribute('role','status');
+ form.append(title,nameLabel,addressLabel,hint,button,status);let pending=false;
+ form.onsubmit=async event=>{
+  event.preventDefault();if(pending||!isCurrent())return;const desired={name:name.value.trim(),property_address:address.value.trim()};
+  if(Object.values(desired).some(value=>value.length<2||value.length>150)){status.textContent='Enter a property name and address of 2 to 150 characters each.';return;}
+  const matches=value=>value?.id===record.id&&value.company_id===companyId&&value.name===desired.name&&value.property_address===desired.property_address;
+  pending=true;for(const control of [name,address,button])control.disabled=true;status.textContent='Saving property name and address…';let saved=false,verified=false;
+  try{
+   const response=await client.rpc('update_company_deal',{p_company_id:companyId,p_deal_id:record.id,p_patch:desired});if(!isCurrent())return;if(response.error)throw response.error;saved=true;
+   if(!matches(Array.isArray(response.data)?response.data[0]:response.data))throw Error('Save response did not match the selected property.');
+   const loaded=await client.rpc('get_company_deal',{p_company_id:companyId,p_deal_id:record.id});if(!isCurrent())return;if(loaded.error)throw loaded.error;
+   if(!matches(Array.isArray(loaded.data)?loaded.data[0]:loaded.data))throw Error('Reloaded name and address did not match.');verified=true;
+   status.textContent='Property name and address saved and verified. Review any saved map pin.';await onSaved(desired);
+  }catch(error){if(isCurrent())status.textContent=(verified?'Property saved and verified, but workspace refresh failed. Refresh the workspace. ':saved?'Property saved, but reload could not be verified. Reopen the property before retrying. ':'Could not update property. Your draft is retained. ')+(error?.message||'Unknown error');}
+  finally{pending=false;if(isCurrent())for(const control of [name,address,button])control.disabled=false;}
+ };return form;
+}
+
 export function createPassportDetailsEditor({record,client,companyId,isCurrent,onSaved}){
   const form=document.createElement('form');form.setAttribute('aria-label','Edit property details');
   const title=document.createElement('h3');title.textContent='Update property details';
@@ -114,7 +138,7 @@ function setEligibility(next){
   expandedButton=null;
   eligibility={companyId:next?.companyId??null,enabled:next?.enabled===true,canWrite:next?.canWrite===true};
 }
-function addAction({line,deal,openMap,companyId,companyName,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
+function addAction({line,deal,openMap,onPropertyUpdated,companyId,companyName,client,getCurrentCompany,getCurrentClient,fetchDeal,fetchOperations}){
   if(!eligibility.enabled||eligibility.companyId!==companyId||!deal?.id)return;
   const button=document.createElement('button');
   button.type='button';
@@ -211,6 +235,10 @@ function addAction({line,deal,openMap,companyId,companyName,client,getCurrentCom
       }
       if(eligibility.canWrite){
         const detailsGroup=Array.from(panel.children).find(node=>node.getAttribute?.('aria-label')==='Property details');
+        detailsGroup?.append(createPropertyAddressEditor({record,client,companyId,
+          isCurrent:()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId&&eligibility.canWrite,
+          onSaved:async next=>{if(onPropertyUpdated)await onPropertyUpdated(next);else{record.name=next.name;record.property_address=next.property_address;heading.textContent=next.name+' — Property Passport';const row=Array.from(detailsGroup.children).find(node=>node.querySelector?.('strong')?.textContent==='Address: ');if(row)row.replaceChildren(Object.assign(document.createElement('strong'),{textContent:'Address: '}),document.createTextNode(next.property_address));}}
+        }));
         detailsGroup?.append(createPassportDetailsEditor({record,client,companyId,
           isCurrent:()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId&&eligibility.canWrite,
           onSaved:next=>{

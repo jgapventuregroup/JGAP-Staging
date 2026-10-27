@@ -261,7 +261,7 @@ test('Passport Overview renders company context and gives editors, not viewers, 
    const details=panel.children.find(child=>child.getAttribute?.('aria-label')==='Property details');
    assert.ok(details.children.some(child=>child.children?.some(part=>part.textContent==='Company A')),'Owning workspace context is visible');
    const forms=panel.querySelectorAll('form');
-   assert.equal(forms.some(form=>form.attributes['aria-label']==='Edit property details'),canWrite);
+   assert.equal(forms.some(form=>form.attributes['aria-label']==='Edit property details'),canWrite);assert.equal(forms.some(form=>form.attributes['aria-label']==='Edit property name and address'),canWrite);
    assert.equal(forms.some(form=>form.attributes['aria-label']==='Edit property notes'),canWrite);
    const financials=panel.querySelectorAll('button').find(button=>button.textContent==='Financials');financials.onclick();
    const snapshot=panel.children.find(child=>child.getAttribute?.('aria-label')==='Financial snapshot');
@@ -272,4 +272,18 @@ test('Passport Overview renders company context and gives editors, not viewers, 
    assert.equal(panel.querySelectorAll('button').find(button=>button.textContent==='Operations').attributes['aria-selected'],'true','Financials link opens the Operations tab');
   }
  }finally{globalThis.document=oldDocument;globalThis.window=oldWindow;}
+});
+
+
+test('name/address editor verifies exact saved identity, retains failed drafts and ignores stale saves',async()=>{
+ const previous=globalThis.document;globalThis.document={createElement:tag=>({tag,children:[],value:'',disabled:false,setAttribute(k,v){this[k]=v},append(...items){this.children.push(...items)}})};
+ try{
+  const {createPropertyAddressEditor}=await import('../property-passport-preview.mjs');let mode='ok',current=true,release,shown=null;const calls=[],record={id:'p',company_id:'c',name:'Original',property_address:'1 Fictional Lane'};
+  const client={rpc:async(name,args)=>{calls.push({name,args});if(mode==='pending'&&name==='update_company_deal')await new Promise(r=>release=r);if(mode==='denied')return {error:Error('Denied')};if(mode==='offline'&&name==='get_company_deal')return {error:Error('Offline')};return {data:{...record,name:'Corrected',property_address:'2 Fictional Lane',...(mode==='foreign'?{company_id:'foreign'}:{}),...(mode==='mismatch'&&name==='get_company_deal'?{property_address:'Wrong'}:{})}};}};
+  const make=()=>{const form=createPropertyAddressEditor({record,client,companyId:'c',isCurrent:()=>current,onSaved:value=>{shown=value}});form.children[1].children[0].value=' Corrected ';form.children[2].children[0].value=' 2 Fictional Lane ';return form;};const submit=form=>form.onsubmit({preventDefault(){}});
+  let form=make();await submit(form);assert.deepEqual(calls[0].args,{p_company_id:'c',p_deal_id:'p',p_patch:{name:'Corrected',property_address:'2 Fictional Lane'}});assert.deepEqual(shown,{name:'Corrected',property_address:'2 Fictional Lane'});
+  for(const field of [1,2]){form=make();form.children[field].children[0].value=' ';const before=calls.length;await submit(form);assert.equal(calls.length,before);assert.match(form.children[5].textContent,/2 to 150/);}
+  for(const failure of ['denied','offline','foreign','mismatch']){mode=failure;shown=null;form=make();await submit(form);assert.equal(shown,null);assert.equal(form.children[2].children[0].value,' 2 Fictional Lane ');assert.equal(form.children[4].disabled,false);assert.match(form.children[5].textContent,/Could not update|could not be verified/);}
+  mode='pending';form=make();const before=calls.length,pending=submit(form);await submit(form);assert.equal(calls.length,before+1);current=false;release();await pending;assert.equal(calls.length,before+1);
+ }finally{globalThis.document=previous;}
 });
