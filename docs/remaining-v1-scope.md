@@ -29,3 +29,8 @@ The 10–15 focused-workday estimate discussed with the owner is a planning esti
 ## Approved seat and ad addition — October 26–27, 2026
 
 One included named user; Pro additional paid seats required for all additional roles. Implemented server-side capacity/reservations, expiring trusted entitlements and denied unlicensed record access. Four hosted seat groups and all five team groups passed with no retained fixtures. No live seat billing, seat price or shared-password/session enforcement is activated. Reserved ad slots now cover all 14 workspace pages for Free/Investor using existing tier visibility rules; Pro has no ads. Printed output hides all ad slots. The marketing website remains unchanged.
+
+
+## Session lifecycle checkpoint — October 27, 2026
+
+Signed-out/unexpected-identity events now clear private app state; normal refresh and newer sessions are preserved. Local customer workflow covers these cases. No provider Auth session settings or hosting plan changed. Native single-session enforcement requires a supported paid Supabase infrastructure plan and operator configuration; actual same-account/two-browser acceptance remains open. This is distinct from the implemented named-team-seat limits.

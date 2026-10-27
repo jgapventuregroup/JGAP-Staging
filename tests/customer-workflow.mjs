@@ -30,8 +30,9 @@ let secondaryDeferred=null;
 let membership={plan:'free',billing_status:'not_connected'}, passportAllowed=false, ownerPreviewAllowed=false, passportEligibility,operationsCapability={read:false,write:false},financeCapability={read:false,write:false};
 const adSlots=[new Element('aside'),new Element('aside')];
 const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = []; let lifetimeB = 0;
+let authListener=null,unsubscribeCount=0;
 const fakeClient = {
-  auth: { signInWithPassword: async ({ email }) => ({ data: { user: { email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
+  auth: { onAuthStateChange:callback=>{authListener=callback;return {data:{subscription:{unsubscribe(){unsubscribeCount++}}}}}, signInWithPassword: async ({ email }) => ({ data: { user: { id:'fixture-user',email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
   rpc: async (name, args) => {
     calls.push({ name, args });
     if (name === 'calculate_secondary_financing') {if(secondaryDeferred)return await new Promise(resolve=>{secondaryDeferred.resolve=resolve});return {data:{company_id:args.p_company_id,monthly_interest:'300',annual_interest:'3600',monthly_cash_flow:'-148.04'},error:null};}
@@ -315,3 +316,15 @@ assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_TABLES_READY,false,'Sign-out 
 assert.equal(el('workspace').classList.contains('hidden'), true);
 assert.equal(el('password').value, '');
 console.log('PASS: customer workflow — explicit workspace choice, refreshing sessions, read-only analysis, stale financing, failed switches, owner access, sign-out');
+
+
+// Provider session events must clear the actual app, not merely update a label.
+loginError=null;failCompanyB=false;el('email').value='fixture@example.invalid';el('password').value='fixture-only-password';await el('login').onclick();
+assert.equal(typeof authListener,'function');
+el('ask').value='654321';el('company').value='a';authListener('SIGNED_OUT',null);
+assert.equal(el('workspace').classList.contains('hidden'),true,'Provider sign-out hides workspace');
+assert.equal(el('ask').value,'','Provider sign-out clears financial inputs');assert.equal(el('company').children.length,0,'Provider sign-out clears workspace identities');
+assert.match(el('status').textContent,/session ended/);
+const retiredListener=authListener;await el('login').onclick();el('ask').value='987654';retiredListener('SIGNED_OUT',null);assert.equal(el('ask').value,'987654','Retired session event cannot clear a new sign-in');authListener('TOKEN_REFRESHED',{user:{id:'fixture-user'}});assert.equal(el('ask').value,'987654','Normal token refresh does not erase work');authListener('TOKEN_REFRESHED',{user:{id:'unexpected-account'}});
+assert.equal(el('workspace').classList.contains('hidden'),true);assert.equal(el('ask').value,'');assert.match(el('status').textContent,/account session changed/);
+console.log('PASS: provider sign-out and unexpected refreshed-account events clear private workspace and analyzer data');

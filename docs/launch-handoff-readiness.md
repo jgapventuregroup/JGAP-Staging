@@ -159,3 +159,10 @@ The personal Pro dashboard preference feature is implemented with per-user/works
 
 ## In-app alerts checkpoint
 The second of the four scoped features now has backend/UI implementation: source-derived due alerts plus personal review state and a navigation count. Local and five staging SQL-role security groups passed, with complete rollback. Normal-session dashboard customization and alert save/source-routing checks remain open. No email/SMS/push or external discovery was added. Team controls and Market Map are still to implement; no full-product completion claim is made.
+
+
+## Current scoped status — October 27, 2026 (supersedes older milestone status above)
+
+The owner narrowed the remaining build to Market Map, in-app alerts, personal dashboard customization and advanced team controls, later approving all-tier Invite a friend, named paid seats and app-wide reserved ad placements. Alerts/customization/team UI and seat enforcement are implemented in staging; Market Map is still to implement. Passport documents and original editors have separate successful earlier desktop acceptance evidence, so earlier claims that uploads/editors are disabled are historical. Refer to `remaining-v1-scope.md` and `developer-handoff.md` for exact current acceptance limits.
+
+Nine hosted team/seat rollback groups passed October 27 with zero retained fixture workspaces. All 14 app pages have tier-aware reserved placements, and live ads/payments remain disconnected. Signed-in team/seat and device checks, competing transactions, hosted restore/recovery and final handoff acceptance remain open. The latest session-lifecycle change clears private state on provider sign-out or unexpected account changes, with controlled SDK-event tests; it does not activate native single-session enforcement. That provider setting and real two-browser verification are still required before claiming shared-login controls complete. The completed marketing website remains unchanged.
