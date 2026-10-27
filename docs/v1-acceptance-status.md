@@ -1,6 +1,6 @@
-# Version 1 acceptance status — October 25, 2026
+# Version 1 acceptance status — October 27, 2026
 
-The existing staging app is functional but is **not approved for production or public paid sales**. The approved membership matrix remains the product specification; an automated test pass does not make unfinished Pro features available.
+The existing staging app is functional but is **not approved for production or public paid sales**. The owner’s latest bounded build decision in `remaining-v1-scope.md` governs completion. Public membership claims must be reconciled with delivered scope before paid launch; automated test passes alone do not establish readiness.
 
 | Area | Verified evidence | Remaining acceptance |
 | --- | --- | --- |
@@ -16,11 +16,21 @@ The existing staging app is functional but is **not approved for production or p
 | Advertisements | Labeled placeholders; Pro suppression tests | Outside company: live serving, creative review, privacy/consent and reporting |
 | Commerce and packaging | Existing disabled billing adapters and documented interfaces | Outside company: processor/webhooks, app install/download packaging, book delivery, production configuration/monitoring |
 
-## Open product work — do not advertise as delivered
+## Current scoped implementation and acceptance
 
-Document upload/list/download code and private Pro/company/property Storage policies are prepared, with three grouped staging SQL-role checks and local module/restore tests. The normal authenticated Storage API gate passed 58 fresh-request checks; staging controls are enabled after evidence review, with real form/device acceptance still required. Legal-title ownership records are unfinished. Current comparison uses current saved assumptions, not an immutable purchase-time underwriting budget. Money-Making System, Market Map, Deal Radar, alerts, lead generation, dashboard customization and advanced team controls remain incomplete. The Laundromat Division is excluded by the existing owner decision.
+Market Map for saved properties, in-app alerts, dashboard customization and advanced team controls are implemented in staging. Selected owner desktop checks passed; see `evidence/four-feature-owner-desktop-2026-10-27.json`. All-tier public invitations and tier-aware reserved ads are implemented. Named-seat capacity is enforced, but live additional-seat billing and provider single-session configuration are not connected.
 
-The original editors passed their normal-session isolation gate and desktop owner form acceptance; ordinary paid/viewer and phone acceptance remain required. Broader changes to the approved paid offering require owner approval; missing features must remain labeled unavailable and must not be sold as complete.
+External Radar discovery, lead generation/CRM, further Money-Making System expansion and the Laundromat Division are excluded from further V1 build work. Preserve existing saved-deal review, financial overview and other completed capabilities. The current financial comparison uses saved assumptions, not an immutable purchase-time budget. No new legal-title ownership feature is part of the remaining build.
+
+### Isolated team browser checkpoint — October 27, 2026
+
+The owner explicitly approved `V1 Team Acceptance 2026-10-27`: QA A as owner, Pro test access, one extra seat expiring November 3, one fictional property/pin, QA B invitation/acceptance, viewer → editor → viewer, removal of B only, and a last-owner denial check. The workspace/property are retained; cleanup needs separate approval.
+
+Observed through the app: A created B’s viewer invitation; it reserved the second seat and disabled further invitations at capacity. B accepted, selected the fixture as viewer, viewed its map pin and opened the corresponding Passport. The map had no coordinate editing/save controls; the Passport had read-only guidance and no edit forms. This verifies only those observed screens, not every viewer boundary.
+
+B remains a viewer in this fixture. Role changes, B removal and last-owner denial have not run. Automatic browser approval review rejected the next Team navigation because its usage limit was reached; the action did not execute. Do not complete these browser tests through direct SQL or claim them passed. Resume the already-approved sequence when browser review is available. No repeat fixture approval is required.
+
+Physical-phone acceptance, remaining map cases, other alert sources, ordinary team mutations, competing-seat transactions, provider single-session behavior and hosted database/Storage recovery remain open. Private document upload/list/download has prior owner desktop evidence; replacement/removal and scanning remain excluded. No production launch, live billing or live ads are authorized.
 
 ## Final candidate acceptance
 

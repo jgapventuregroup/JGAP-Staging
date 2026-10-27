@@ -52,7 +52,7 @@ Apply `supabase/features/in-app-alerts.sql` once after the application baseline 
 
 
 ## Team controls add-on
-Apply `supabase/features/team-controls.sql` once after the application baseline in an approved empty environment. It extends the existing invitations table and adds a private authorized dispatcher with an invoker public API. Staging migration `20261026191237_pro_team_controls` is already installed; do not rerun it there or replay historical migrations. It grants no direct membership/invitation writes to clients. Local restored-schema and UI tests plus four staging rollback groups passed. Normal-session, concurrency and phone acceptance remain open; member-removal backend follows remote migration `20261026191436`, is included in canonical setup, and has a disabled UI pending hosted verification after connector internal errors.
+Apply `supabase/features/team-controls.sql` once after the application baseline in an approved empty environment. It extends the existing invitations table and adds a private authorized dispatcher with an invoker public API. Staging migration `20261026191237_pro_team_controls` is already installed; do not rerun it there or replay historical migrations. It grants no direct membership/invitation writes to clients. Local restored-schema and UI tests plus four staging rollback groups passed. Normal-session, concurrency and phone acceptance remain open; member-removal backend follows remote migration `20261026191436`, is included in canonical setup, and its UI was subsequently enabled after five hosted team groups and four seat groups passed with complete rollback. The earlier connector error is resolved; normal-session mutations remain separate acceptance checks.
 
 
 ## Named team seats add-on
