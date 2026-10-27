@@ -3,6 +3,7 @@
   const el = id => document.getElementById(id);
   const money = value => value == null ? 'Not supplied' : value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
   const safeAmount = value => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1e12;
+  const showReview=()=>{const status=el('intelligence-status');status.setAttribute('tabindex','-1');status.focus?.({preventScroll:true});status.scrollIntoView?.({block:'start',behavior:'auto'});};
   let previewCompany = null;
   const manualFields=['address','price','rent','expenses','type','units'];
   function clear() { for(const field of manualFields)el('intelligence-'+field).value='';el('intelligence-advanced').open=false;previewCompany = null; el('intelligence-json').value = ''; el('intelligence-source').value = ''; el('intelligence-results').replaceChildren(); el('intelligence-status').textContent = ''; }
@@ -11,7 +12,7 @@
   function review(manualRow=null) {
     el('intelligence-results').replaceChildren();
     const scope = window.JGAPIntelligenceContext?.scope();
-    if (!scope) { el('intelligence-status').textContent = 'Choose a company workspace before reviewing listings.'; return; }
+    if (!scope) { el('intelligence-status').textContent = 'Choose a company workspace before reviewing listings.'; showReview(); return; }
     previewCompany = scope.companyId;
     try {
       const raw = el('intelligence-json').value.trim();
@@ -69,6 +70,7 @@
       }
       el('intelligence-status').textContent = rows.length + (manualRow?' property reviewed. ':' listings reviewed. ') + incomplete + ' missing or invalid save inputs. Nothing is saved until you select Save as a property.';
     } catch (error) { el('intelligence-results').replaceChildren(); el('intelligence-status').textContent = 'Unable to review listings: ' + error.message; }
+    showReview();
   }
   el('review-intelligence').onclick=()=>review();
   el('intelligence-property-form').onsubmit=event=>{
@@ -78,6 +80,6 @@
       const amount=field=>{const raw=el('intelligence-'+field).value.trim();if(!raw)return null;const value=Number(raw);if(!safeAmount(value))throw Error('Enter a valid nonnegative amount, or leave unknown figures blank.');return value;};
       const unitsText=el('intelligence-units').value.trim(),units=unitsText?Number(unitsText):null;if(units!==null&&(!Number.isSafeInteger(units)||units<1))throw Error('Enter a whole number of rental units, or leave it blank.');
       review({external_id:'manual:'+address.toLowerCase(),address,asking_price:amount('price'),rent_monthly:amount('rent'),expenses_monthly:amount('expenses'),property_type:el('intelligence-type').value||null,units});
-    }catch(error){el('intelligence-results').replaceChildren();el('intelligence-status').textContent=error.message;}
+    }catch(error){el('intelligence-results').replaceChildren();el('intelligence-status').textContent=error.message;showReview();}
   };
 })();

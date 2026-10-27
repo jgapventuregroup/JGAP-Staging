@@ -9,7 +9,8 @@ class Element {
   replaceChildren(...items) { this.children = items; this.textContent = ''; }
   setAttribute(k, v) { this[k] = v; }
   removeAttribute(k) { delete this[k]; }
-  focus() {}
+  focus() { this.focused=true; }
+  scrollIntoView() { this.scrolled=true; }
 }
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
 let scope = { companyId: 'a', role: 'owner' }, saves = [], fail = false;
@@ -56,3 +57,8 @@ for(const [field,value] of [['units','2.5'],['price','-1'],['rent','not a number
 scope={companyId:'a',role:'viewer'};manualSubmit();assert.equal(el('intelligence-results').children[0].children.find(x=>x.tag==='button').disabled,true);
 context.window.JGAPDealIntelligence.clear();for(const field of ['address','price','rent','expenses','type','units'])assert.equal(el('intelligence-'+field).value,'');assert.equal(el('intelligence-advanced').open,false);
 console.log('PASS: plain property review keeps unknowns separate from zero, requires an explicit offer, rejects invalid inputs, enforces viewer access and clears drafts');
+
+el('intelligence-status').focused=false;el('intelligence-status').scrolled=false;scope={companyId:'a',role:'owner'};review([record]);assert.equal(el('intelligence-status').focused,true);assert.equal(el('intelligence-status').scrolled,true);assert.equal(el('intelligence-status').tabindex,'-1');
+el('intelligence-status').focused=false;el('intelligence-status').scrolled=false;el('intelligence-address').value='';manualSubmit();assert.equal(el('intelligence-status').focused,true);assert.equal(el('intelligence-status').scrolled,true);assert.match(el('intelligence-status').textContent,/full property address/);
+el('intelligence-status').focused=false;scope=null;el('review-intelligence').onclick();assert.equal(el('intelligence-status').focused,true);assert.match(el('intelligence-status').textContent,/Choose a company workspace/);
+console.log('PASS: review success, invalid manual entries and missing workspace bring keyboard focus to visible feedback');
