@@ -33,3 +33,8 @@ Normal browser sign-in loaded the disposable Pro workspace on `1b34036`. Observe
 ## Follow-up owner interaction check — October 27, 2026
 
 Live map click-to-select populated provisional coordinates and left verification unchecked. Navigating away/reopening restored the original retained QA pin, proving no automatic save from selection. Five traced successive navigation targets matched their requested pages; the earlier unexplained mismatch did not recur and no speculative code change was made. Evidence is appended to the existing owner-desktop JSON. This closes the selected owner click-to-select/cancel case, not viewer/multi-pin/phone or general navigation acceptance. Available browser controls did not produce a narrower CSS viewport; phone testing is still unverified.
+
+
+## Coordinate readback verification — October 27, 2026
+
+After a successful save response, the app now verifies that the exact property is present in the reloaded workspace and both coordinates match the submitted position within the database’s six-decimal rounding precision. Missing or different coordinates produce a saved-but-unverified warning and retain the draft instead of reporting verified success. Regression tests cover missing rows, either coordinate mismatching, absent coordinates, zero and rounding. This is local regression evidence; live browser acceptance of this correction remains open.
