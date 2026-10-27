@@ -298,3 +298,8 @@ See `docs/market-map.md` for privacy, setup, dependency provenance, staged verif
 ## Four-feature owner desktop evidence — October 27, 2026
 
 Recorded 16 bounded groups in `docs/evidence/four-feature-owner-desktop-2026-10-27.json` against deployed `1b34036`, with a real-map screenshot containing only the fictional property name. Dashboard custom save/reload and default restoration, personal alert review/restore and exact source routing, map verification/save/reopen/street-opt-in/Passport route, one-seat management display, public link copying, Free restrictions and tested ad visibility all passed. No team membership or subscription mutation was performed in the browser. The synthetic map pin is retained; no records/files were deleted. Physical phone, viewer and ordinary recipient/team mutation cases, concurrency, single-session provider configuration and hosted recovery remain explicit gates. One unreproduced Alerts navigation discrepancy is recorded with unknown cause; do not claim a code fix or complete navigation acceptance.
+
+
+## Hosted recovery procedure — October 27, 2026
+
+See [hosted recovery runbook](hosted-recovery-runbook.md) for separate empty installation and backup recovery paths, canonical add-on order, private file verification, Auth/configuration inventory, role/isolation checks and evidence requirements. The procedure is prepared; no hosted restore, customer export or target provisioning was performed. RPO/RTO and a specifically approved rehearsal target remain required.
