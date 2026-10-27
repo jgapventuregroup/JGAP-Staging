@@ -14,7 +14,7 @@ test('actual preview import check traverses modules and rejects a missing transi
  const files=frontendFiles(workflow);
  assert.ok(files?.length>10,'Expected explicit frontend asset allowlist');
  assert.deepEqual(files,frontendFiles(read('.github/workflows/pages.yml')),'Staging deployment and preview must ship the same app modules');
- assert.ok(files.every(file=>/^[\w.-]+\.(?:html|js|mjs)$/.test(file)),'Only public frontend files may ship');
+ assert.ok(files.every(file=>/^[\w.-]+\.(?:html|js|mjs|css|txt)$/.test(file)),'Only public frontend files may ship');
  const code=workflow.match(/node --input-type=module <<'NODE'\n([\s\S]*?)\n\s*NODE/)?.[1].replace(/^          /gm,'');
  assert.ok(code,'Preview import-check script missing');
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'tka-frontend-'));
@@ -48,5 +48,14 @@ test('release versions cover entry scripts and transitive imports while preservi
   write();fs.appendFileSync(path.join(directory,'child.mjs'),'; // new implementation');const next=versionFrontend(directory);assert.notEqual(next,first);
   assert.ok(fs.readFileSync(path.join(directory,'app.mjs'),'utf8').includes('./child.mjs?v='+next));
   for(const workflow of ['pages.yml','investor-preview-artifact.yml'])assert.match(read('.github/workflows/'+workflow),/node scripts\/version-frontend\.mjs dist/);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
+
+test('local map styles are versioned and bundled vendor files match the pinned package',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'tka-map-css-'));
+ try{
+  const write=css=>{fs.writeFileSync(path.join(directory,'index.html'),'<head><link rel="stylesheet" href="leaflet.css"><link rel="stylesheet" href="https://example.invalid/external.css"></head>');fs.writeFileSync(path.join(directory,'leaflet.css'),css);};
+  write('.map{height:400px}');const first=versionFrontend(directory);const html=fs.readFileSync(path.join(directory,'index.html'),'utf8');assert.ok(html.includes('leaflet.css?v='+first));assert.ok(html.includes('https://example.invalid/external.css"'));write('.map{height:420px}');assert.notEqual(versionFrontend(directory),first);
+  for(const [bundled,source] of [['leaflet.js','dist/leaflet.js'],['leaflet.css','dist/leaflet.css'],['leaflet-LICENSE.txt','LICENSE']])assert.ok(read(bundled)===read('node_modules/leaflet/'+source),'Bundled Leaflet file differs from pinned package: '+bundled);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });

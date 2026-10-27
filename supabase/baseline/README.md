@@ -57,3 +57,7 @@ Apply `supabase/features/team-controls.sql` once after the application baseline 
 
 ## Named team seats add-on
 After baseline and canonical `supabase/features/team-controls.sql`, apply `supabase/features/team-seats.sql` once in an approved empty environment. It includes the latest dispatcher; do not replay old team/removal migrations afterward. Remote staging version is `20261027100249`. The service-only seat table has RLS and no client grants; additional paid seats require an active Pro subscription and a future expiration. Default capacity is one named user. Staging-founder preview uses the preexisting helper (disabled by this baseline). Four hosted seat groups and five hosted team groups passed with complete rollback; normal-session/concurrent/device acceptance remains open. No live seat billing or session-limit configuration is supplied.
+
+
+## Saved-property Market Map add-on
+Apply `supabase/features/market-map.sql` once after the application baseline in an approved empty environment. It adds a Pro-scoped location table and invoker map/load/save RPCs; full app seat enforcement still requires the team and seat add-ons. Remote staging version `20261027102201` is already installed; do not rerun there or replay old migrations after canonical setup. Four hosted rollback groups and local baseline+team+seats+map restoration passed. No map provider, geocoder, property coordinates or third-party credentials are provisioned by SQL. Normal-session/device acceptance remains open.

@@ -253,5 +253,14 @@
       "name": "pro_named_team_seats"
     },
     "verification": "local restored-schema and four hosted seat rollback groups passed; zero retained fixtures; normal-session/concurrency/phone acceptance pending; no live seat billing or password-sharing session controls"
+  },
+  "market_map": {
+    "setup": "supabase/features/market-map.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261027102201",
+      "name": "pro_saved_property_map"
+    },
+    "verification": "local restored-schema and UI/security checks; four hosted rollback groups; zero retained fixtures; normal-session and phone acceptance pending"
   }
 }

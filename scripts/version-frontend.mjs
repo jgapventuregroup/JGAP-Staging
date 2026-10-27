@@ -10,7 +10,7 @@ export function versionFrontend(directory){
   for(const entry of fs.readdirSync(path.join(directory,relative),{withFileTypes:true}).sort((a,b)=>a.name.localeCompare(b.name))){
    const name=path.posix.join(relative,entry.name);
    if(entry.isDirectory())walk(name);
-   else if(/\.(?:html|mjs|js)$/.test(name))files.push(name);
+   else if(/\.(?:html|mjs|js|css)$/.test(name))files.push(name);
   }
  };
  walk('');
@@ -22,6 +22,7 @@ export function versionFrontend(directory){
   if(/\.(?:mjs|js)$/.test(name))result=result.replace(/(\bfrom\s*|\bimport\s*\(\s*|\bimport\s*)(['"])(\.{1,2}\/[^'"?]+\.(?:mjs|js))\2/g,(_,prefix,quote,url)=>prefix+quote+url+'?v='+version+quote);
   if(name.endsWith('.html')){
    result=result.replace(/(<script\b[^>]*\bsrc=['"])(?!https?:|\/\/)([^'"?]+\.(?:js|mjs))(['"])/g,(_,prefix,url,quote)=>prefix+url+'?v='+version+quote);
+   result=result.replace(/(<link\b[^>]*\bhref=['"])(?!https?:|\/\/)([^'"?]+\.css)(['"])/g,(_,prefix,url,quote)=>prefix+url+'?v='+version+quote);
    result=result.replace(/<head>/i,'<head>\n<meta name="tka-build" content="'+version+'">');
   }
   fs.writeFileSync(path.join(directory,name),result);

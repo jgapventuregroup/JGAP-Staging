@@ -7,7 +7,7 @@ Build these four features only, preserving the existing app and completed featur
 | Dashboard customization | Pro user can show/hide/reorder tools, metrics, recent properties and follow-ups; personal per workspace, persisted, resettable. Company/membership/ad controls remain governed by the existing app. | Backend and local UI checks passed; deployed signed-in acceptance pending. |
 | In-app alerts | Due follow-ups, tasks and maintenance from existing records; readable, actionable in the app. | Backend, local UI and staging SQL-role checks passed; normal-session acceptance pending. No email/SMS/push delivery in this scope. |
 | Advanced team controls | Secure workspace invitations, roles and permissions, including last-owner safeguards and authorization. | Team screen and backend implemented; local UI/security tests and four staging rollback groups passed. Normal-session, concurrent-owner and phone acceptance pending. Member removal and named-seat controls passed hosted rollback checks October 27; removal UI enabled. Normal-session, concurrency and phone acceptance remain open. |
-| Market Map | Geographic view of saved properties with controlled location handling. | To implement and verify; choose mapping/geocoding approach without silently sharing saved addresses with third parties. |
+| Market Map | Geographic view of saved properties with controlled location handling. | Implemented saved-property pins, verified coordinates and optional street tiles; four hosted rollback groups plus local UI/security checks passed. Normal-session/phone acceptance pending. No geocoder or market-data feed. |
 
 ## Explicit exclusions from further build work
 
