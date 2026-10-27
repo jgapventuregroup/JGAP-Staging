@@ -303,3 +303,8 @@ Recorded 16 bounded groups in `docs/evidence/four-feature-owner-desktop-2026-10-
 ## Hosted recovery procedure — October 27, 2026
 
 See [hosted recovery runbook](hosted-recovery-runbook.md) for separate empty installation and backup recovery paths, canonical add-on order, private file verification, Auth/configuration inventory, role/isolation checks and evidence requirements. The procedure is prepared; no hosted restore, customer export or target provisioning was performed. RPO/RTO and a specifically approved rehearsal target remain required.
+
+
+## Team request coordination — October 27, 2026
+
+The team screen permits one pending membership/invitation mutation at a time within its current view. Duplicate and competing actions are ignored until the request and membership refresh settle, with a saving status shown. Regression coverage delays a revoke, attempts a concurrent removal/invitation, and verifies subsequent actions after success or failure. Backend authorization and seat serialization remain authoritative; this UI guard does not prove competing database-transaction or live browser acceptance.

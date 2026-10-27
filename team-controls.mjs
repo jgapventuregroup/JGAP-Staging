@@ -6,12 +6,13 @@ export function mountTeamControls({root,getContext,request,refreshMemberships,co
  const open=async()=>{
   clear();const ticket=generation,scope=getContext();if(!scope)return;
   const current=()=>ticket===generation&&getContext()?.session===scope.session&&getContext()?.companyId===scope.companyId;
+  let mutationPending=false;
   const message=el('p','Loading team access…');message.setAttribute('role','status');root.append(message);
   const action=async(button,operation,company,target,email,role)=>{
-   if(button.disabled||!current())return;button.disabled=true;let saved=false;
+   if(button.disabled||!current()||mutationPending)return;mutationPending=true;button.disabled=true;message.textContent='Saving team change…';let saved=false;
    try{await request(operation,company,target,email,role);saved=true;if(!current())return;message.textContent='Change saved. Refreshing team access…';await refreshMemberships();if(current())await open();}
    catch(error){if(current())message.textContent=(saved?'Team change saved, but updated access could not be refreshed. Reopen Team access or sign in again. ':'Could not complete team change: ')+(error?.message||'Unknown error');}
-   finally{if(current())button.disabled=false;}
+   finally{mutationPending=false;if(current())button.disabled=false;}
   };
   try{
    const inbox=await request('inbox',null);if(!current())return;
@@ -21,7 +22,7 @@ export function mountTeamControls({root,getContext,request,refreshMemberships,co
    for(const invite of inbox){
     if(!invite.id||!invite.company_id||!['admin','editor','viewer'].includes(invite.role))throw Error('Invitation response unavailable');
     const item=el('article');item.className='metric';item.append(el('h3',invite.company_name),el('p','Role: '+invite.role+' · Expires: '+new Date(invite.expires_at).toLocaleDateString()));
-    const accept=el('button','Accept workspace invitation');accept.type='button';accept.onclick=()=>{if(current()&&confirm('Join '+invite.company_name+' as '+invite.role+'?'))return action(accept,'accept',invite.company_id,invite.id);};item.append(accept);inboxSection.append(item);
+    const accept=el('button','Accept workspace invitation');accept.type='button';accept.onclick=()=>{if(current()&&!mutationPending&&confirm('Join '+invite.company_name+' as '+invite.role+'?'))return action(accept,'accept',invite.company_id,invite.id);};item.append(accept);inboxSection.append(item);
    }root.append(inboxSection);
    if(!scope.canManage){message.textContent='Workspace management requires an owner role and active Pro access. You can accept invitations above with any account plan.';return;}
    let data;try{data=await request('list',scope.companyId);}catch(error){if(current())message.textContent='Workspace management requires active Pro owner access: '+(error?.message||'Unavailable');return;}if(!current())return;
@@ -42,11 +43,11 @@ export function mountTeamControls({root,getContext,request,refreshMemberships,co
     if(!member.user_id||!roles.includes(member.role))throw Error('Member response unavailable');
     const item=el('article');item.className='metric';item.append(el('h3',member.email||'Workspace member'));const select=el('select');select.setAttribute('aria-label','Role for '+(member.email||'workspace member'));
     for(const name of roles){const option=el('option',name);option.value=name;select.append(option);}select.value=member.role;
-    const save=el('button','Save member role');save.type='button';save.onclick=()=>{if(!current()||select.value===member.role)return;if(confirm('Change '+(member.email||'this member')+' from '+member.role+' to '+select.value+'? Owners can manage access to this workspace.'))return action(save,'role',scope.companyId,member.user_id,null,select.value);};const remove=el('button','Remove member');remove.type='button';remove.onclick=()=>{if(current()&&confirm('Remove workspace access for '+(member.email||'this member')+'? Shared properties and documents will remain in the workspace.'))return action(remove,'remove',scope.companyId,member.user_id);};item.append(select,save);if(scope.canRemove===true)item.append(remove);members.append(item);
+    const save=el('button','Save member role');save.type='button';save.onclick=()=>{if(!current()||mutationPending||select.value===member.role)return;if(confirm('Change '+(member.email||'this member')+' from '+member.role+' to '+select.value+'? Owners can manage access to this workspace.'))return action(save,'role',scope.companyId,member.user_id,null,select.value);};const remove=el('button','Remove member');remove.type='button';remove.onclick=()=>{if(current()&&!mutationPending&&confirm('Remove workspace access for '+(member.email||'this member')+'? Shared properties and documents will remain in the workspace.'))return action(remove,'remove',scope.companyId,member.user_id);};item.append(select,save);if(scope.canRemove===true)item.append(remove);members.append(item);
    }root.append(members);
    const pending=el('section');pending.append(el('h2','Pending invitations'));
    if(!data.invitations.length)pending.append(el('p','No pending invitations.'));
-   for(const invitation of data.invitations){const item=el('article');item.className='metric';item.append(el('p',invitation.email+' · '+invitation.role+' · Expires: '+new Date(invitation.expires_at).toLocaleDateString()));const revoke=el('button','Revoke invitation');revoke.type='button';revoke.onclick=()=>{if(current()&&confirm('Revoke the invitation for '+invitation.email+'?'))return action(revoke,'revoke',scope.companyId,invitation.id);};item.append(revoke);pending.append(item);}root.append(pending);
+   for(const invitation of data.invitations){const item=el('article');item.className='metric';item.append(el('p',invitation.email+' · '+invitation.role+' · Expires: '+new Date(invitation.expires_at).toLocaleDateString()));const revoke=el('button','Revoke invitation');revoke.type='button';revoke.onclick=()=>{if(current()&&!mutationPending&&confirm('Revoke the invitation for '+invitation.email+'?'))return action(revoke,'revoke',scope.companyId,invitation.id);};item.append(revoke);pending.append(item);}root.append(pending);
   }catch(error){if(current()){root.replaceChildren(message);message.textContent='Could not load team access: '+(error?.message||'Unknown error');}}
  };
  return {open,clear};
