@@ -49,7 +49,7 @@ export function createPropertyAddressEditor({record,client,companyId,isCurrent,o
  const form=document.createElement('form');form.setAttribute('aria-label','Edit property name and address');
  const title=document.createElement('h3');title.textContent='Update property name and address';
  const nameLabel=document.createElement('label');nameLabel.textContent='Property name';const name=document.createElement('input');name.type='text';name.required=true;name.maxLength=150;name.value=record.name||'';nameLabel.append(name);
- const addressLabel=document.createElement('label');addressLabel.textContent='Street address';const address=document.createElement('input');address.type='text';address.required=true;address.maxLength=150;address.value=record.property_address||record.name||'';addressLabel.append(address);
+ const addressLabel=document.createElement('label');addressLabel.textContent='Street address';const address=document.createElement('input');address.type='text';address.required=true;address.maxLength=150;address.value=record.property_address||'';addressLabel.append(address);
  const hint=document.createElement('p');hint.textContent='Active Investor, Pro or verified owner-preview access is required to change the saved property identity. Existing records stay attached. Review any saved map pin after changing the address.';
  const button=document.createElement('button');button.type='submit';button.textContent='Save name and address';const status=document.createElement('p');status.setAttribute('role','status');
  form.append(title,nameLabel,addressLabel,hint,button,status);let pending=false;
