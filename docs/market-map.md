@@ -45,3 +45,8 @@ Manual edits to either coordinate now clear the verification checkbox. Regressio
 ## Date-line map bounds — October 27, 2026
 
 The map fits pins using the shortest longitude arc, avoiding an almost-worldwide view when saved properties straddle ±180 degrees. Marker display positions and bounds use the same wrapped coordinates; saved values and property navigation stay unchanged. Local regression checks cover date-line pins, normal local pins, empty/single maps, equivalent ±180 positions, property order and unchanged source values. Rendered multi-pin/date-line acceptance remains pending.
+
+
+## Street-tile failure handling — October 27, 2026
+
+A failed tile request now shows a visible status explaining that saved pins and the property list remain available and that toggling streets off/on retries loading. This status is separate from location-save messages. Errors from hidden, removed or destroyed tile layers cannot replace the current view’s status. Local UI/adapter regression coverage verifies the fallback, retained property navigation and stale-error suppression. Actual rendered network-failure acceptance remains pending.
