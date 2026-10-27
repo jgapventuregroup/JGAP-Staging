@@ -192,7 +192,7 @@ function addAction({line,deal,openMap,mapHref,onPropertyUpdated,companyId,compan
       close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
       close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;markPassportButton(button,false);if(expandedButton===button)expandedButton=null;}};
       panel.append(close);
-      if(typeof openMap==='function'){const mapButton=document.createElement(mapHref?'a':'button');if(mapHref){mapButton.href=mapHref;mapButton.target='_blank';mapButton.rel='noopener noreferrer';mapButton.className='property-google-link';}else mapButton.type='button';mapButton.textContent='View in Google Maps · Pro';mapButton.onclick=event=>{if(current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client)openMap(event);else event?.preventDefault?.();};panel.append(mapButton);}
+      if(typeof openMap==='function'){const mapButton=document.createElement(mapHref?'a':'button');if(mapHref){mapButton.href=mapHref;mapButton.target='_blank';mapButton.rel='noopener noreferrer';mapButton.className='property-google-link';}else mapButton.type='button';mapButton.textContent='View on Market Map · Pro';mapButton.onclick=event=>{if(current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client)openMap(event);else event?.preventDefault?.();};panel.append(mapButton);}
       // Recovered from the original Passport: browser print of the open record.
       // Print only this Passport, not the rest of the app workspace.
       const print=document.createElement('button');

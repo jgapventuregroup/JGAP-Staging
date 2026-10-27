@@ -5,3 +5,7 @@ verify_jwt = false
 
 [functions.billing-webhook]
 verify_jwt = false
+
+[functions.property-geocode]
+# The handler independently validates the caller with Auth and the authorized map RPC.
+verify_jwt = false

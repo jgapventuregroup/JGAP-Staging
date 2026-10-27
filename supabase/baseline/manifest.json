@@ -272,5 +272,16 @@
     },
     "source_migration": "supabase/migrations/20261027171347_owner_preview_property_identity.sql",
     "verification": "Local owner-preview contract and ordinary Free/inactive/role/company tests; five hosted profile rollback groups passed. Actual owner-form save pending."
+  },
+  "property_geocoding": {
+    "setup": "supabase/features/property-geocoding.sql",
+    "included_in_application_baseline": false,
+    "remote_migration": {
+      "version": "20261027182154",
+      "name": "automatic_property_geocoding"
+    },
+    "source_migration": "supabase/migrations/20261027181632_automatic_property_geocoding.sql",
+    "edge_function": "supabase/functions/property-geocode/",
+    "verification": "Local UI/handler/SQL tests; two hosted service-only security groups; unauthenticated live endpoint 401; public-address provider probe matched. Signed-in/device acceptance pending."
   }
 }

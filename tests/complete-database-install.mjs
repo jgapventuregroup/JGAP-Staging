@@ -9,7 +9,7 @@ test('complete canonical feature stack installs together and preserves team/seat
  try{
   await db.exec(read('tests/database-platform-fixture.sql'));
   await db.exec(read('supabase/baseline/application-schema.sql'));
-  const files=['seller-financing','saved-deal-radar','money-making-overview','dashboard-customization','in-app-alerts','team-controls','team-seats','market-map','property-identity-preview'];
+  const files=['seller-financing','saved-deal-radar','money-making-overview','dashboard-customization','in-app-alerts','team-controls','team-seats','market-map','property-identity-preview','property-geocoding'];
   for(const feature of files)await db.exec(read('supabase/features/'+feature+'.sql'));
   // Local Storage SQL contract only: no hosted Auth, file bytes or API service.
   await db.exec(`create schema storage;

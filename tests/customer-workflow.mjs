@@ -31,9 +31,10 @@ let secondaryDeferred=null;
 let membership={plan:'free',billing_status:'not_connected'}, passportAllowed=false, ownerPreviewAllowed=false, passportEligibility,operationsCapability={read:false,write:false},financeCapability={read:false,write:false};
 const adSlots=[new Element('aside'),new Element('aside')];
 const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = []; let lifetimeB = 0;
-let authListener=null,unsubscribeCount=0;
+let authListener=null,unsubscribeCount=0,geocodeBusy=false;
 const fakeClient = {
   auth: { onAuthStateChange:callback=>{authListener=callback;return {data:{subscription:{unsubscribe(){unsubscribeCount++}}}}}, signInWithPassword: async ({ email }) => ({ data: { user: { id:'fixture-user',email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
+  functions:{invoke:async(name,{body})=>{calls.push({name,body});return geocodeBusy?{data:null,error:{context:{status:429}}}:{data:{company_id:body.companyId,deal_id:body.dealId,status:'matched'},error:null};}},
   rpc: async (name, args) => {
     calls.push({ name, args });
     if (name === 'calculate_secondary_financing') {if(secondaryDeferred)return await new Promise(resolve=>{secondaryDeferred.resolve=resolve});return {data:{company_id:args.p_company_id,monthly_interest:'300',annual_interest:'3600',monthly_cash_flow:'-148.04'},error:null};}
@@ -107,7 +108,7 @@ for(const button of navigationButtons){
  for(const sidebar of navigationButtons.filter(node=>node.inSidebar))assert.equal(sidebar['aria-current'],sidebar.dataset.page===button.dataset.page?'page':undefined,'Sidebar announces only the active destination');
 }
 const mapOpens=[];context.window.JGAPMarketMap={open:id=>mapOpens.push(id),clear(){}};
-const freeMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View in Google Maps · Pro');assert.ok(freeMap);freeMap.onclick();assert.equal(el('plans').classList.contains('current'),true);assert.equal(mapOpens.length,0,'Free shortcut opens plan information without loading the map');
+const freeMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View on Market Map · Pro');assert.ok(freeMap);freeMap.onclick();assert.equal(el('plans').classList.contains('current'),true);assert.equal(mapOpens.length,0,'Free shortcut opens plan information without loading the map');
 console.log('PASS: every declared navigation button opens and focuses its exact page with one active sidebar destination');
 assert.equal(el('metric-count').textContent, '1');
 assert.equal(el('new-deal-form').hidden, true, 'Viewers cannot add properties');
@@ -306,7 +307,7 @@ assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,true,'Server-aut
 await el('login').onclick(); // Refresh cached memberships so Company A has its viewer fixture role.
 el('company').value='a';await el('company').onchange();
 assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Viewer role remains read-only even with a stale or inconsistent server write capability');
-const proMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View in Google Maps · Pro');assert.ok(proMap);assert.equal(new URL(proMap.href).searchParams.get('query'),deal.property_address,'Pro viewer shortcut carries the saved address');assert.equal(proMap.rel,'noopener noreferrer');const beforeStaleMap=mapOpens.length;el('company').value='b';await el('company').onchange();let blockedStaleMap=false;proMap.onclick({preventDefault(){blockedStaleMap=true}});assert.equal(blockedStaleMap,true,'Old property shortcut cannot open a different workspace map');assert.equal(mapOpens.length,beforeStaleMap);el('company').value='a';await el('company').onchange();
+const proMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View on Market Map · Pro');assert.ok(proMap);proMap.onclick();assert.equal(mapOpens.at(-1),deal.id,'Pro viewer shortcut opens the exact property map');const lookup=await context.window.JGAPMarketMapContext.geocode('a',deal.id);assert.equal(lookup.deal_id,deal.id);assert.equal(JSON.stringify(calls.filter(call=>call.name==='property-geocode').at(-1).body),JSON.stringify({companyId:'a',dealId:deal.id}));await assert.rejects(context.window.JGAPMarketMapContext.geocode('b',deal.id),/not authorized/);geocodeBusy=true;assert.equal((await context.window.JGAPMarketMapContext.geocode('a',deal.id)).status,'busy');geocodeBusy=false;const beforeStaleMap=mapOpens.length;el('company').value='b';await el('company').onchange();let blockedStaleMap=false;proMap.onclick({preventDefault(){blockedStaleMap=true}});assert.equal(blockedStaleMap,true,'Old property shortcut cannot open a different workspace map');assert.equal(mapOpens.length,beforeStaleMap);el('company').value='a';await el('company').onchange();
 el('company').value='b';await el('company').onchange();
 await context.window.JGAPFinanceContext.save('b',bookkeepingEntry,{vendor_name:'Fictional payee'});
 const financeWrite=calls.filter(call=>call.name==='save_property_bookkeeping').at(-1);

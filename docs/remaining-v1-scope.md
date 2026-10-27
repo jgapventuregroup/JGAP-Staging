@@ -7,7 +7,7 @@ Build these four features only, preserving the existing app and completed featur
 | Dashboard customization | Pro user can show/hide/reorder tools, metrics, recent properties and follow-ups; personal per workspace, persisted, resettable. Company/membership/ad controls remain governed by the existing app. | Owner desktop save/reload/reset passed October 27; viewer and phone acceptance pending. |
 | In-app alerts | Due follow-ups, tasks and maintenance from existing records; readable, actionable in the app. | Owner desktop review/unreview/badge/source-routing passed October 27; viewer, other source types and phone acceptance pending. No email/SMS/push delivery in this scope. |
 | Advanced team controls | Secure workspace invitations, roles and permissions, including last-owner safeguards and authorization. | Team screen and backend implemented; local UI/security tests and four staging rollback groups passed. Owner desktop seat display and full-capacity invitation lock passed October 27. Member removal/seat controls passed hosted rollback checks; ordinary recipient/team mutation, concurrency and phone acceptance pending. |
-| Market Map | Geographic view of saved properties with controlled location handling. | Implemented saved-property pins, verified coordinates and optional street tiles; four hosted rollback groups plus local UI/security checks passed. Owner desktop single-pin save/reopen, street opt-in and Passport route passed October 27; viewer/multi-pin/phone acceptance pending. No geocoder or market-data feed. |
+| Market Map | Locate the selected saved property automatically from its address with OpenStreetMap; preserve current Pro/company boundaries and honest missing/ambiguous results. | UI, authenticated lookup proxy, service cache and shared throttle implemented; local and hosted backend checks passed. Actual signed-in map/phone acceptance pending. No manual coordinate workflow, external listing feed or fabricated city pin. |
 
 ## Explicit exclusions from further build work
 
@@ -39,3 +39,8 @@ Signed-out/unexpected-identity events now clear private app state; normal refres
 ## Normal owner desktop acceptance — October 27, 2026
 
 Sixteen bounded check groups passed on `1b34036`; see `docs/evidence/four-feature-owner-desktop-2026-10-27.json`. Original dashboard configuration and personal alert state were restored. A synthetic map pin remains on an existing QA property; do not delete it or other fixtures without the owner's specific cleanup authorization. No real property/file/member/plan was modified. Viewer, team mutation, physical-phone, broad navigation, session configuration and hosted recovery gates remain; a single unexplained Alerts navigation discrepancy is recorded, not silently treated as a fixed bug.
+
+
+## Automatic-map scope clarification — October 27, 2026
+
+The owner rejected manual coordinate entry and subsequently approved restoring the original automatic-address workflow. A drafted removal was canceled before publishing. Market Map remains in scope as selected saved-property lookup and automatic map centering, with honest not-found/ambiguous results and no fabricated city pin. Authenticated service/cache/rate controls support the public lookup policy; broad discovery feeds and background bulk scans remain excluded. Google billing/key setup is not part of the selected approach. Actual signed-in and phone acceptance remain required.

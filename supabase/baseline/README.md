@@ -65,3 +65,7 @@ Apply `supabase/features/market-map.sql` once after the application baseline in 
 
 ## Property identity preview alignment add-on
 Apply `supabase/features/property-identity-preview.sql` once after the baseline in an approved empty environment. The trigger honors the existing server-verified owner-preview helper only for a current workspace owner, in addition to active Investor/Pro subscriptions. Ordinary Free/inactive users remain locked. The baseline preview helper remains false; this add-on introduces no identity whitelist, membership change, seat entitlement, subscription change or property mutation. Local preview contract and hosted ordinary role/Free denial checks are separate from live owner-form acceptance.
+
+
+## Automatic selected-property geocoding add-on
+Apply `supabase/features/property-geocoding.sql` once after the baseline in an approved empty environment and deploy `supabase/functions/property-geocode/`. Two service-only RLS tables store cache/lease state; public claim/release RPCs are granted only to service role. Hosted migration is `20261027182154_automatic_property_geocoding` (CLI source version `20261027181632`). It creates no customer/property/membership rows and does not overwrite manually verified coordinates. The Edge handler validates Auth and current Pro/company access before lookup and again before return. Public Nominatim policy, origin/provider settings, cache lifecycle and remaining acceptance are in `docs/market-map.md`. Do not rerun on staging.

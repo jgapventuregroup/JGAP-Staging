@@ -45,7 +45,7 @@ test('Passport preview requires active entitlement and ignores stale company res
    assert.equal(line.afterNode?.attributes['aria-label'],'Property Passport');
    assert.equal(line.afterNode.children[0].textContent,'Duplex — Property Passport');
    const openPanel=line.afterNode;
-   const mapButton=openPanel.children.find(node=>node.textContent==='View in Google Maps · Pro');assert.ok(mapButton);assert.equal(mapButton.tag,'a');assert.equal(mapButton.rel,'noopener noreferrer');mapButton.onclick();assert.equal(mapOpens,1);company='other';mapButton.onclick();assert.equal(mapOpens,1,'Stale Passport cannot open another workspace map');company='c1';
+   const mapButton=openPanel.children.find(node=>node.textContent==='View on Market Map · Pro');assert.ok(mapButton);assert.equal(mapButton.tag,'a');assert.equal(mapButton.rel,'noopener noreferrer');mapButton.onclick();assert.equal(mapOpens,1);company='other';mapButton.onclick();assert.equal(mapOpens,1,'Stale Passport cannot open another workspace map');company='c1';
    assert.equal(line.children[0].attributes['aria-expanded'],'true','Opening Passport updates expanded state');
    assert.equal(line.children[0].attributes['aria-label'],'Close property passport for Duplex','Expanded control identifies the selected property');
    const financialRows=openPanel.children.flatMap(child=>child.tag==='section'?child.children.filter(row=>row.tag==='p'):child.tag==='p'?[child]:[]).map(child=>child.children.map(part=>part.textContent).join(''));

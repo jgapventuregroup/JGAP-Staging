@@ -338,3 +338,8 @@ The owner rejected manual coordinate entry as the normal property-map flow and s
 ## No-billing map decision — October 27, 2026 (supersedes Embed setup above)
 
 The owner explicitly declined a Google Cloud billing account and selected direct Google Maps address links. Embed iframe/key configuration has been removed. View in Google Maps · Pro on saved properties and Passport opens the saved address directly in a new tab/Maps app, without an intermediate map page or coordinate entry when an address exists. Current setup requires no Google key, trial or billing account. Existing plan/scope guards and advanced manual pins remain. See the current section at the top of `market-map.md`; old Embed setup is historical, not a vendor obligation.
+
+
+## Automatic address map restored — October 27, 2026
+
+The owner approved restoring the old automatic-address interaction. The drafted Market Map removal was canceled before publishing. The default map now locates only the selected saved property via the authenticated `property-geocode` Edge service, shared private cache and app-wide throttle. Street tiles and the matched pin open automatically; normal UI has no manual coordinate controls. No Google billing/key setup is required. Apply the property-geocoding add-on and deploy the Edge folder in a future approved environment; see the current `market-map.md` section for service policy, configuration, hosted evidence and remaining signed-in/device acceptance. Existing property/location rows are preserved. Do not claim unlimited free production geocoding or restore the old city-center fallback.
