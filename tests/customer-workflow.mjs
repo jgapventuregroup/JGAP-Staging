@@ -26,7 +26,7 @@ class Element {
 const elements = new Map();
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
 const companies = [{ company_id: 'a', company_name: 'Company A', member_role: 'viewer' }, { company_id: 'b', company_name: 'Company B', member_role: 'owner' }];
-const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
+const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', property_address:'1 Fictional Lane #2, Test City, TN', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
 let secondaryDeferred=null;
 let membership={plan:'free',billing_status:'not_connected'}, passportAllowed=false, ownerPreviewAllowed=false, passportEligibility,operationsCapability={read:false,write:false},financeCapability={read:false,write:false};
 const adSlots=[new Element('aside'),new Element('aside')];
@@ -59,7 +59,7 @@ const fakeClient = {
 const pageNodes=[...html.matchAll(/<section\b([^>]+)>/g)].filter(match=>/class="page(?: |")/.test(match[1])).map(match=>{const id=match[1].match(/id="([^"]+)"/)[1],node=el(id);node.id=id;node.classList.add('page');if(/class="page current"/.test(match[1]))node.classList.add('current');return node;});
 const navStart=html.indexOf('<nav id="workspace-nav"'),navEnd=html.indexOf('</nav>',navStart);
 const navigationButtons=[...html.matchAll(/<button\b[^>]*data-page="([^"]+)"[^>]*>/g)].map(match=>{const node=new Element('button');node.dataset.page=match[1];node.inSidebar=match.index>navStart&&match.index<navEnd;return node;});
-const context = { document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: selector => selector==='[data-tka-ad-slot]'?adSlots:selector==='.page'?pageNodes:selector==='[data-page]'?navigationButtons:[], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
+const context = { URL, document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: selector => selector==='[data-tka-ad-slot]'?adSlots:selector==='.page'?pageNodes:selector==='[data-page]'?navigationButtons:[], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
 context.window.JGAPPassportPreview={clear(){passportEligibility=null},setEligibility(value){passportEligibility=value},addAction(options){if(!passportEligibility?.enabled)return;const button=new Element('button');button.onclick=async()=>{await options.fetchDeal();calls.push({name:'open-passport',companyId:options.companyId,dealId:options.deal.id});};options.line.append(button);return button;}};
 vm.runInNewContext(script, context);
 const signedOutFocus=pageNodes.map(node=>node.focusCount||0);
@@ -107,7 +107,7 @@ for(const button of navigationButtons){
  for(const sidebar of navigationButtons.filter(node=>node.inSidebar))assert.equal(sidebar['aria-current'],sidebar.dataset.page===button.dataset.page?'page':undefined,'Sidebar announces only the active destination');
 }
 const mapOpens=[];context.window.JGAPMarketMap={open:id=>mapOpens.push(id),clear(){}};
-const freeMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View on Market Map · Pro');assert.ok(freeMap);freeMap.onclick();assert.equal(el('plans').classList.contains('current'),true);assert.equal(mapOpens.length,0,'Free shortcut opens plan information without loading the map');
+const freeMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View in Google Maps · Pro');assert.ok(freeMap);freeMap.onclick();assert.equal(el('plans').classList.contains('current'),true);assert.equal(mapOpens.length,0,'Free shortcut opens plan information without loading the map');
 console.log('PASS: every declared navigation button opens and focuses its exact page with one active sidebar destination');
 assert.equal(el('metric-count').textContent, '1');
 assert.equal(el('new-deal-form').hidden, true, 'Viewers cannot add properties');
@@ -306,7 +306,7 @@ assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,true,'Server-aut
 await el('login').onclick(); // Refresh cached memberships so Company A has its viewer fixture role.
 el('company').value='a';await el('company').onchange();
 assert.equal(context.window.JGAP_ORIGINAL_PASSPORT_WRITES_READY,false,'Viewer role remains read-only even with a stale or inconsistent server write capability');
-const proMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View on Market Map · Pro');assert.ok(proMap);proMap.onclick();assert.equal(mapOpens.at(-1),deal.id,'Pro viewer shortcut carries the exact saved property ID');const beforeStaleMap=mapOpens.length;el('company').value='b';await el('company').onchange();proMap.onclick();assert.equal(mapOpens.length,beforeStaleMap,'Old property shortcut cannot open a different workspace map');el('company').value='a';await el('company').onchange();
+const proMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View in Google Maps · Pro');assert.ok(proMap);assert.equal(new URL(proMap.href).searchParams.get('query'),deal.property_address,'Pro viewer shortcut carries the saved address');assert.equal(proMap.rel,'noopener noreferrer');const beforeStaleMap=mapOpens.length;el('company').value='b';await el('company').onchange();let blockedStaleMap=false;proMap.onclick({preventDefault(){blockedStaleMap=true}});assert.equal(blockedStaleMap,true,'Old property shortcut cannot open a different workspace map');assert.equal(mapOpens.length,beforeStaleMap);el('company').value='a';await el('company').onchange();
 el('company').value='b';await el('company').onchange();
 await context.window.JGAPFinanceContext.save('b',bookkeepingEntry,{vendor_name:'Fictional payee'});
 const financeWrite=calls.filter(call=>call.name==='save_property_bookkeeping').at(-1);

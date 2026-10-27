@@ -333,3 +333,8 @@ The owner’s screenshot exposed a mismatch missed by the first address-editor r
 ## Address-first Google Maps — owner-approved October 27, 2026
 
 The owner rejected manual coordinate entry as the normal property-map flow and selected Google Maps Embed after pricing research. The property screen now uses the selected saved address, a property selector and a Google Maps link fallback; manual portfolio pins remain advanced. Configure only the restricted browser Embed key in `config.js` after owner-controlled Google Cloud billing/API setup. The key is currently blank; no embedded Google activation or rendered-provider success is claimed. See `market-map.md` for setup, no-charge service boundaries, privacy and remaining acceptance. No external discovery feeds or broader geocoding feature was added.
+
+
+## No-billing map decision — October 27, 2026 (supersedes Embed setup above)
+
+The owner explicitly declined a Google Cloud billing account and selected direct Google Maps address links. Embed iframe/key configuration has been removed. View in Google Maps · Pro on saved properties and Passport opens the saved address directly in a new tab/Maps app, without an intermediate map page or coordinate entry when an address exists. Current setup requires no Google key, trial or billing account. Existing plan/scope guards and advanced manual pins remain. See the current section at the top of `market-map.md`; old Embed setup is historical, not a vendor obligation.

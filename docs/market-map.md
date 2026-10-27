@@ -1,6 +1,17 @@
 # Saved-property Market Map — October 27, 2026
 
-## Current default — Google Maps Embed, approved October 27, 2026
+## Current default — direct Google Maps links, owner decision October 27, 2026
+
+The owner declined Google Cloud billing after reviewing trial and account requirements and explicitly chose the no-billing Google Maps URL option. This supersedes the Embed decision and setup instructions preserved below as history. **No Embed API key, Google Cloud billing account or trial is required by the current app.** Embed iframe code and its key configuration were removed; no background Google map/address request occurs on page opening.
+
+My properties and Property Passport now offer View in Google Maps · Pro. For authorized Pro readers with a saved street address, this is a direct address-encoded link opening a new tab or the installed Maps app. It uses the saved street address, not the property’s display label, company ID, session or notes. A missing address opens the property-map page with guidance to add one. Free/Investor actions open plan information. Stale workspace/account actions prevent link navigation. The main map page provides address links and a property selector; the prior manual portfolio map remains an advanced option.
+
+Google processes the address only when its link is opened, and its search result may be ambiguous; no parcel/unit accuracy is guaranteed. Google Maps URLs require no API key: https://developers.google.com/maps/documentation/urls/get-started . This implementation makes no Google Maps Platform API calls and requires no paid mapping service setup. The app’s existing Pro entitlement is separate from Google billing.
+
+Local coverage verifies address encoding, safe new-tab attributes, exact property links, no iframe creation, missing addresses, role/plan gating, stale-link prevention and workspace clearing. Rendered browser/phone acceptance remains pending.
+
+
+## Superseded Google Maps Embed setup — not the current implementation
 
 Property shortcuts and the main map screen now use the selected saved street address for Google Maps Embed. No latitude/longitude entry or separate geocoding API is needed. The exact property ID controls selection; users can switch properties with a selector. The prior local portfolio pin map remains available through Portfolio pins · advanced; its preserved behavior/evidence below is not the default property experience.
 

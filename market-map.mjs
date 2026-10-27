@@ -15,35 +15,30 @@ export function validateMarketMap(data,company){
  if(data?.company_id!==company||!Array.isArray(data.rows))throw Error('Map workspace response did not match');const ids=new Set();
  for(const row of data.rows){if(!row.id||ids.has(row.id)||row.company_id!==company)throw Error('Map property response did not match');ids.add(row.id);if(row.latitude!==null||row.longitude!==null)parseCoordinates(row.latitude,row.longitude);}return data.rows;
 }
-export function googlePropertyUrls(row,key=''){
+export function googlePropertyUrls(row){
  const address=typeof row?.address==='string'?row.address.trim():'';
  if(!address)return null;
  const external=new URL('https://www.google.com/maps/search/');external.searchParams.set('api','1');external.searchParams.set('query',address);
- const embed=new URL('https://www.google.com/maps/embed/v1/place');embed.searchParams.set('q',address);
- const configured=typeof key==='string'?key.trim():'';if(configured)embed.searchParams.set('key',configured);
- return {address,external:external.href,embed:configured?embed.href:null};
+ return {address,external:external.href};
 }
-function renderGoogleProperties({root,rows,dealId,key,current,navigate,showPins}){
+function renderGoogleProperties({root,rows,dealId,current,navigate,showPins}){
  const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
  if(!rows.length){root.append(el('p','No saved properties to map.'));return;}
  const label=el('label','Saved property'),select=el('select');select.setAttribute('aria-label','Choose a property for Google Maps');for(const row of rows){const option=el('option',row.name||'Saved property');option.value=row.id;select.append(option);}label.append(select);root.append(label);
  const content=el('section');root.append(content);
  const show=row=>{
   if(!current())return;content.replaceChildren();if(!row){select.value='';content.append(el('p','Selected property is no longer available in this workspace.'));return;}
-  select.value=row.id;content.append(el('h2',row.name||'Saved property'));const urls=googlePropertyUrls(row,key);
+  select.value=row.id;content.append(el('h2',row.name||'Saved property'));const urls=googlePropertyUrls(row);
   const open=el('button','Open saved property');open.type='button';open.onclick=()=>{if(current())return navigate(row);};
   if(!urls){content.append(el('p','Add a street address in Property Passport to show this property on Google Maps.'),open);return;}
   content.append(el('p',urls.address));
-  if(urls.embed){const frame=el('iframe');frame.title='Google Maps for '+urls.address;frame.src=urls.embed;frame.className='property-google-map';frame.loading='eager';frame.referrerPolicy='strict-origin-when-cross-origin';frame.setAttribute('allowfullscreen','');// Dimensions are supplied through the shared stylesheet.
-   const status=el('p','Google Maps uses the saved address. Check that the result matches the property.');status.setAttribute('role','status');frame.onerror=()=>{if(current())status.textContent='Map preview could not load. Use Open in Google Maps below.';};content.append(frame,status);
-  }else content.append(el('p','Map preview is not available yet. Use Open in Google Maps to view this address.'));
   const link=el('a','Open in Google Maps');link.href=urls.external;link.target='_blank';link.rel='noopener noreferrer';link.className='property-google-link';link.onclick=event=>{if(!current())event.preventDefault();};
-  content.append(link,open,el('p','Google receives this selected address and your connection information. Street View availability depends on Google’s coverage.'));
+  content.append(link,open,el('p','Opens Google Maps in a new tab or the Maps app. Google receives the address when you open the link.'));
  };
  select.addEventListener('change',()=>{if(current())show(rows.find(row=>row.id===select.value));});show(dealId?rows.find(row=>row.id===dealId):rows[0]);
  const advanced=el('button','Portfolio pins · advanced');advanced.type='button';advanced.onclick=()=>{if(current())showPins();};root.append(advanced);
 }
-export function mountMarketMap({root,getContext,load,save,openProperty,createMap,provider='google',getEmbedKey=()=>''}){
+export function mountMarketMap({root,getContext,load,save,openProperty,createMap,provider='google'}){
  let generation=0,map=null;
  const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
  const clear=()=>{generation++;map?.destroy();map=null;root.replaceChildren();};
@@ -52,7 +47,7 @@ export function mountMarketMap({root,getContext,load,save,openProperty,createMap
   const message=el('p');message.setAttribute('role','status');root.append(message);if(!scope.canRead){message.textContent='Market Map requires active Pro access.';return;}message.textContent='Loading saved property locations…';
   try{
    let rows=validateMarketMap(await load(scope.companyId),scope.companyId);if(!current())return;
-   if(mode==='google'){message.textContent='View your saved property by address.';renderGoogleProperties({root,rows,dealId,key:getEmbedKey(),current,navigate:async row=>{try{await openProperty(scope.companyId,row.id);}catch(error){if(current())message.textContent='Could not open property: '+error.message;}},showPins:()=>open(null,'manual')});return;}
+   if(mode==='google'){message.textContent='View your saved property by address.';renderGoogleProperties({root,rows,dealId,current,navigate:async row=>{try{await openProperty(scope.companyId,row.id);}catch(error){if(current())message.textContent='Could not open property: '+error.message;}},showPins:()=>open(null,'manual')});return;}
    const count=el('p');root.append(count);const filterLabel=el('label','Find a saved property');filterLabel.setAttribute('for','map-search');const search=el('input');search.id='map-search';search.type='search';root.append(filterLabel,search);
    const canvas=el('div');canvas.className='market-map-canvas';canvas.setAttribute('aria-label','Saved property pins; equivalent property list below');root.append(canvas);let streetsOn=false;const streetStatus=el('p');streetStatus.setAttribute('role','status');map=createMap(canvas,()=>{if(current()&&streetsOn)streetStatus.textContent='Street tiles could not load. Saved pins and the property list are still available. Hide the street map and load it again to retry.';});const ownMap=map;
    const streets=el('button','Load street map (shares viewed area)');streets.type='button';root.append(el('p','Pins stay local. Loading streets sends map-area requests and your IP address to OpenStreetMap. Property names and records are not sent. Street tiles are optional.'),streets,streetStatus);
@@ -82,5 +77,5 @@ export function createLeafletMap(canvas,L,onStreetError=()=>{}){
  return {setPickHandler:handler=>{pickHandler=handler;},destroy:()=>{streets=null;map.remove();},setStreets:on=>{if(on&&!streets){streets=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'});const layer=streets;streets.on('tileerror',()=>{if(streets!==layer)return;canvas.setAttribute('aria-description','Street tiles could not load; saved pins and the property list remain available.');onStreetError();});streets.addTo(map);}else if(!on&&streets){map.removeLayer(streets);streets=null;canvas.setAttribute('aria-description','');}},setPins:(rows,open,focusId=null)=>{pins.clearLayers();const positions=mapDisplayPositions(rows);for(const [index,row] of rows.entries()){const popup=document.createElement('div');const name=document.createElement('strong');name.textContent=row.name;const button=document.createElement('button');button.type='button';button.textContent='Open saved property';button.onclick=()=>open(row);popup.append(name,button);const marker=L.circleMarker(positions[index],{radius:8,color:'#b94d00',fillColor:'#ef8a27',fillOpacity:0.9}).bindPopup(popup).addTo(pins);if(row.id===focusId)marker.openPopup?.();}if(rows.length)map.fitBounds(positions,{padding:[28,28],maxZoom:15});map.invalidateSize();}};
 }
 if(typeof window!=='undefined'&&typeof document!=='undefined'){
- const root=document.getElementById('market-map-view');if(root)window.JGAPMarketMap=mountMarketMap({root,getContext:()=>window.JGAPMarketMapContext?.scope(),load:company=>window.JGAPMarketMapContext.load(company),save:(...args)=>window.JGAPMarketMapContext.save(...args),openProperty:(...args)=>window.JGAPMarketMapContext.openProperty(...args),getEmbedKey:()=>window.JGAP_GOOGLE_MAPS_EMBED_KEY||'',createMap:(canvas,onStreetError)=>createLeafletMap(canvas,window.L,onStreetError)});
+ const root=document.getElementById('market-map-view');if(root)window.JGAPMarketMap=mountMarketMap({root,getContext:()=>window.JGAPMarketMapContext?.scope(),load:company=>window.JGAPMarketMapContext.load(company),save:(...args)=>window.JGAPMarketMapContext.save(...args),openProperty:(...args)=>window.JGAPMarketMapContext.openProperty(...args),createMap:(canvas,onStreetError)=>createLeafletMap(canvas,window.L,onStreetError)});
 }
