@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-27",
+  "environment": "Existing published staging app; normal email/password QA accounts A and B; desktop browser",
+  "workspace": "V1 Team Acceptance 2026-10-27",
+  "version_boundary": "Browser session spanned staging updates; exact loaded asset hash was not captured. This is bounded observed behavior, not final-candidate certification.",
+  "checks": [
+    {
+      "name": "editor_role_persistence",
+      "result": "PASS",
+      "observed": "Owner saved viewer to editor; reloaded list and B workspace selector showed editor."
+    },
+    {
+      "name": "editor_note_save_readback",
+      "result": "PASS",
+      "observed": "B appended fictional acceptance text; displayed note updated and status said Notes saved and verified."
+    },
+    {
+      "name": "original_note_restoration",
+      "result": "PASS",
+      "observed": "B restored original fixture note; displayed note returned to original text."
+    },
+    {
+      "name": "editor_team_management_exclusion",
+      "result": "PASS",
+      "observed": "B Team access showed owner-only management guidance and no membership/invitation management controls."
+    },
+    {
+      "name": "viewer_downgrade_persistence",
+      "result": "PASS",
+      "observed": "A saved editor to viewer; reloaded member list showed viewer before removal."
+    },
+    {
+      "name": "membership_removal_and_seat_release",
+      "result": "PASS",
+      "observed": "A removed only B from the approved fixture; reloaded team showed 1 member, 0 reserved invitations, 2 total seats and enabled invitation creation."
+    },
+    {
+      "name": "retained_owner_and_property",
+      "result": "PASS",
+      "observed": "A remained sole listed owner; My properties still listed V1 Team Acceptance QA Property, connected count 1."
+    },
+    {
+      "name": "last_owner_demotion_denial",
+      "result": "PASS",
+      "observed": "Server rejected A owner to viewer with Keep at least one workspace owner; reloaded team confirmed owner."
+    }
+  ],
+  "retained_state": {
+    "owner": "QA A",
+    "qa_b_membership": "removed from this fixture only",
+    "property": "retained",
+    "workspace": "retained",
+    "original_note": "restored"
+  },
+  "not_verified": [
+    "B session/API behavior after removal",
+    "viewer session after downgrade in this resumed sequence",
+    "simultaneous competing-seat requests",
+    "provider single-session enforcement",
+    "physical-phone usability",
+    "successful automatic geocoding and street-map rendering",
+    "hosted database and private-file recovery"
+  ],
+  "approval_boundary": "Owner explicitly approved the isolated invitation/role/removal fixture sequence. No existing real workspace, payment, plan or file changed."
+}

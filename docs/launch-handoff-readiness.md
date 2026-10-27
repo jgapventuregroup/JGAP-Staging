@@ -3,6 +3,12 @@
 ## Current owner scope
 Finish only Market Map, in-app alerts, dashboard customization and advanced team controls; preserve completed features. `remaining-v1-scope.md` supersedes historical requirements to finish external Radar, lead generation and further suite expansion. Payments/distribution/production remain the outside company’s work.
 
+## Latest acceptance checkpoint — October 27, 2026
+
+The approved isolated team browser sequence completed: invitation/acceptance, observed viewer read-only screens, editor note save/readback/original-note restoration, editor team-management exclusion, viewer→editor→viewer changes, B-only membership removal with seat release, and last-owner demotion denial. A remains owner and the fictional property is retained; B has no remaining membership in that fixture. Details and limits: `evidence/team-role-removal-desktop-2026-10-27.json` and `v1-acceptance-status.md`. Revoked-session behavior and concurrent seat operations are separate open checks.
+
+Automatic address-map implementation supersedes the old manual-coordinate descriptions below. A signed-in missing-address check opened the exact Passport without creating a substitute pin. Successful address match/street rendering and physical-phone acceptance remain open. The visible-map/workspace-loading race was fixed in `910d79e`; local checks and all four CI workflows passed, but reloading ended the browser session before live re-verification. Provider single-session configuration and hosted database/private-file recovery still require verification. This is not final handoff acceptance.
+
 ## Current checkpoint — October 26, 2026
 Private Pro documents, seller-financing comparison, saved-deal review and the consolidated Money-Making overview are implemented. Normal-session document/playbook/print checks passed; eleven bounded overview/Radar desktop checks passed on `f8d848c` (see `evidence/money-radar-desktop-2026-10-26.json`). Populated overview, property cash-source totals and positive saved-Radar signals now passed seven further browser groups (see `evidence/money-radar-populated-2026-10-26.json`). Physical phones, ordinary viewer UI, hosted restore/recovery, legal ownership records and the remaining advertised Pro tools are still open. No full launch-ready claim is made. Three fictional PDFs remain in the two disposable document workspaces; no new cleanup is authorized. Payments, live ads and production deployment remain the external company's work. Older milestones below are historical.
 
