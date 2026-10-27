@@ -1,5 +1,5 @@
 const uuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
-export const lookupAddress=value=>value.replace(/\s*(?:#|apt\.?|unit|suite|ste\.?)\s*[a-zA-Z0-9-]+(?=\s*,|\s+[a-zA-Z]|$)/i,'').trim();
+export const lookupAddress=value=>value.replace(/(?:\s+|,\s*)(?:#\s*|(?:apt|unit|suite|ste)\.?\s+)[a-zA-Z0-9-]+(?=\s*,|\s+[a-zA-Z]|$)/i,'').trim();
 const roadText=value=>String(value).toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(Boolean).map(word=>({st:'street',rd:'road',ave:'avenue',ln:'lane',dr:'drive',ct:'court',cir:'circle',blvd:'boulevard',hwy:'highway',n:'north',s:'south',e:'east',w:'west'}[word]||word)).join(' ');
 export function matchNominatim(data,address){
  if(!Array.isArray(data))throw Error('Invalid provider response');
@@ -28,7 +28,7 @@ export function createPropertyGeocoder({baseUrl,anonKey,serviceKey,providerUrl='
    let row;try{row=await load();}catch{return reply({error:'Property map access denied'},403);}
    const address=typeof row.address==='string'?row.address.trim():'';if(!address||address.length>300)return reply({company_id:companyId,deal_id:dealId,address,status:'missing_address'});
    const endpoint=new URL(providerUrl);if(endpoint.protocol!=='https:')return reply({error:'Lookup is not configured'},503);
-   const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(endpoint.href+'\n'+address.toLowerCase().replace(/\s+/g,' '))))).map(byte=>byte.toString(16).padStart(2,'0')).join('');
+   const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('building-address-v2\n'+endpoint.href+'\n'+address.toLowerCase().replace(/\s+/g,' '))))).map(byte=>byte.toString(16).padStart(2,'0')).join('');
    const serviceHeaders={apikey:serviceKey,Authorization:'Bearer '+serviceKey,'Content-Type':'application/json'};
    const query=new URLSearchParams({company_id:'eq.'+companyId,deal_id:'eq.'+dealId,address_hash:'eq.'+hash,select:'status,latitude,longitude,matched_address,updated_at'});
    const cachedResponse=await fetcher(base+'/rest/v1/property_geocode_cache?'+query,{headers:serviceHeaders,signal:AbortSignal.timeout(8000)});if(!cachedResponse.ok)throw Error('Cache unavailable');const cached=await cachedResponse.json();

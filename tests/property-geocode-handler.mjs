@@ -22,3 +22,10 @@ test('fresh cache avoids provider and throttle; busy slot prevents request; addr
  const busy=fixture({busy:true}),r=await busy.request();assert.equal(r.status,429);assert.equal(r.headers.get('Retry-After'),'2');assert.ok(!busy.calls.some(call=>call.url.includes('nominatim')));
  for(const options of [{changed:true},{revoked:true}]){const failure=fixture(options);assert.ok((await failure.request()).status>=400);assert.ok(!failure.calls.some(call=>call.options.method==='POST'&&call.url.includes('property_geocode_cache?')));}
 });
+
+
+test('unit cleanup preserves street-name substrings and strips only separate unit labels',()=>{
+ for(const address of ['123 Captain Jones Road, Bristol TN','124 Stevens Lane, Bristol TN','125 Aptos Avenue, Bristol TN','126 Suitewater Circle, Bristol TN','127 Unity Drive, Bristol TN'])assert.equal(lookupAddress(address),address);
+ for(const unit of [' #20',' Apt 20',' Apt. 20',' Unit A',' Suite 3-B',' Ste. 4',', Apt 20'])assert.equal(lookupAddress('90 Example Grove Cir'+unit+', Bristol TN'),'90 Example Grove Cir, Bristol TN');
+ const captain={...match,display_name:'123 Captain Jones Road, Bristol TN',address:{house_number:'123',road:'Captain Jones Road'}};assert.equal(matchNominatim([captain],'123 Captain Jones Rd Apt 2, Bristol TN').status,'matched');
+});
