@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {parseCoordinates,validateMarketMap,mountMarketMap} from '../market-map.mjs';
+import test from 'node:test';import assert from 'node:assert/strict';import {parseCoordinates,validateMarketMap,mountMarketMap,mapDisplayPositions,createLeafletMap} from '../market-map.mjs';
 test('coordinates retain real zero and reject missing, nonfinite and unsupported values',()=>{assert.deepEqual(parseCoordinates('0','0'),{latitude:0,longitude:0});for(const pair of [['','0'],['NaN','0'],['86','0'],['0','181']])assert.throws(()=>parseCoordinates(...pair));assert.throws(()=>validateMarketMap({company_id:'foreign',rows:[]},'c'));});
 class Node{constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attributes={};this.value='';this.textContent='';this.disabled=false;this.listeners={};}append(...n){this.children.push(...n)}prepend(...n){this.children.unshift(...n)}replaceChildren(...n){this.children=n}setAttribute(k,v){this.attributes[k]=v}addEventListener(k,v){this.listeners[k]=v}}
 const all=n=>[n,...n.children.flatMap(all)];const dom=fn=>async()=>{const old=globalThis.document;globalThis.document={createElement:t=>new Node(t)};try{await fn()}finally{globalThis.document=old}};
@@ -28,4 +28,19 @@ test('editing either coordinate invalidates confirmation and blocks saving until
   await form.onsubmit({preventDefault(){}});assert.equal(f.writes.length,0);assert.ok(all(f.root).some(n=>n.textContent==='Confirm that you verified this property location.'));
   inputs[2].checked=true;await form.onsubmit({preventDefault(){}});assert.equal(f.writes.length,1);
  }
+}));
+
+
+test('map display fits the shortest longitude arc without changing saved coordinates or property order',()=>{
+ const rows=[{latitude:12,longitude:179},{latitude:-8,longitude:-179},{latitude:0,longitude:178}];const original=structuredClone(rows),points=mapDisplayPositions(rows);assert.deepEqual(rows,original);assert.deepEqual(points.map(p=>p[0]),[12,-8,0]);assert.equal(Math.max(...points.map(p=>p[1]))-Math.min(...points.map(p=>p[1])),3);
+ for(let i=0;i<rows.length;i++)assert.equal(((points[i][1]-rows[i].longitude)%360+360)%360,0);
+ assert.deepEqual(mapDisplayPositions([]),[]);assert.deepEqual(mapDisplayPositions([{latitude:36,longitude:-82}]),[[36,-82]]);assert.deepEqual(mapDisplayPositions([{latitude:0,longitude:-180},{latitude:1,longitude:180}]),[[0,-180],[1,-180]]);
+ const local=mapDisplayPositions([{latitude:35,longitude:-83},{latitude:36,longitude:-82}]);assert.deepEqual(local,[[35,-83],[36,-82]]);
+});
+
+
+test('Leaflet markers and fitted bounds share the wrapped positions and keep exact property routes',dom(async()=>{
+ const markerPoints=[],popups=[],opened=[];let bounds;const instance={setView(){return this},on(){},fitBounds(points){bounds=points},invalidateSize(){},remove(){}};
+ const layer={addTo(){return this},clearLayers(){}};const L={map:()=>instance,layerGroup:()=>layer,circleMarker:point=>{markerPoints.push(point);return {bindPopup(popup){popups.push(popup);return this},addTo(){return this}}}};
+ const adapter=createLeafletMap(new Node('div'),L),rows=[{id:'east',name:'East',latitude:1,longitude:179},{id:'west',name:'West',latitude:2,longitude:-179}];adapter.setPins(rows,row=>opened.push(row.id));assert.deepEqual(markerPoints,bounds);assert.equal(Math.abs(bounds[1][1]-bounds[0][1]),2);popups[1].children[1].onclick();assert.deepEqual(opened,['west']);
 }));
