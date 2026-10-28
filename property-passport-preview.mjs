@@ -235,11 +235,13 @@ function addAction({line,deal,openMap,mapHref,onPropertyUpdated,companyId,compan
       }
       if(eligibility.canWrite){
         const detailsGroup=Array.from(panel.children).find(node=>node.getAttribute?.('aria-label')==='Property details');
-        detailsGroup?.append(createPropertyAddressEditor({record,client,companyId,
+        const addressDisclosure=document.createElement('details');addressDisclosure.className='passport-edit-disclosure';const addressSummary=document.createElement('summary');addressSummary.textContent='Edit property name and address';addressDisclosure.append(addressSummary);detailsGroup?.append(addressDisclosure);
+        addressDisclosure.append(createPropertyAddressEditor({record,client,companyId,
           isCurrent:()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId&&eligibility.canWrite,
           onSaved:async next=>{if(onPropertyUpdated)await onPropertyUpdated(next);else{record.name=next.name;record.property_address=next.property_address;heading.textContent=next.name+' — Property Passport';const row=Array.from(detailsGroup.children).find(node=>node.querySelector?.('strong')?.textContent==='Address: ');if(row)row.replaceChildren(Object.assign(document.createElement('strong'),{textContent:'Address: '}),document.createTextNode(next.property_address));}}
         }));
-        detailsGroup?.append(createPassportDetailsEditor({record,client,companyId,
+        const typeDisclosure=document.createElement('details');typeDisclosure.className='passport-edit-disclosure';const typeSummary=document.createElement('summary');typeSummary.textContent='Edit property type and units';typeDisclosure.append(typeSummary);detailsGroup?.append(typeDisclosure);
+        typeDisclosure.append(createPassportDetailsEditor({record,client,companyId,
           isCurrent:()=>current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client&&eligibility.enabled&&eligibility.companyId===companyId&&eligibility.canWrite,
           onSaved:next=>{
             for(const [label,value] of [['Type',next.propertyType],['Units',next.units]]){
@@ -574,7 +576,7 @@ function addAction({line,deal,openMap,mapHref,onPropertyUpdated,companyId,compan
       if(operationalHeading)groups.Operations.unshift(operationalHeading);
       const controlled=new Set(Object.values(groups).flat());
       const showGroup=name=>{
-        activeGroup=name;
+        activeGroup=name;panel.dataset.passportTab=name;
         for(const item of controlled){
           item.hidden=!groups[name].includes(item);
           if(item.dataset?.passportEditor==='true'){

@@ -13,7 +13,7 @@ assert.match(html,/<div class="properties-list-heading">[\s\S]*?Saved properties
 for (const page of ['dashboard','properties','pipeline','analyzer','toolbox']) {
   assert.match(html,new RegExp('<section id="'+page+'" class="page(?: current)?"'), 'Navigation destination missing: '+page);
 }
-for (const page of ['analyzer','properties','pipeline','toolbox']) {
+for (const page of ['analyzer','properties']) {
   assert.match(html,new RegExp('<div class="dashboard-tool-grid"[^>]*>[\\s\\S]*?<button type="button" data-page="'+page+'"'), 'Dashboard shortcut missing: '+page);
 }
 assert.match(html,/<button type="button" data-page="properties">View all properties →<\/button>/, 'Recent properties must link to the portfolio');

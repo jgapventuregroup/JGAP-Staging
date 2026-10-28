@@ -2,9 +2,9 @@ import test from 'node:test';import assert from 'node:assert/strict';import {cre
 const c='86000000-0000-4000-8000-000000000011',p='86000000-0000-4000-8000-000000000021',u='86000000-0000-4000-8000-000000000001',address='90 Example Grove Cir #20, Bristol TN';
 const match={lat:'36.5',lon:'-82.2',place_rank:30,display_name:'90 Example Grove Circle, Bristol, Tennessee',address:{house_number:'90',road:'Example Grove Circle'}};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status});
-function fixture({denied=false,cached=null,busy=false,provider=[match],changed=false,revoked=false}={}){
+function fixture({denied=false,cached=null,busy=false,provider=[match],providerStatus=200,changed=false,revoked=false}={}){
  const calls=[];let reads=0;const row={id:p,company_id:c,address,name:'Private property name',notes:'Private notes'};
- const handler=createPropertyGeocoder({baseUrl:'https://staging.invalid',anonKey:'public-test-key',serviceKey:'private-test-key',fetcher:async(url,options={})=>{url=String(url);calls.push({url,options});if(url.endsWith('/auth/v1/user'))return json({id:u});if(url.endsWith('/rpc/get_market_map')){reads++;if(denied||revoked&&reads>1)return json({},403);return json({company_id:c,rows:[{...row,...(changed&&reads>1?{address:'91 Different Lane'}:{})}]});}if(url.includes('property_geocode_cache?')&&options.method==='POST')return new Response(null,{status:201});if(url.includes('property_geocode_cache?'))return json(cached?[cached]:[]);if(url.endsWith('/rpc/claim_property_geocode_slot'))return json(busy?null:u);if(url.endsWith('/rpc/release_property_geocode_slot'))return json(true);if(url.startsWith('https://nominatim.openstreetmap.org/search'))return json(provider);throw Error('Unexpected URL');}});
+ const handler=createPropertyGeocoder({baseUrl:'https://staging.invalid',anonKey:'public-test-key',serviceKey:'private-test-key',fetcher:async(url,options={})=>{url=String(url);calls.push({url,options});if(url.endsWith('/auth/v1/user'))return json({id:u});if(url.endsWith('/rpc/get_market_map')){reads++;if(denied||revoked&&reads>1)return json({},403);return json({company_id:c,rows:[{...row,...(changed&&reads>1?{address:'91 Different Lane'}:{})}]});}if(url.includes('property_geocode_cache?')&&options.method==='POST')return new Response(null,{status:201});if(url.includes('property_geocode_cache?'))return json(cached?[cached]:[]);if(url.endsWith('/rpc/claim_property_geocode_slot'))return json(busy?null:u);if(url.endsWith('/rpc/release_property_geocode_slot'))return json(true);if(url.startsWith('https://nominatim.openstreetmap.org/search'))return json(provider,providerStatus);throw Error('Unexpected URL');}});
  const request=(body={companyId:c,dealId:p},headers={Authorization:'Bearer user-test-token',Origin:'https://jgapventuregroup.github.io'})=>handler(new Request('https://staging.invalid/functions/v1/property-geocode',{method:'POST',headers,body:JSON.stringify(body)}));return {calls,request};
 }
 test('provider matching rejects city/street fallback, wrong houses/roads and ambiguous buildings',()=>{
@@ -37,4 +37,9 @@ test('building matches require the requested street rather than a street-name su
  for(const requested of ['90 Example Grove Cir, Bristol TN','90 Example Grove Circle Bristol TN'])assert.equal(matchNominatim([building('Example Grove Circle')],requested).status,'matched');
  assert.equal(matchNominatim([building('North Main Street')],'90 N Main St, Bristol TN').status,'matched');
  assert.equal(matchNominatim([building('Main Street')],'90 Old Main Street Bristol TN').status,'not_found');
+});
+
+
+test('provider denial produces a safe diagnostic without recording the address or credentials',async()=>{
+ const previous=console.warn,logs=[];console.warn=value=>logs.push(String(value));try{const f=fixture({providerStatus:403}),response=await f.request(),data=await response.json();assert.equal(response.status,503);assert.equal(data.code,'lookup_provider_http_403');assert.deepEqual(logs,['property-geocode failure stage=provider_http_403']);assert.ok(!logs.join('').includes(address));assert.ok(!logs.join('').includes('private-test-key'));assert.ok(!f.calls.some(call=>call.options.method==='POST'&&call.url.includes('property_geocode_cache?')));}finally{console.warn=previous;}
 });
