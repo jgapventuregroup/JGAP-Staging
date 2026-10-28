@@ -21,8 +21,8 @@ test('radar denies non-Pro before loading and clears late cross-company response
 test('radar paginates safe text, applies filters and preserves truthful empty states',dom(async()=>{
  const root=new Node('div');let opened=0;const rows=Array.from({length:51},(_,i)=>({...row('deal-'+i),name:i===0?'<img src=x onerror=alert(1)>':'Property '+i}));
  const view=mountSavedRadar({root,getContext:()=>({companyId:'company-A',canRead:true}),load:async(c,d)=>report(d,rows),openProperties:()=>opened++});await view.open();
- assert.equal(all(root).filter(n=>n.tagName==='ARTICLE').length,50);assert.ok(all(root).some(n=>n.textContent==='<img src=x onerror=alert(1)>'));assert.equal(all(root).filter(n=>n.tagName==='IMG').length,0);
- all(root).find(n=>n.textContent==='Next 50 saved properties').onclick();assert.equal(all(root).filter(n=>n.tagName==='ARTICLE').length,1);
- const search=all(root).find(n=>n.tagName==='INPUT');search.value='not in portfolio';search.listeners.input();assert.equal(all(root).filter(n=>n.tagName==='ARTICLE').length,0);assert.ok(all(root).some(n=>n.textContent==='No saved properties match these filters.'));
+ assert.equal(all(root).filter(n=>n.tagName==='DETAILS').length,50);for(const card of all(root).filter(n=>n.tagName==='DETAILS')){assert.equal(card.children[0].tagName,'SUMMARY');assert.ok(!card.open);assert.ok(card.children.slice(1).some(n=>n.tagName==='P'));}assert.ok(all(root).some(n=>n.textContent==='<img src=x onerror=alert(1)>'));assert.equal(all(root).filter(n=>n.tagName==='IMG').length,0);
+ all(root).find(n=>n.textContent==='Next 50 saved properties').onclick();assert.equal(all(root).filter(n=>n.tagName==='DETAILS').length,1);
+ const search=all(root).find(n=>n.tagName==='INPUT');search.value='not in portfolio';search.listeners.input();assert.equal(all(root).filter(n=>n.tagName==='DETAILS').length,0);assert.ok(all(root).some(n=>n.textContent==='No saved properties match these filters.'));
  all(root).find(n=>n.textContent==='Open My properties').onclick();assert.equal(opened,1);
 }));

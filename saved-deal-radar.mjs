@@ -44,7 +44,7 @@ export function mountSavedRadar({root,getContext,load,openProperties}){
     if(!rows.length){list.append(el('p',report.rows.length?'No saved properties match these filters.':'No saved properties in this workspace. This is not a scan for new listings.'));return;}
     list.append(el('p',`${start+1}–${end} of ${rows.length} matching saved properties`));
     for(const row of rows.slice(start,end)){
-     const card=el('article');card.className='property-activity-record';card.append(el('h2',row.name),el('p',row.address||'Address not recorded'),el('p','Stage: '+row.status.replaceAll('_',' ')+' · Type: '+row.property_type));
+     const card=el('details');card.className='property-activity-record record-disclosure';const summary=el('summary'),meta=el('span','Stage: '+row.status.replaceAll('_',' ')+(row.follow_up_due?' · Follow-up due':'')+(row.review_fields.length?' · Data to verify':''));meta.className='record-meta';summary.append(el('strong',row.name),meta);card.append(summary,el('p',row.address||'Address not recorded'),el('p','Property type: '+row.property_type));
      const money=v=>v===null?'Not recorded':formatFinanceMoney(v);
      card.append(el('p','Saved asking price: '+money(row.asking_price)+' · Saved target: '+money(row.target_offer_price)+' · Asking minus target: '+money(row.asking_offer_gap)));
      card.append(el('p','Follow-up: '+(row.follow_up_date||'Not scheduled')+(row.follow_up_due?' · Due through '+asOf:'')));
