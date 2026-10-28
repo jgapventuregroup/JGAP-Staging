@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-28",
+  "implementation_commit": "970e8692920994c5444b7dba93218b6b1093858f",
+  "owner_report": [
+    "Width/visibility/position form too complex",
+    "One saved move disabled subsequent movement"
+  ],
+  "root_cause": "Client JSON string equality retained field order; PostgreSQL JSONB returned equivalent geometry in a different field order. Valid saves failed client verification.",
+  "before_fix": "New database-shaped controller fixture and equality regression failed against the previous implementation.",
+  "fix": "Canonicalize fields before comparing geometry. Preserve scope, user, timestamp and value checks. Remove design form and expose only Arrange/Done, contextual Undo and Reset layout.",
+  "verification": {
+    "local_full_suite": "PASS",
+    "targeted_client_database_packaging_tests": 12,
+    "sequential_model_moves": "Six saves plus Undo plus another save passed with database-ordered responses",
+    "database_integration": "PGlite JSONB save response passes the exact client comparator",
+    "deployed_browser_preview": "Three consecutive cross-column native mouse drags saved and left movement enabled; click-to-move, Undo, Reset, Done and reload passed",
+    "ci": "All four implementation workflows and website deployment passed"
+  },
+  "limits": "Browser preview uses production controller/grid with fictional content and tab-local storage; no newly signed-in owner session or physical touch test is claimed.",
+  "data_changes": "No property, subscription, provider, schema or real customer layout modified by acceptance."
+}
