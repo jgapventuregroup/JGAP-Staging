@@ -42,3 +42,8 @@ CELCO / HELOC secondary financing is a paid Investor/Pro feature. This explicitl
 Each workspace subscription includes one named user. Pro collaboration requires paid additional seats for every additional owner/admin/editor/viewer. Pending invitations reserve capacity. Seat quantities and expiry are trusted-backend controlled; customers cannot grant themselves seats. No additional-seat price, live billing, checkout, live advertising, email delivery, or external tracking is activated. Free and Investor retain reserved ad placements throughout the app; Pro stays ad-free. Invite a friend remains available in all three tiers and grants no workspace access.
 
 Included-seat allocation prioritizes the earliest owner, then stable membership order. Expired/reduced additional-seat capacity denies unlicensed record access without deleting memberships or shared records; renewal restores access. The existing verified staging-founder preview remains unchanged, is not customer team licensing, and is disabled in a fresh baseline. Seat-sharing controls do not yet prevent multiple people using the same credentials; provider session controls remain a handoff/acceptance item.
+
+
+### Ad placement — October 28, 2026
+
+Owner requested existing ad boxes at the top of the screen. All 15 existing reserved advertisement slots now appear first inside their page, above its main content. They scroll normally with the page. Existing plan visibility remains: Pro is ad-free; no live ad network is enabled in staging. User settings receives no new slot. Page structure, plan gates, navigation, and frontend packaging checks passed.
