@@ -69,3 +69,7 @@ Apply `supabase/features/property-identity-preview.sql` once after the baseline 
 
 ## Automatic selected-property geocoding add-on
 Apply `supabase/features/property-geocoding.sql` once after the baseline in an approved empty environment and deploy `supabase/functions/property-geocode/`. Two service-only RLS tables store cache/lease state; public claim/release RPCs are granted only to service role. Hosted migration is `20261027182154_automatic_property_geocoding` (CLI source version `20261027181632`). It creates no customer/property/membership rows and does not overwrite manually verified coordinates. The Edge handler validates Auth and current Pro/company access before lookup and again before return. Public Nominatim policy, origin/provider settings, cache lifecycle and remaining acceptance are in `docs/market-map.md`. Do not rerun on staging.
+
+
+## Individual dashboard grid add-on
+Apply `supabase/features/dashboard-grid.sql` after the dashboard-customization add-on in an approved empty environment. The additive grid_layout JSON field and version-2 invoker APIs retain legacy preferences/APIs and use the existing Pro/seat RLS. Layout stores only five approved widget IDs, coordinates, dimensions and visibility, never customer content/HTML. Save uses the expected updated_at value to reject stale concurrent writes. No preference row or property is deleted. Staging has this installed as individual_dashboard_grid; do not replay there. GridStack 14.0.0 assets/license are locally bundled. See `docs/dashboard-grid.md` for behavior and acceptance.
