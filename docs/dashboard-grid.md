@@ -29,3 +29,8 @@ Implementation `970e869` passed all four CI/deployment workflows. Its deployed f
 ### User settings entry — October 28, 2026
 
 Owner requested one personal-settings home under Account. Account → User settings now contains Arrange dashboard · Pro. The button opens the dashboard directly in arrangement mode; Done hides the editing toolbar again. The normal dashboard has no arrangement button or idle toolbar. The existing Pro/workspace access check, automatic saving, Undo, Reset and failed-save recovery are preserved. Future personal preferences belong on User settings; no speculative settings were added. Controller regression covers the external trigger, navigation callback, save, Done, reopening and denied/stale-session access.
+
+
+### Card outline cleanup — October 28, 2026
+
+Owner screenshot showed extra rounded outlines underneath the two shortcut cards. Grid widget wrappers are now plain div elements rather than page-style section elements, with no wrapper shadow; the inner content container supplies the single visible card border. This isolates grid geometry from global section styling. Dashboard preview now uses current production styles and the same panel ancestor, with a theme switch for light/dark acceptance. Its Arrange callback tolerates a missing optional navigation method (the standalone preview does not route pages). Geometry storage and account/layout data are unchanged.

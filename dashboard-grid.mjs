@@ -99,5 +99,5 @@ export function mountDashboardGrid({root,getContext,read,save,makeGrid,arrangeBu
 }
 if(typeof window!=='undefined'&&typeof document!=='undefined'){
  const root=document.getElementById('dashboard-customization'),host=document.getElementById('dashboard-grid');
- if(root&&host){window.JGAPDashboard=mountDashboardGrid({root,getContext:()=>window.JGAPDashboardContext?.scope(),read:company=>window.JGAPDashboardContext.read(company),save:(company,layout)=>window.JGAPDashboardContext.save(company,layout),arrangeButton:document.getElementById('settings-arrange-dashboard'),onArrange:()=>window.JGAPDashboardContext?.openDashboard(),makeGrid:onDrop=>createDashboardGrid({host,GridStack:window.GridStack,onDrop})});window.JGAPDashboard.load();}
+ if(root&&host){window.JGAPDashboard=mountDashboardGrid({root,getContext:()=>window.JGAPDashboardContext?.scope(),read:company=>window.JGAPDashboardContext.read(company),save:(company,layout)=>window.JGAPDashboardContext.save(company,layout),arrangeButton:document.getElementById('settings-arrange-dashboard'),onArrange:()=>window.JGAPDashboardContext?.openDashboard?.(),makeGrid:onDrop=>createDashboardGrid({host,GridStack:window.GridStack,onDrop})});window.JGAPDashboard.load();}
 }
