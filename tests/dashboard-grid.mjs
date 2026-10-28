@@ -8,11 +8,11 @@ test('grid model validates safe geometry and migrates legacy order/visibility wi
 class Node{constructor(tag){this.tagName=tag;this.children=[];this.attributes={};this.textContent='';this.hidden=false;this.disabled=false;}append(...nodes){for(const node of nodes){node.parent=this;this.children.push(node);}}replaceChildren(...nodes){this.children=[];this.append(...nodes);}setAttribute(k,v){this.attributes[k]=v;}remove(){this.parent.children=this.parent.children.filter(n=>n!==this);}querySelector(s){return this.children.flatMap(all).find(n=>s==='.'+n.className)||null;}focus(){this.focused=true;}}
 const all=n=>[n,...n.children.flatMap(all)];
 const dom=fn=>async()=>{const previous=globalThis.document;globalThis.document={createElement:t=>new Node(t)};try{await fn();}finally{globalThis.document=previous;}};
-function setup({allowed=true,failSave=false,failVerify=false,defer=false}={}){
+function setup({allowed=true,failSave=false,failVerify=false,defer=false,external=false}={}){
  const root=new Node('div'),elements=Object.fromEntries(GRID_IDS.map(id=>{const e=new Node('section'),c=new Node('div'),h=new Node('button');c.className='dashboard-card-controls';h.className='dashboard-grid-handle';c.append(h);e.append(c);return[id,e];}));let state=defaultGrid(),stored=response(),counter=0,scope={companyId:'c',session:{},canCustomize:allowed},onDrop,release;const calls=[];
  const adapter={elements,apply:items=>state=structuredClone(items),capture:()=>structuredClone(state),setEditing:(value,enabled=value)=>{adapter.visible=value;adapter.editing=enabled;},resize(){}};
- const view=mountDashboardGrid({root,getContext:()=>scope,makeGrid:cb=>{onDrop=cb;return adapter;},read:async()=>{counter++;if(defer)return new Promise(r=>release=()=>r(stored));if(failVerify&&counter>1)throw Error('Read unavailable');return structuredClone(stored);},save:async(company,data)=>{calls.push(structuredClone(data));if(failSave)throw Error('Write denied');stored=response(data.items,new Date(Date.parse('2026-10-28T12:00:00Z')+calls.length*1000).toISOString());return structuredClone(stored);}});
- const button=name=>all(root).find(n=>n.textContent===name);return {root,view,adapter,calls,elements,button,release:()=>release(),drop:async items=>{state=items;onDrop();await new Promise(r=>setTimeout(r,0));},switch:()=>scope={...scope,companyId:'other'}};
+ const trigger=external?new Node('button'):null;let opened=0;const view=mountDashboardGrid({root,arrangeButton:trigger,onArrange:()=>opened++,getContext:()=>scope,makeGrid:cb=>{onDrop=cb;return adapter;},read:async()=>{counter++;if(defer)return new Promise(r=>release=()=>r(stored));if(failVerify&&counter>1)throw Error('Read unavailable');return structuredClone(stored);},save:async(company,data)=>{calls.push(structuredClone(data));if(failSave)throw Error('Write denied');stored=response(data.items,new Date(Date.parse('2026-10-28T12:00:00Z')+calls.length*1000).toISOString());return structuredClone(stored);}});
+ const button=name=>all(root).find(n=>n.textContent===name);return {root,view,adapter,calls,elements,button,trigger,opened:()=>opened,release:()=>release(),drop:async items=>{state=items;onDrop();await new Promise(r=>setTimeout(r,0));},switch:()=>scope={...scope,companyId:'other'}};
 }
 test('prominent arrangement saves individual box geometry, reloads, undo and defaults',dom(async()=>{
  const f=setup();await f.view.load();assert.equal(f.adapter.editing,false);f.button('Arrange dashboard · Pro').onclick();assert.equal(f.adapter.editing,true);let moved=defaultGrid();moved[0].x=6;moved[1].x=0;await f.drop(moved);assert.equal(f.calls.length,1);assert.deepEqual(f.calls[0].items,moved);assert.ok(all(f.root).some(n=>n.textContent==='Saved. You can move another box.'));
@@ -42,4 +42,12 @@ test('database-shaped responses permit multiple moves, Undo and another move wit
 }));
 test('clicking two Move handles reorders boxes without a settings form',dom(async()=>{
  const f=setup();await f.view.load();f.button('Arrange dashboard · Pro').onclick();const source=f.elements.properties.querySelector('.dashboard-grid-handle'),target=f.elements.analyzer.querySelector('.dashboard-grid-handle');source.onclick();assert.equal(source.attributes['aria-pressed'],'true');target.onclick();await new Promise(r=>setTimeout(r,0));assert.equal(f.calls.length,1);assert.equal(f.adapter.capture().find(i=>i.id==='properties').x,0);assert.equal(f.adapter.capture().find(i=>i.id==='analyzer').x,6);
+}));
+
+test('User settings trigger opens arrangement and keeps the normal dashboard clear',dom(async()=>{
+ const f=setup({external:true});assert.ok(f.trigger);await f.view.load();assert.equal(f.root.hidden,true);assert.equal(f.trigger.disabled,false);assert.equal(f.button('Arrange dashboard · Pro'),undefined);
+ f.trigger.onclick();assert.equal(f.opened(),1);assert.equal(f.adapter.editing,true);assert.equal(f.root.hidden,false);assert.equal(f.trigger.attributes['aria-expanded'],'true');
+ const moved=defaultGrid();moved[0].y=10;await f.drop(moved);assert.equal(f.calls.length,1);f.button('Done').onclick();assert.equal(f.root.hidden,true);assert.equal(f.adapter.editing,false);
+ f.trigger.onclick();assert.equal(f.opened(),3);f.view.clear();assert.equal(f.trigger.disabled,true);f.trigger.onclick();assert.equal(f.opened(),3);
+ const denied=setup({external:true,allowed:false});await denied.view.load();assert.equal(denied.trigger.disabled,true);
 }));

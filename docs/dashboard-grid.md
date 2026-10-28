@@ -24,3 +24,8 @@ The design form and width/visibility options are removed. Normal view has Arrang
 Regression coverage now uses database-ordered fields throughout the controller fixture, exercises six sequential moves plus Undo and another move, and compares an actual PGlite JSONB save response using the same client equality function. The prior preview's JavaScript-object field order did not expose this bug; its mock save now returns database-shaped field order. The earlier successful preview checkpoint did not establish signed-in browser persistence and must not be cited as proof of that case.
 
 Implementation `970e869` passed all four CI/deployment workflows. Its deployed fictional preview passed three consecutive native cross-column drags, click-to-move, Undo, Reset, Done and reload with database-ordered response fields. Twelve targeted client/database/packaging tests and the local full suite passed. See `evidence/dashboard-repeated-moves-2026-10-28.json`. No new signed-in customer or physical-touch acceptance is claimed.
+
+
+### User settings entry — October 28, 2026
+
+Owner requested one personal-settings home under Account. Account → User settings now contains Arrange dashboard · Pro. The button opens the dashboard directly in arrangement mode; Done hides the editing toolbar again. The normal dashboard has no arrangement button or idle toolbar. The existing Pro/workspace access check, automatic saving, Undo, Reset and failed-save recovery are preserved. Future personal preferences belong on User settings; no speculative settings were added. Controller regression covers the external trigger, navigation callback, save, Done, reopening and denied/stale-session access.
