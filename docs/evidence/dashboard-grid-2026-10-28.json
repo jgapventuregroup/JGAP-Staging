@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-28",
+  "implementation_commit": "3672aaa89b44ed15cfe1f091fcbe2ee7b51ce5f6",
+  "scope": "Staging individual dashboard widgets; no production or billing changes",
+  "checks": {
+    "local_full_suite": "PASS before final visual polish; final targeted model/security/packaging checks passed",
+    "final_commit_ci": "All four workflows passed, including site deployment",
+    "hosted_database": "Approved QA-owner grid write/readback, stale-write rejection and invalid-layout rejection passed in a rolled-back transaction",
+    "browser_mouse": "PASS: Deal Analyzer independently dragged from left to right column, Saved Properties made room, saved-and-verified status observed",
+    "browser_keyboard": "PASS: Alt+arrow moved a box and save restored keyboard focus to its handle",
+    "browser_reload": "PASS in fictional preview: saved individual-box arrangement reopened after reload",
+    "browser_undo_defaults": "PASS: Undo restored prior positions; Restore defaults restored primary tools first",
+    "browser_width_visibility": "PASS: width changed to one third; property-count box hidden and shown again",
+    "browser_narrow": "PASS: 360px content container stacked widgets into one column; keyboard movement saved across responsive changes"
+  },
+  "browser_test_boundary": "Browser checks used dashboard-grid-demo.html with the production controller, GridStack and markup plus fictional content and tab-local preference storage. Hosted SQL checks separately exercised real staging RPC/RLS. This is not signed-in end-to-end browser acceptance.",
+  "limits": [
+    "Physical touch device not tested",
+    "Screen-reader acceptance not tested",
+    "Signed-in complete browser persistence not newly tested due prior QA auth issue"
+  ],
+  "retained_data": "No real customer layout/property changed by acceptance. Hosted QA transaction rolled back. Fictional preview returned to default positions with all boxes visible."
+}
