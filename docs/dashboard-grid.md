@@ -41,3 +41,8 @@ Owner screenshot showed extra rounded outlines underneath the two shortcut cards
 The full-app fictional startup test reproduced the owner's exact extra outlines. They were two reserved ad slots incorrectly inserted into the dashboard shortcut wrappers during the earlier ad relocation. The relocation's section selector matched gs-id="properties" and gs-id="analyzer" as though they were actual page id attributes. The absolute-positioned card content covered most of each ad, leaving its rounded edges visible. The default dashboard-only fixture omitted ads, so previous clean-preview checks missed the cause; the card-wrapper styling change alone did not fix it.
 
 Moved these slots to the exact My properties and Deal Analyzer page sections. Validated actual parsed parent IDs for all 15 ads and added permanent checks requiring every slot to be the direct first child of its matching page, exactly once. No preferences or customer records changed. The full-app fixture remains account-free, with prefilled fictional inputs and a local stub client.
+
+
+### Workspace role naming — October 28, 2026
+
+Owner approved renaming Team access to Team & permissions and showing Workspace owner, Administrator, Editor and Viewer as the role labels. Applied labels to team role/invitation controls, confirmations, workspace picker and account role summary. Added an explanation distinguishing workspace ownership from ownership of The Key Ahead app. Internal role values and all authorization checks remain unchanged.
