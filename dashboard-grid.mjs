@@ -40,10 +40,18 @@ export function createDashboardGrid({host,GridStack,onDrop}){
  const apply=items=>{
   current=validateGrid(items);grid.batchUpdate();
   for(const item of current){const el=elements[item.id];if(item.hidden){if(el.gridstackNode)grid.removeWidget(el,false,false);el.hidden=true;}else{el.hidden=false;if(!el.gridstackNode)grid.makeWidget(el,{...item,sizeToContent:true});}}
-  grid.load(current.filter(i=>!i.hidden).map(({id,x,y,w,h})=>({id,x,y,w,h,sizeToContent:true})),false);grid.batchUpdate(false);grid.enableMove(editing);orderDOM();
+  const visible=current.filter(i=>!i.hidden).sort((a,b)=>a.y-b.y||a.x-b.x);
+  // Restore requested geometry first; reusing an old content height during load can
+  // collide with earlier rows and move the primary actions below later widgets.
+  for(const item of visible)grid.update(elements[item.id],{sizeToContent:false});
+  grid.load(visible.map(({id,x,y,w,h})=>({id,x,y,w,h,sizeToContent:false})),false);grid.batchUpdate(false);
+  for(const item of visible)grid.resizeToContent(elements[item.id]);
+  for(const item of visible)grid.update(elements[item.id],{sizeToContent:true,maxH:48});
+  grid.enableMove(editing);orderDOM();
  };
  const capture=()=>{const saved=grid.save(false);return validateGrid(current.map(item=>{const actual=saved.find(i=>i.id===item.id);return item.hidden?item:{...item,x:actual?.x??item.x,y:actual?.y??item.y,w:actual?.w??item.w,h:actual?.h??item.h};}));};
  grid.on('dragstop',()=>{orderDOM();onDrop();});
+ if(typeof MutationObserver!=='undefined'){let scheduled=false;const observer=new MutationObserver(records=>{if(scheduled||!records.some(r=>r.target.closest?.('.dashboard-card-body')))return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;grid.resizeToContentCheck(false);});});observer.observe(host,{childList:true,subtree:true,characterData:true});}
  return {apply,capture,setEditing:value=>{editing=value;host.classList.toggle('dashboard-arranging',value);grid.enableMove(value);for(const el of Object.values(elements))el.querySelector('.dashboard-card-controls').hidden=!value;grid.resizeToContentCheck(true);},resize:()=>grid.onResize(),elements};
 }
 
@@ -78,7 +86,7 @@ export function mountDashboardGrid({root,getContext,read,save,makeGrid}){
   if(scope?.canCustomize!==true||!scope.companyId)return;root.hidden=false;const toolbar=el('div');toolbar.className='dashboard-grid-toolbar';const actions=el('div');actions.className='dashboard-grid-actions';arrange=el('button','Arrange dashboard · Pro');done=el('button','Done arranging');undoButton=el('button','Undo last change');reset=el('button','Restore defaults');reload=el('button','Reload saved layout');retry=el('button','Retry last change');for(const b of [arrange,done,undoButton,reset,reload,retry])b.type='button';done.hidden=true;retry.hidden=true;arrange.setAttribute('aria-expanded','false');actions.append(arrange,done,undoButton,reset,reload,retry);const instructions=el('p','Move each box independently. Select Arrange dashboard, then hold a Move handle, drag to the highlighted space and release. Changes save automatically.');status=el('p','Loading saved dashboard…');status.setAttribute('role','status');status.setAttribute('aria-live','polite');visibility=el('details');visibility.className='dashboard-visibility';visibility.hidden=true;toolbar.append(actions,instructions,status,visibility);root.append(toolbar);arrange.disabled=true;
   arrange.onclick=()=>{if(ticket!==generation||!current()||busy||blocked)return;editing=true;arrange.hidden=true;done.hidden=false;arrange.setAttribute('aria-expanded','true');visibility.hidden=false;lock();say('Drag a Move handle, or choose a box position and width. Alt + arrow keys also move a focused handle.');};
   done.onclick=()=>{if(ticket!==generation||!current()||busy||blocked)return;editing=false;done.hidden=true;arrange.hidden=false;arrange.setAttribute('aria-expanded','false');visibility.hidden=true;lock();say('Arrangement finished. Your saved layout is ready.');arrange.focus();};
-  undoButton.onclick=()=>{if(ticket===generation&&current()&&undo.length)persist(undo.at(-1),{isUndo:true});};reset.onclick=()=>{if(ticket===generation&&current())persist(defaultGrid());};reload.onclick=()=>{if(ticket===generation&&current()&&!busy)load();};retry.onclick=()=>{if(ticket===generation&&current()&&changed)persist(changed);};
+  undoButton.onclick=()=>{if(ticket===generation&&current()&&undo.length)persist(undo.at(-1),{isUndo:true});};reset.onclick=()=>{if(ticket===generation&&current()&&!busy&&!blocked){grid.apply(defaultGrid());persist(grid.capture());}};reload.onclick=()=>{if(ticket===generation&&current()&&!busy)load();};retry.onclick=()=>{if(ticket===generation&&current()&&changed)persist(changed);};
   try{const data=readGridResponse(await read(scope.companyId),scope.companyId);if(ticket!==generation||!current())return;verified=data.items;stamp=data.updated_at;user=data.user_id;grid.apply(verified);configure();say('Your dashboard is ready. Select Arrange dashboard to move individual boxes.');}
   catch(error){if(ticket===generation&&current()){blocked=true;say('Could not load your saved dashboard. Defaults are shown. Select Reload saved layout to try again.');lock();}}
  };
