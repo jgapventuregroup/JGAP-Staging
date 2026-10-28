@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mountSellerPlaybook,validateSellerInputs,validateSellerResult,financePropertyBreakdown,financeCents,formatFinanceMoney,validateFinanceFilters,validateBookkeeping,validateFinanceReport,financeReportCSV,mountFinance,validateFinanceEstimate,financeDifference} from '../finance-cpa.mjs';
+import {financeChartPercent,financeTrendMonths,renderFinanceCharts,mountSellerPlaybook,validateSellerInputs,validateSellerResult,financePropertyBreakdown,financeCents,formatFinanceMoney,validateFinanceFilters,validateBookkeeping,validateFinanceReport,financeReportCSV,mountFinance,validateFinanceEstimate,financeDifference} from '../finance-cpa.mjs';
 const filters={month:'2026-10',dealId:null,reconciled:null,taxTreatment:null};
 const entry=(id,type,amount,category,month='2026-10')=>({entry_id:id,company_id:'company-A',deal_id:'deal-A',property_name:'Fictional duplex',entry_date:month+'-01',entry_type:type,amount,category,description:'Recorded transaction',vendor_name:'',payment_method:'',account_name:'',tax_treatment:'review',receipt_reference:'',reconciled:false,bookkeeping_notes:''});
 function report(selection=filters){return {company_id:'company-A',month:selection.month,deal_id:selection.dealId,reconciled:selection.reconciled,tax_treatment:selection.taxTreatment,entries:[entry('entry-1','income','1000.01','Rent',selection.month),entry('entry-2','expense','100.02','Repairs',selection.month)],totals:{income:'1000.01',expenses:'100.02',net:'899.99',unreconciled:2,count:2},categories:[{category:'Rent',income:'1000.01',expenses:'0',net:'1000.01'},{category:'Repairs',income:'0',expenses:'100.02',net:'-100.02'}]};}
@@ -146,4 +146,20 @@ test('seller playbook requires Pro context, invalidates changed inputs and disca
  const delayed=new Node('div');mountSellerPlaybook({root:delayed,getContext:()=>scope,calculate:(company,inputs)=>new Promise(resolve=>release=()=>resolve(sellerResponse(company,inputs)))});
  const pending=all(delayed).find(n=>n.tagName==='FORM').listeners.submit({preventDefault(){}});scope={companyId:'company-B',canRead:true};release();await pending;
  assert.ok(!all(delayed).some(n=>n.textContent==='$251,246.76'));
+}));
+
+
+test('chart scales retain exact money and month windows cross years correctly',()=>{
+ assert.equal(financeChartPercent('-50.00','100.00'),50);assert.equal(financeChartPercent('0','0'),0);assert.equal(financeChartPercent('99999999999999.98','99999999999999.99'),99.99);assert.throws(()=>financeChartPercent('101','100'));
+ assert.deepEqual(financeTrendMonths('2026-02'),['2025-09','2025-10','2025-11','2025-12','2026-01','2026-02']);assert.deepEqual(financeTrendMonths('1000-02'),['1000-01','1000-02']);assert.throws(()=>financeTrendMonths('2026-13'));
+});
+test('charts use validated recorded amounts, identical filters and explicit missing months',dom(async()=>{
+ const root=new Node('div'),calls=[],selection={...filters,dealId:'deal-A',reconciled:false,taxTreatment:'review'},selected=report(selection);
+ const ready=renderFinanceCharts({root,selected,loadHistory:async(company,f)=>{calls.push({company,f});const r=report(f);if(f.month==='2026-08'){r.entries=[];r.categories=[];r.totals={income:'0',expenses:'0',net:'0',count:0,unreconciled:0};}if(f.month==='2026-09'){r.entries[0].amount='50.00';r.totals.income='50.00';r.totals.net='-50.02';r.categories[0].income='50.00';r.categories[0].net='50.00';}return r;}});await ready;
+ assert.equal(calls.length,5);assert.ok(calls.every(c=>c.company==='company-A'&&c.f.dealId==='deal-A'&&c.f.reconciled===false&&c.f.taxTreatment==='review'));
+ assert.ok(all(root).some(n=>n.textContent==='No recorded entries'));assert.ok(all(root).some(n=>n.textContent==='-$50.02'));assert.ok(all(root).some(n=>n.className==='finance-bar negative'));assert.ok(!all(root).some(n=>n.tagName==='SVG'||n.tagName==='CANVAS'),'Text amounts remain accessible without a graphical canvas');
+}));
+test('history failure does not invent zeros or remove the current report, and late history stays cleared',dom(async()=>{
+ const root=new Node('div');await renderFinanceCharts({root,selected:report(),loadHistory:async()=>{const r=report();r.company_id='foreign';return r;}});assert.ok(all(root).some(n=>n.textContent.startsWith('Monthly history could not be verified')));assert.ok(all(root).some(n=>n.textContent==='$1,000.01'));
+ let active=true;const releases=[];const pending=renderFinanceCharts({root,selected:report(),isCurrent:()=>active,loadHistory:async(c,f)=>new Promise(resolve=>releases.push(()=>resolve(report(f))))});active=false;root.replaceChildren();for(const release of releases)release();await pending;assert.equal(root.children.length,0);
 }));

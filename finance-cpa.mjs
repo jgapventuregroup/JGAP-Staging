@@ -139,7 +139,46 @@ export function mountSellerPlaybook({root,getContext,calculate}){
  return panel;
 }
 
-export function mountFinance({root,getContext,loadReport,saveDetails,download,calculateSeller}){
+// Only the bar widths use bounded numbers; dollar labels retain exact cents.
+export function financeChartPercent(amount,maximum){
+ const value=financeCents(amount),max=financeCents(maximum),absolute=value<0n?-value:value;
+ if(max<0n||absolute>max)throw Error('Invalid chart scale');
+ return max===0n?0:Number(absolute*10000n/max)/100;
+}
+export function financeTrendMonths(month){
+ validateFinanceFilters({month,dealId:null,reconciled:null,taxTreatment:null});
+ const [year,m]=month.split('-').map(Number),end=year*12+m-1;
+ return Array.from({length:6},(_,i)=>end-5+i).filter(n=>n>=12000).map(n=>String(Math.floor(n/12)).padStart(4,'0')+'-'+String(n%12+1).padStart(2,'0'));
+}
+export async function renderFinanceCharts({root,selected,loadHistory,isCurrent=()=>true}){
+ validateFinanceReport(selected,selected?.company_id,{month:selected?.month,dealId:selected?.deal_id,reconciled:selected?.reconciled,taxTreatment:selected?.tax_treatment});
+ const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);return n;};
+ const charts=el('div');charts.className='finance-charts';root.append(charts);
+ const comparison=el('figure');comparison.className='finance-chart';comparison.append(el('figcaption','Income versus expenses · '+selected.month));charts.append(comparison);
+ const income=financeCents(selected.totals.income),expenses=financeCents(selected.totals.expenses),maximum=income>expenses?selected.totals.income:selected.totals.expenses;
+ if(!selected.totals.count)comparison.append(el('p','No recorded entries for this month and these filters.'));
+ else for(const [label,value,kind] of [['Income',selected.totals.income,'income'],['Expenses',selected.totals.expenses,'expense']]){
+  const row=el('div');row.className='finance-chart-row';row.append(el('span',label),el('strong',formatFinanceMoney(value)));
+  const track=el('div'),bar=el('div');track.className='finance-bar-track';track.setAttribute('aria-hidden','true');bar.className='finance-bar '+kind;bar.style.width=financeChartPercent(value,maximum)+'%';track.append(bar);row.append(track);comparison.append(row);
+ }
+ comparison.append(el('p','Recorded transactions only. Uses the report’s property, reconciliation and tax filters.'));
+ if(typeof loadHistory!=='function')return;
+ const trend=el('figure');trend.className='finance-chart';trend.append(el('figcaption','Monthly recorded cash flow'));const content=el('div');content.setAttribute('role','status');content.setAttribute('aria-live','polite');content.append(el('p','Loading six-month history…'));trend.append(content);charts.append(trend);
+ const selection={dealId:selected.deal_id,reconciled:selected.reconciled,taxTreatment:selected.tax_treatment};
+ try{
+  const months=financeTrendMonths(selected.month),history=await Promise.all(months.map(async month=>{if(month===selected.month)return selected;const filters={...selection,month};return validateFinanceReport(await loadHistory(selected.company_id,filters),selected.company_id,filters);}));
+  if(!isCurrent())return;content.replaceChildren();content.append(el('p','Net = recorded income minus recorded expenses. '+months[0]+' through '+selected.month+'. Same filters as this report.'));
+  let max=0n;for(const r of history){const n=financeCents(r.totals.net),a=n<0n?-n:n;if(a>max)max=a;}const scale=(max/100n)+'.'+String(max%100n).padStart(2,'0');
+  const axis=el('div');axis.className='finance-trend-axis';axis.append(el('span','← Negative'),el('span','Positive →'));axis.setAttribute('aria-hidden','true');content.append(axis);
+  for(const r of history){
+   const row=el('div');row.className='finance-chart-row';row.append(el('span',r.month),el('strong',r.totals.count?formatFinanceMoney(r.totals.net):'No recorded entries'));
+   if(r.totals.count){const track=el('div'),bar=el('div');track.className='finance-bar-track finance-net-track';track.setAttribute('aria-hidden','true');bar.className='finance-bar '+(financeCents(r.totals.net)<0n?'negative':'positive');bar.style.width=(financeChartPercent(r.totals.net,scale)/2)+'%';track.append(bar);row.append(track);}content.append(row);
+  }
+  content.append(el('p','The selected month may be incomplete. Missing entries do not establish zero income or profit; these are recorded results, not forecasts.'));
+ }catch(error){if(isCurrent()){content.replaceChildren();content.append(el('p','Monthly history could not be verified. Load the report again to retry. The selected-month report is still available.'));}}
+}
+
+export function mountFinance({root,getContext,loadReport,saveDetails,download,calculateSeller,loadHistory}){
  let sequence=0,activeCompany=null,report=null;
  const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);return node;};
  const clear=()=>{sequence++;activeCompany=null;report=null;root.replaceChildren();};
@@ -165,7 +204,7 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download,ca
   const body=el('div');root.append(controls,exportButton,status,body);
   root.append(el('p','Reports use recorded property transactions. Add or change amounts in Property Passport → Operations. Reconciliation is a manual bookkeeping marker; no bank feed is connected.'));
   const filters=()=>validateFinanceFilters({month:month.value,dealId:property.value||null,reconciled:recon.value===''?null:recon.value==='true',taxTreatment:tax.value||null});
-  const current=ticket=>sequence===ticket&&getContext()?.companyId===activeCompany&&getContext()?.canRead===true;
+  const current=ticket=>sequence===ticket&&getContext()?.companyId===activeCompany&&getContext()?.session===scope.session&&getContext()?.canRead===true;
   const invalidate=()=>{sequence++;report=null;exportButton.disabled=true;body.replaceChildren();status.textContent='Filters changed. Load the report to see current results.';loadButton.disabled=false;};
   for(const input of [month,property,recon,tax]){input.addEventListener('change',invalidate);input.addEventListener('input',invalidate);}
   const table=(headings,rows)=>{
@@ -173,9 +212,9 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download,ca
    const header=el('thead'),tr=el('tr');for(const heading of headings){const th=el('th',heading);th.setAttribute('scope','col');tr.append(th);}header.append(tr);t.append(header);
    const tbody=el('tbody');for(const cells of rows){const row=el('tr');for(const value of cells)row.append(el('td',value));tbody.append(row);}t.append(tbody);wrap.append(t);return wrap;
   };
-  const render=selected=>{
+  const render=async(selected,ticket)=>{
    body.replaceChildren();const stats=el('div');stats.className='metric-grid';
-   for(const [label,value] of [['Income',formatFinanceMoney(selected.totals.income)],['Expenses',formatFinanceMoney(selected.totals.expenses)],['Net recorded cash flow',formatFinanceMoney(selected.totals.net)],['Unreconciled',selected.totals.unreconciled]]){const card=el('div');card.className='metric';card.append(el('span',label),el('strong',value));stats.append(card);}body.append(stats);
+   for(const [label,value] of [['Income',formatFinanceMoney(selected.totals.income)],['Expenses',formatFinanceMoney(selected.totals.expenses)],['Net recorded cash flow',formatFinanceMoney(selected.totals.net)],['Unreconciled',selected.totals.unreconciled]]){const card=el('div');card.className='metric';card.append(el('span',label),el('strong',value));stats.append(card);}body.append(stats);const chartRoot=el('div');body.append(chartRoot);const chartReady=renderFinanceCharts({root:chartRoot,selected,loadHistory,isCurrent:()=>current(ticket)});
    body.append(el('h2','Recorded cash flow by property'));
    body.append(el('p','Recorded transactions for '+selected.month+' and the selected filters only. Estimated rent is not added to recorded income. Properties without entries are not shown; missing records do not establish zero income or profit.'));
    const propertyRows=financePropertyBreakdown(selected);
@@ -230,11 +269,11 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download,ca
     }
     if(page>0){const prev=el('button','Previous 50');prev.type='button';prev.onclick=()=>{page--;renderPage();};list.append(prev);}
     if(end<selected.entries.length){const next=el('button','Next 50');next.type='button';next.onclick=()=>{page++;renderPage();};list.append(next);}
-   };renderPage();
+   };renderPage();await chartReady;
   };
   const load=async()=>{
    const ticket=++sequence;report=null;exportButton.disabled=true;body.replaceChildren();loadButton.disabled=true;status.textContent='Loading report…';
-   try{const selection=filters();const response=await loadReport(activeCompany,selection);if(!current(ticket))return null;report=validateFinanceReport(response,activeCompany,selection);render(report);status.textContent='Loaded '+report.entries.length+' recorded transactions.';exportButton.disabled=false;return report;}
+   try{const selection=filters();const response=await loadReport(activeCompany,selection);if(!current(ticket))return null;report=validateFinanceReport(response,activeCompany,selection);await render(report,ticket);if(!current(ticket))return null;status.textContent='Loaded '+report.entries.length+' recorded transactions.';exportButton.disabled=false;return report;}
    catch(error){if(current(ticket))status.textContent='Could not load report: '+(error?.message||'Unknown error');return null;}
    finally{if(current(ticket))loadButton.disabled=false;}
   };
@@ -252,7 +291,7 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download,ca
 if(typeof window!=='undefined'&&typeof document!=='undefined'){
  const root=document.getElementById('finance-view');
  if(root){
-  window.JGAPFinance=mountFinance({root,getContext:()=>window.JGAPFinanceContext?.scope(),loadReport:(company,filters)=>window.JGAPFinanceContext.load(company,filters),calculateSeller:(company,inputs)=>window.JGAPFinanceContext.calculateSeller(company,inputs),saveDetails:(company,entry,patch)=>window.JGAPFinanceContext.save(company,entry,patch),download:(csv,filename)=>{
+  window.JGAPFinance=mountFinance({root,getContext:()=>window.JGAPFinanceContext?.scope(),loadReport:(company,filters)=>window.JGAPFinanceContext.load(company,filters),loadHistory:(company,filters)=>window.JGAPFinanceContext.load(company,filters),calculateSeller:(company,inputs)=>window.JGAPFinanceContext.calculateSeller(company,inputs),saveDetails:(company,entry,patch)=>window.JGAPFinanceContext.save(company,entry,patch),download:(csv,filename)=>{
    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }});
   if(document.getElementById('finance')?.classList?.contains('current'))window.JGAPFinance.open();
