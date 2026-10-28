@@ -26,7 +26,7 @@ test('actual preview import check traverses modules and rejects a missing transi
    let result=run();assert.equal(result.status,0,result.stderr);
    const count=Number(result.stdout.match(/Verified (\d+) bundled/)?.[1]);
    assert.ok(count>10,'Import traversal must not silently stop at the entry module');
-   for(const entry of ['market-map.mjs','in-app-alerts.mjs','team-controls.mjs','dashboard-grid.mjs','gridstack.js','config.js']){
+   for(const entry of ['page-help.mjs','market-map.mjs','in-app-alerts.mjs','team-controls.mjs','dashboard-grid.mjs','gridstack.js','config.js']){
     const filename=path.join(directory,'dist',entry),bytes=fs.readFileSync(filename);fs.unlinkSync(filename);
     result=run();assert.notEqual(result.status,0,'Missing entry script must fail packaging: '+entry);assert.ok(result.stderr.includes('Missing preview module: '+entry));fs.writeFileSync(filename,bytes);
    }
