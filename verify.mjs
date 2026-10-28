@@ -9,6 +9,15 @@ assert.match(html,/<input id="new-deal-name"[^>]*required/, 'Expandable property
 assert.match(html,/<button type="submit" id="new-deal-save">/, 'Expandable property form must retain its save action');
 assert.match(html,/<div class="properties-list-heading">[\s\S]*?Saved properties/, 'Saved portfolio section must remain visible outside the creation form');
 
+
+// Match real page IDs, never a widget's gs-id (e.g. analyzer/properties).
+const adPageIds=['dashboard','properties','pipeline','intelligence','lenders','toolbox','alerts','money','map','radar','finance','team','invite','plans','analyzer'];
+for(const page of adPageIds){
+ assert.match(html,new RegExp('<section id="'+page+'" class="page(?: current)?"[^>]*>\\s*<aside[^>]*data-tka-ad-slot="'+page+'"'), 'Advertisement must be the first child of its actual page: '+page);
+ assert.equal([...html.matchAll(new RegExp('data-tka-ad-slot="'+page+'"','g'))].length,1,'Each page has one ad slot: '+page);
+}
+console.log('PASS: all advertisement slots belong to actual pages, outside dashboard cards');
+
 // Launch regression: navigation shortcuts must reach existing pages without duplicate dashboard actions.
 for (const page of ['dashboard','properties','pipeline','analyzer','toolbox']) {
   assert.match(html,new RegExp('<section id="'+page+'" class="page(?: current)?"'), 'Navigation destination missing: '+page);

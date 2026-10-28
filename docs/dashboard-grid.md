@@ -34,3 +34,10 @@ Owner requested one personal-settings home under Account. Account → User setti
 ### Card outline cleanup — October 28, 2026
 
 Owner screenshot showed extra rounded outlines underneath the two shortcut cards. Grid widget wrappers are now plain div elements rather than page-style section elements, with no wrapper shadow; the inner content container supplies the single visible card border. This isolates grid geometry from global section styling. Dashboard preview now uses current production styles and the same panel ancestor, with a theme switch for light/dark acceptance. Its Arrange callback tolerates a missing optional navigation method (the standalone preview does not route pages). Geometry storage and account/layout data are unchanged.
+
+
+### Confirmed cause of extra outlines — October 28, 2026
+
+The full-app fictional startup test reproduced the owner's exact extra outlines. They were two reserved ad slots incorrectly inserted into the dashboard shortcut wrappers during the earlier ad relocation. The relocation's section selector matched gs-id="properties" and gs-id="analyzer" as though they were actual page id attributes. The absolute-positioned card content covered most of each ad, leaving its rounded edges visible. The default dashboard-only fixture omitted ads, so previous clean-preview checks missed the cause; the card-wrapper styling change alone did not fix it.
+
+Moved these slots to the exact My properties and Deal Analyzer page sections. Validated actual parsed parent IDs for all 15 ads and added permanent checks requiring every slot to be the direct first child of its matching page, exactly once. No preferences or customer records changed. The full-app fixture remains account-free, with prefilled fictional inputs and a local stub client.

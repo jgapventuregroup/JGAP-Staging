@@ -47,3 +47,6 @@ Included-seat allocation prioritizes the earliest owner, then stable membership 
 ### Ad placement — October 28, 2026
 
 Owner requested existing ad boxes at the top of the screen. All 15 existing reserved advertisement slots now appear first inside their page, above its main content. They scroll normally with the page. Existing plan visibility remains: Pro is ad-free; no live ad network is enabled in staging. User settings receives no new slot. Page structure, plan gates, navigation, and frontend packaging checks passed.
+
+
+Ad-placement correction — October 28, 2026: the first relocation accidentally matched grid-widget gs-id values for properties/analyzer. Their reserved ads were behind the dashboard shortcut cards, creating the reported extra outlines. Corrected both to the actual page sections, and verified direct matching-page ownership for all 15 slots. This supersedes the earlier claim that all 15 parent locations were correct.
