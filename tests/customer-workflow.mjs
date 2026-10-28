@@ -98,7 +98,7 @@ el('company').value = ''; await el('company').onchange();
 assert.match(el('workspace-status').textContent, /Choose a company workspace/);
 assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'Blank workspace selection must not load company data');
 el('company').value = 'a'; await el('company').onchange();
-assert.equal(pageNodes.length,15,'All current workspace pages are included in navigation coverage');
+assert.equal(pageNodes.length,16,'All current workspace pages are included in navigation coverage');
 for(const button of navigationButtons){
  const target=el(button.dataset.page),before=target.focusCount||0;button.onclick();
  assert.equal(pageNodes.filter(node=>node.classList.contains('current')).length,1,'Exactly one destination is visible');
