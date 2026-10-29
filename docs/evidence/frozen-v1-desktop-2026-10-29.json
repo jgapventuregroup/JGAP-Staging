@@ -48,6 +48,16 @@
       "area": "Removed member database regression",
       "outcome": "PASS_SIMULATED_IDENTITY",
       "observed": "Combined restored schema; editor could read/update property, create task/upload metadata, save grid/map and load Pro APIs before owner removal. Reusing same editor identity after removal denied reads/writes/Pro APIs/document access. Owner retained property notes/task/file metadata; removed member personal dashboard preferences cascaded by existing FK."
+    },
+    {
+      "area": "Normal-session Pro to Free workspace switch",
+      "outcome": "PASS",
+      "observed": "Switched existing QA B Pro document fixture to existing Free workspace without entitlement writes. Financial Reports, saved Radar, Market Map and Alerts showed explicit Pro restrictions and no prior fixture name/results. Arrange disabled and team management denied, while personal invitation inbox remained available. Returning to Pro restored arrangement and report controls."
+    },
+    {
+      "area": "Native keyboard Help focus cycle",
+      "outcome": "PASS_BOUNDED",
+      "observed": "Enter on Financial Reports Help opened native dialog. Native Shift+Tab and Tab retained focus inside dialog; Escape closed it. This is a desktop keyboard check, not screen-reader acceptance."
     }
   ],
   "changes": "No application behavior/schema/plan/role/file/property mutations in hosted staging. Only QA dashboard arrangement was written and original geometry restored; existing fixture records retained. Local database fixtures are isolated and discarded on close.",
@@ -63,5 +73,6 @@
     "npm test exited 0 including both combined-schema tests",
     "git diff --check passed"
   ],
-  "screenshot": "frozen-v1-dashboard-2026-10-29.jpg (local; authenticated fictional QA workspace, original geometry restored)"
+  "screenshot": "frozen-v1-dashboard-2026-10-29.jpg (local; authenticated fictional QA workspace, original geometry restored)",
+  "follow_up_reviewed_main": "fb37ca85fc836292aabec4346bebc6ea91cf419e"
 }
