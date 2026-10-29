@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-29",
+  "reviewed_main": "5a66409362c3b5a5a493dd46b042c1e1b0716333",
+  "method": "Normal authenticated QA A session; existing fictional Pro workspace; desktop browser DOM/accessibility observations and native Enter activation",
+  "keyboard_navigation": {
+    "outcome": "PASS",
+    "pages": ["dashboard", "properties", "pipeline", "analyzer", "intelligence", "lenders", "user-settings", "invite", "plans", "toolbox", "alerts", "money", "finance", "map", "radar", "team"],
+    "observed": "Enter on each sidebar destination showed its exact page and focused that section. All 16 matched."
+  },
+  "control_name_preflight": {
+    "outcome": "PASS_BOUNDED",
+    "observed": "No unnamed visible input/select/textarea/button/link/summary found in inspected states. Used aria-label, aria-labelledby, associated native labels, button/link/summary text and title; input submit/reset defaults handled separately. Excluded hidden inputs only.",
+    "loaded_pro_page_control_counts": {"alerts": 7, "money": 7, "finance": 34, "map": 3, "radar": 9, "team": 7},
+    "expanded_form_control_counts": {"properties": 20, "pipeline": 16, "lenders": 24, "intelligence": 13},
+    "toolbox_control_count": 7
+  },
+  "execution_notes": [
+    "Waited for visible loading messages to clear before loaded Pro-page inspection.",
+    "One rapid batched mouse activation from Plans targeted Lenders instead of Toolbox; isolated mouse retry and keyboard activation both reached Toolbox. No app root cause established, no speculative fix claimed. The complete keyboard navigation run passed.",
+    "Expanded form/disclosure controls without entering or submitting values. Closed test-opened property/pipeline/lender/import controls and returned to Dashboard."
+  ],
+  "stored_data_changes": 0,
+  "app_code_changes": 0,
+  "limits": [
+    "This is a DOM naming and desktop focus preflight, not full computed accessible-name, screen-reader, color-contrast, physical touch or phone acceptance.",
+    "Conditional controls absent from these fixture states are outside this observation.",
+    "Remaining live-session and hosted recovery gates remain open."
+  ]
+}
