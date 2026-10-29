@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-29",
+  "runtime": {
+    "postgresql": "17.6 (Debian 17.6-2.pgdg13+1)"
+  },
+  "checks": [
+    {
+      "name": "two invitations for one remaining seat",
+      "outcome": "PASS",
+      "observed": "Second backend was blocked by first backend; after commit it re-evaluated state and safely refused the losing operation."
+    },
+    {
+      "name": "two accepts of the same invitation",
+      "outcome": "PASS",
+      "observed": "Second backend was blocked by first backend; after commit it re-evaluated state and safely refused the losing operation."
+    },
+    {
+      "name": "two owners demote themselves concurrently",
+      "outcome": "PASS",
+      "observed": "Second backend was blocked by first backend; after commit it re-evaluated state and safely refused the losing operation."
+    },
+    {
+      "name": "seat reduction wins against an invitation in flight",
+      "outcome": "PASS",
+      "observed": "Second backend was blocked by first backend; after commit it re-evaluated state and safely refused the losing operation."
+    }
+  ],
+  "scope": "Fresh local PostgreSQL cluster; repository SQL, two real concurrent connections; simulated Auth identity only.",
+  "limits": [
+    "Not hosted Supabase, real JWT/browser revocation, phone, or single-session Auth enforcement.",
+    "Bundled PostgreSQL version is recorded; repeat against the approved hosted candidate before final platform acceptance."
+  ],
+  "outcome": "PASS",
+  "cleanup": "All test connections closed; ephemeral cluster is stopped locally or destroyed by the CI service lifecycle. No hosted changes or external messages.",
+  "source_commit": "1a81a760af514c8d7604eb24b341824d24bfa656",
+  "workflow_run_id": 40896364777,
+  "job_id": 123526437211
+}

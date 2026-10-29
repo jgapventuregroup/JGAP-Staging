@@ -57,7 +57,7 @@ def main():
     evidence = {'date': '2026-10-29', 'runtime': {}, 'checks': [],
                 'scope': 'Fresh local PostgreSQL cluster; repository SQL, two real concurrent connections; simulated Auth identity only.',
                 'limits': ['Not hosted Supabase, real JWT/browser revocation, phone, or single-session Auth enforcement.',
-                           'Bundled PostgreSQL version is recorded; repeat against the approved hosted candidate before final platform acceptance.']}
+                           'PostgreSQL version is recorded; repeat against the approved hosted candidate before final platform acceptance.']}
     try:
         admin = psycopg2.connect(uri)
         connections.append(admin)
