@@ -27,7 +27,7 @@ TEAM = 'select public.manage_workspace_team(%s,%s,%s,%s,%s)'
 
 def execute(connection, sql, args=()):
     with connection.cursor() as cursor:
-        cursor.execute(sql, args)
+        cursor.execute(sql, args if args else None)
         return cursor.fetchall() if cursor.description else []
 
 
