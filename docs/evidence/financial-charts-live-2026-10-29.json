@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-29",
+  "reviewed_main": "35c8f521d7e573d158a8f6c0fef46fb24cdd9ba9",
+  "method": "Normal securely authenticated QA account A; production app modules and hosted staging report APIs; desktop Chrome",
+  "workspace": "V1 document gate 2026-10-25 - e4a2 A",
+  "property": "V1 Overview QA 2026-10-26 - matched",
+  "checks": [
+    {
+      "name": "populated_positive",
+      "outcome": "PASS",
+      "income": "1000.01",
+      "expenses": "100.02",
+      "net": "899.99",
+      "count": 2,
+      "observed": "All-property report and both charts match retained fictional ledger entries; October positive bar right of zero."
+    },
+    {
+      "name": "missing_months",
+      "outcome": "PASS",
+      "observed": "May through September explicitly No recorded entries; October alone has a bar."
+    },
+    {
+      "name": "negative_reconciliation_filter",
+      "outcome": "PASS",
+      "income": "0.00",
+      "expenses": "100.02",
+      "net": "-100.02",
+      "count": 1,
+      "observed": "Temporarily marked the existing fictional expense reconciled; filtered Reconciled report and charts contained only expense. October negative bar occupied left half of zero-axis track; no positive bar."
+    },
+    {
+      "name": "restore_original_bookkeeping",
+      "outcome": "PASS",
+      "observed": "Unchecked reconciled, saved, observed filtered count return to zero; switched to All, reloaded two entries and 899.99 net. Reopened expense form and compared every input/textarea/select value plus checkbox state with pre-test capture; equal."
+    },
+    {
+      "name": "property_filter_exclusion",
+      "outcome": "PASS",
+      "observed": "Existing zero-debt property with no ledger entries returned zero transactions, explicit empty guidance and zero chart bars. Returned All properties and reloaded two entries."
+    }
+  ],
+  "mutations": {
+    "new_ledger_entries": 0,
+    "amount_or_date_changes": 0,
+    "property_file_role_plan_changes": 0,
+    "bookkeeping": "Existing fictional expense reconciliation false \u2192 true \u2192 false. Supplementary bookkeeping is an upsert; any created annotation row is retained, with all original observed field values restored. No deletion performed."
+  },
+  "limits": [
+    "Physical phone/touch and screen-reader acceptance remains open.",
+    "This closes bounded normal-account populated/positive/negative/empty financial-chart acceptance, not remaining session or hosted recovery gates.",
+    "No complete app sign-off or production release approval."
+  ],
+  "screenshots": [
+    "financial-charts-negative-live-2026-10-29.jpg",
+    "financial-charts-positive-live-2026-10-29.jpg"
+  ]
+}
