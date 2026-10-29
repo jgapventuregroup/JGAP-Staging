@@ -1,7 +1,7 @@
 # The Key Ahead Investor App — developer handoff
 
 ## Current owner scope
-Finish only Market Map, in-app alerts, dashboard customization and advanced team controls. See `remaining-v1-scope.md`; this supersedes historical full-suite/external-discovery/lead-generation completion requirements below. Preserve all existing completed features. Do not modify the marketing website; its plan claims must be reconciled by the handoff company before paid launch.
+Version 1 is feature-frozen by the owner’s October 28 decision. Market Map, in-app alerts, dashboard customization and advanced team controls are implemented; finish verification and demonstrated bugs only. Use `release-closeout.md` for current acceptance. See `remaining-v1-scope.md`; this supersedes historical full-suite/external-discovery/lead-generation completion requirements below. Preserve all existing completed features. Do not modify the marketing website; its plan claims must be reconciled by the handoff company before paid launch.
 
 Legal owner: JGAP Venture Group LLC. Public brand: The Key Ahead. Tagline: Your Future Has a Front Door.
 
@@ -73,22 +73,22 @@ The incremental financial-write guard is in `supabase/migrations/20261024133246_
 | Income/expense ledger, repairs and tasks | Basic connected records, history, add/edit, repair completion/costs and task completion/reopening. Cash totals are all recorded ledger entries, separate from repair costs; not CPA-ready advanced accounting |
 | Documents | Private Pro upload/list/download verified with 58 real-session API checks and ordinary Pro desktop form acceptance; replacement/removal, scanning, mobile and hosted file recovery remain open |
 | History | Existing stored dates/records only; no comprehensive versioned property history |
-| Advanced Pro suite | Financial Reports and bookkeeping CSV are restored in a bounded scope (see `finance-recovery.md`). Money-Making System, Market Map, Deal Radar, alerts, lead generation, customization and advanced team controls remain incomplete |
+| Advanced Pro suite | Financial Reports and bookkeeping CSV are restored in a bounded scope (see `finance-recovery.md`). Saved financial overview, saved-deal Radar, saved-property map, alerts, personal dashboard arrangement and team controls are implemented. External discovery, lead generation and further suite expansion are excluded from V1 |
 | Laundromat Division | Deferred; excluded from this release |
 
-The full approved Pro offering is **not yet handoff-complete**. Keep missing capabilities clearly labeled. Do not sell a complete Passport or advanced suite based solely on a plan label. Document handling and the remaining advanced Pro modules remain development work, distinct from the outside company's billing/deployment responsibilities.
+The frozen app is **not yet handoff-accepted**: device, normal-account, session and hosted recovery checks remain. Preserve the implemented private-document upload/list/download and current modules; document replacement/removal/scanning and excluded suite expansion are not new build obligations. Reconcile plan claims with this bounded scope before paid launch.
 
 ## Tests and evidence
 
 - Four main push workflows: **JGAP staging checks**, **Staging app tests**, **JGAP V1 Verification**, **Publish JGAP staging website**. Two additional manual/PR workflows cover Investor regressions and preview artifacts; they are not extra automatic main-branch release checks.
 - `npm test` runs app/Analyzer/onboarding/account recovery/listing/lender/billing tests and Passport/module regression tests. Most browser behavior tests use mocked DOM/data; they do not prove live Auth email delivery, real subscription provisioning or production RLS.
-- `npm run check:edge` runs Deno type checking for the two existing billing functions; it does not deploy/enable them.
+- `npm run check:edge` runs Deno type checking for the two existing billing functions and property geocoding; it does not deploy/enable them.
 - `tests/staging-membership-security.sql` passed nine grouped staging checks using fictional companies and rollback. It exercises database entitlements, invalid amounts, lifetime counts after deletion, subscription tampering, active/inactive/downgrade behavior and viewers. It simulates Auth identity under the database role and is supplemental evidence only. Use SQL stop-on-error behavior; rollback/disconnect after any failure.
 - `tests/staging-operations-security.sql` passed six grouped checks using two companies and rollback: own create/update/persistence, foreign access denial, immutable identity, creator spoofing, company/deal FK, inactive/downgrade retention and denial, viewer denial, Pro editing, task timestamps and anonymous denial. These are database-role tests, not normal signed-in sessions.
 - `tests/staging-tenant-isolation.sql` is read-only supplemental SQL, not original Passport writer approval.
 - `scripts/passport-live-isolation.mjs` is an opt-in real-session gate. Supply private environment values `TKA_STAGING_PUBLISHABLE_KEY`, `TKA_SESSION_A`, `TKA_SESSION_B`, `TKA_COMPANY_A`, `TKA_COMPANY_B`, and `TKA_RUN_LIVE_PASSPORT_TEST=staging-fixtures-only`; run `node scripts/passport-live-isolation.mjs`. Sessions must come from normal verified sign-in for two different users, each allowed to edit its company and not belonging to the opposite company. Both must already have server-authorized Passport access; this runner never changes subscriptions, creates users or fabricates tokens.
 - The live runner creates two fictional properties per company, tests each original table's own SELECT/INSERT/UPDATE, cross-company access/transfer refusal, service equipment relationships and anonymous denial. It removes only properties it created, using their exact IDs and run-specific names. Creation still increments lifetime counters. Use designated staging test workspaces; inspect fixture cleanup after failures. Do not use customer or production workspaces. Exported evidence uses A/B labels and HTTP statuses, never session tokens or returned private row bodies. The offline tests validate the runner's guards; **they do not mean the live suite has run**.
-- Rendered desktop/mobile/print QA remains pending in this takeover environment: Chromium was unavailable and its download did not produce a valid archive. Responsive source checks and mocked DOM navigation passed; do not describe these as real-device verification.
+- Later controlled-browser desktop/print acceptance supersedes the earlier unavailable-Chromium milestone. See `v1-acceptance-status.md` and dated evidence. Physical-phone, screen-reader and remaining normal-account checks stay open; fictional previews and DOM mocks do not establish those passes.
 - Even after live runner success, inspect evidence and recheck session persistence/browser workflows before removing the existing hard write gate. No automatic test toggles `JGAP_ORIGINAL_PASSPORT_WRITES_READY`.
 
 ## Basic property operations integration
@@ -123,7 +123,7 @@ Dashboard and properties pages reserve labeled sponsored placements. Active Pro 
 
 ## Release, rollback and ownership
 
-1. Finish the remaining feature/security scope above. Keep the original Passport write gate closed unless its separate evidence is accepted.
+1. Close the frozen-candidate acceptance gates in `release-closeout.md`. Original Passport editors are already enabled after the accepted real-session gate; preserve current server permission checks. Do not add excluded features.
 2. Record the exact candidate SHA and require all four main push workflows to complete successfully on that SHA. An earlier green commit or a queued check is insufficient. Preserve links/run IDs in handoff evidence.
 3. Check desktop/mobile, keyboard navigation, print for multiple selected properties, dark mode and actual Auth email redirects on the candidate. Record where mocks were used.
 4. Review security advisors: authenticated definer RPCs must have fixed search paths and explicit identity checks; administrative RLS tables intentionally deny client access. Assess leaked-password protection availability/configuration. Do not silence advisors with permissive grants.

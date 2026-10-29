@@ -1,4 +1,6 @@
-# JGAP 48-hour execution brief
+# JGAP 48-hour execution brief — historical
+
+This October 12 brief is retained as history. Its deadline, transfer plan and feature obligations are superseded by `remaining-v1-scope.md` and the October 28 feature freeze. Current completion gates are in `release-closeout.md`; do not use this brief as a current launch schedule or authorization.
 
 Owner: Sean / JGAP Venture Group. Start: October 12, 2026, 6:18 a.m. Eastern. Deadline target: October 14, 2026, 6:18 a.m. Eastern.
 

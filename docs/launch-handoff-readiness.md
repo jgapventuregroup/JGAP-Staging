@@ -1,4 +1,10 @@
-# The Key Ahead Investor App — Handoff Readiness (2026-10-24)
+# The Key Ahead Investor App — Handoff Readiness
+
+## Current status — October 29, 2026
+
+Version 1 is feature-frozen. Use [release closeout](release-closeout.md) and [acceptance status](v1-acceptance-status.md) for current completion and blockers. The automatic desktop map and ad/card fix have owner acceptance; selected team mutation tests are complete. Physical-phone, remaining normal-account/session and hosted recovery acceptance remain open. No paid service or production release is authorized.
+
+The dated milestones below are historical evidence, not an instruction to rebuild completed features or expand scope. In particular, later editor activation, document handling, map, alerts, grid and team implementations supersede older “disabled” or “incomplete” claims.
 
 ## Current owner scope
 Finish only Market Map, in-app alerts, dashboard customization and advanced team controls; preserve completed features. `remaining-v1-scope.md` supersedes historical requirements to finish external Radar, lead generation and further suite expansion. Payments/distribution/production remain the outside company’s work.
