@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-29",
+  "implementation_sha": "ccbfd7e06609b77b7debbb3f372d202f5c221b4c",
+  "reviewed_main": "330be4df7dbfd9b6ebb31595d8e7d684c4bdedfb",
+  "environment": "Normal securely authenticated QA B session; retained fictional V1 document gate workspace B; desktop Chrome controlled browser",
+  "checks": [
+    {
+      "area": "Dashboard entry",
+      "outcome": "PASS",
+      "observed": "User settings \u2192 Arrange dashboard opens actual dashboard with Move controls; Done hides arrangement controls."
+    },
+    {
+      "area": "Dashboard persistence",
+      "outcome": "PASS",
+      "observed": "Changed Saved Properties to precede Analyzer; app confirmed Saved. Switched to existing other workspace and back; reloaded geometry matched changed layout. Restored all five original geometries; app confirmed save and DOM matched original."
+    },
+    {
+      "area": "Page refresh session",
+      "outcome": "EXPECTED_STAGING_BEHAVIOR",
+      "observed": "Page refresh returned to sign-in. Source and customer-workflow regression explicitly require persistSession:false. Secure normal re-sign-in reopened workspace. First pre-refresh save was a no-op ordering, so it alone does not prove changed-layout persistence across full document reload."
+    },
+    {
+      "area": "Financial charts",
+      "outcome": "PASS_BOUNDED",
+      "observed": "Actual Pro report loaded 0 entries in October; all six months explicitly No recorded entries. Property/reconciliation/tax changes cleared prior report and disabled export. September filtered load returned 0 entries and April\u2013September range; comparison correctly required All filters."
+    },
+    {
+      "area": "Help",
+      "outcome": "PASS_BOUNDED",
+      "observed": "Actual Financial Reports dialog displayed correct purpose/saving/terms. Escape closed dialog and focused opener. Walkthrough moved to step 2; navigation to My properties removed coach and highlights. No report values changed by Help."
+    },
+    {
+      "area": "Expandable records",
+      "outcome": "PASS_BOUNDED",
+      "observed": "Actual saved property initially collapsed, click exposed Analyze/map/Passport actions, Enter collapsed. Pipeline Enter exposed row controls. Radar initially collapsed, Enter revealed exact fictional property review."
+    },
+    {
+      "area": "Clean dashboard",
+      "outcome": "PASS",
+      "observed": "Five restored widgets, no reserved ads nested in cards, no arrangement toolbar in normal view."
+    },
+    {
+      "area": "Removed member database regression",
+      "outcome": "PASS_SIMULATED_IDENTITY",
+      "observed": "Combined restored schema; editor could read/update property, create task/upload metadata, save grid/map and load Pro APIs before owner removal. Reusing same editor identity after removal denied reads/writes/Pro APIs/document access. Owner retained property notes/task/file metadata; removed member personal dashboard preferences cascaded by existing FK."
+    }
+  ],
+  "changes": "No application behavior/schema/plan/role/file/property mutations in hosted staging. Only QA dashboard arrangement was written and original geometry restored; existing fixture records retained. Local database fixtures are isolated and discarded on close.",
+  "limits": [
+    "Not physical phone/touch or screen-reader acceptance.",
+    "Empty financial fixture only; no normal-session positive/negative transaction/chart comparison.",
+    "No existing-token browser removal or simultaneous seat transactions tested. Local identity simulation is not a JWT/Auth lifecycle pass.",
+    "Hosted recovery and provider single-session enforcement remain blocked/unverified; no spending or project changes.",
+    "No original invitation/editor/downgrade/removal sequence repeated."
+  ],
+  "local_validation": [
+    "npm test exited 0 including both combined-schema tests",
+    "git diff --check passed"
+  ],
+  "screenshot": "frozen-v1-dashboard-2026-10-29.jpg (local; authenticated fictional QA workspace, original geometry restored)"
+}

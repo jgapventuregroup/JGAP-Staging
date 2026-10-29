@@ -44,3 +44,7 @@ Physical-phone acceptance, remaining map cases, other alert sources, revoked-ses
 4. Review the matrix, remaining development and the outside company's responsibilities together. Owner production approval is separate from accepting a staging handoff.
 
 See `developer-handoff.md` and `../supabase/baseline/README.md` for setup and recovery. No production deployment, paid billing or live advertisements are authorized by this checklist.
+
+## Frozen desktop follow-up — October 29, 2026
+
+Normal QA B sign-in verified User settings entry, real saved dashboard rearrangement/reload through workspace switching and exact original-geometry restoration, financial chart filter invalidation and empty-month ranges, Financial Reports Help/Escape/focus/navigation cleanup, keyboard disclosures and clean dashboard cards. Evidence and limits: `evidence/frozen-v1-desktop-2026-10-29.json`. No property, document, role or plan changes. New combined-schema test denies property/task/document and Pro API access to the same simulated editor identity after removal while preserving owner records; the existing personal-preference FK correctly cascades the removed member’s layout. Full automated suite passed. Normal populated-chart, physical-device/screen-reader, existing-token removal, concurrency, provider session and hosted recovery gates remain open.
