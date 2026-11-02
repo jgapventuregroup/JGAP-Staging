@@ -1,13 +1,15 @@
 # The Key Ahead Investor App — Handoff Readiness
 
-## Current status — October 29, 2026
+## Current status — November 2, 2026
+
+The owner is waiting for app-company pricing and may upload/deploy the app himself. The operator choice is undecided; hiring a company is not a prerequisite to continuing frozen-app verification and release preparation. See the current operator-neutral preparation section in `release-closeout.md`. This does not approve public deployment, spending, production data changes, billing or live ads. Historical vendor-only assignments below are superseded by this decision.
 
 Version 1 is feature-frozen. Use [release closeout](release-closeout.md) and [acceptance status](v1-acceptance-status.md) for current completion and blockers. The automatic desktop map and ad/card fix have owner acceptance; selected team mutation tests are complete. Physical-phone, remaining normal-account/session and hosted recovery acceptance remain open. No paid service or production release is authorized.
 
 The dated milestones below are historical evidence, not an instruction to rebuild completed features or expand scope. In particular, later editor activation, document handling, map, alerts, grid and team implementations supersede older “disabled” or “incomplete” claims.
 
 ## Current owner scope
-Finish only Market Map, in-app alerts, dashboard customization and advanced team controls; preserve completed features. `remaining-v1-scope.md` supersedes historical requirements to finish external Radar, lead generation and further suite expansion. Payments/distribution/production remain the outside company’s work.
+Finish verification and demonstrated bugs in the already implemented Version 1; preserve completed features. `remaining-v1-scope.md` supersedes historical requirements to finish external Radar, lead generation and further suite expansion. Payments/distribution/production need an explicitly assigned operator once the owner chooses the release path.
 
 ## Latest acceptance checkpoint — October 27, 2026
 
@@ -19,7 +21,7 @@ Automatic address-map implementation supersedes the old manual-coordinate descri
 Private Pro documents, seller-financing comparison, saved-deal review and the consolidated Money-Making overview are implemented. Normal-session document/playbook/print checks passed; eleven bounded overview/Radar desktop checks passed on `f8d848c` (see `evidence/money-radar-desktop-2026-10-26.json`). Populated overview, property cash-source totals and positive saved-Radar signals now passed seven further browser groups (see `evidence/money-radar-populated-2026-10-26.json`). Physical phones, ordinary viewer UI, hosted restore/recovery, legal ownership records and the remaining advertised Pro tools are still open. No full launch-ready claim is made. Three fictional PDFs remain in the two disposable document workspaces; no new cleanup is authorized. Payments, live ads and production deployment remain the external company's work. Older milestones below are historical.
 
 ## Delivery decision
-The external website/app company will implement subscription payments and final deployment. Preserve this existing app; do not rebuild or create another repository. Do not alter the completed marketing website without separate approval.
+The owner will decide between self-deployment and an outside company after pricing review. Preserve this existing app; do not rebuild or create another repository. Do not alter the completed marketing website without separate approval. Any eventual operator must satisfy the same security, recovery, payment and production-approval requirements.
 
 ## Source and staging
 - Source: `jgapventuregroup/JGAP-Staging`, branch `main`.

@@ -21,7 +21,8 @@ class Element {
   addEventListener(k, fn) { this.listeners[k] = fn; }
   focus(options) { this.focusCount=(this.focusCount||0)+1; this.focusOptions=options; }
   closest(selector) { return selector==='#workspace-nav'&&this.inSidebar?el('workspace-nav'):null; }
-  scrollIntoView() {}
+  scrollIntoView() { this.scrollCount=(this.scrollCount||0)+1; }
+  click() { return this.onclick?.(); }
 }
 const elements = new Map();
 const el = id => { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); };
@@ -60,7 +61,8 @@ const fakeClient = {
 const pageNodes=[...html.matchAll(/<section\b([^>]+)>/g)].filter(match=>/class="page(?: |")/.test(match[1])).map(match=>{const id=match[1].match(/id="([^"]+)"/)[1],node=el(id);node.id=id;node.classList.add('page');if(/class="page current"/.test(match[1]))node.classList.add('current');return node;});
 const navStart=html.indexOf('<nav id="workspace-nav"'),navEnd=html.indexOf('</nav>',navStart);
 const navigationButtons=[...html.matchAll(/<button\b[^>]*data-page="([^"]+)"[^>]*>/g)].map(match=>{const node=new Element('button');node.dataset.page=match[1];node.inSidebar=match.index>navStart&&match.index<navEnd;return node;});
-const context = { URL, document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: selector => selector==='[data-tka-ad-slot]'?adSlots:selector==='.page'?pageNodes:selector==='[data-page]'?navigationButtons:[], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
+let alertTabs=[];
+const context = { URL, document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: selector => selector==='[data-tka-ad-slot]'?adSlots:selector==='.page'?pageNodes:selector==='[data-page]'?navigationButtons:selector==='#property-passport-panel [role="tab"]'?alertTabs:[], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
 context.window.JGAPPassportPreview={clear(){passportEligibility=null},setEligibility(value){passportEligibility=value},addAction(options){if(!passportEligibility?.enabled)return;const button=new Element('button');button.onclick=async()=>{await options.fetchDeal();calls.push({name:'open-passport',companyId:options.companyId,dealId:options.deal.id});};options.line.append(button);return button;}};
 vm.runInNewContext(script, context);
 const signedOutFocus=pageNodes.map(node=>node.focusCount||0);
@@ -354,3 +356,42 @@ assert.match(el('status').textContent,/session ended/);
 const retiredListener=authListener;await el('login').onclick();el('ask').value='987654';retiredListener('SIGNED_OUT',null);assert.equal(el('ask').value,'987654','Retired session event cannot clear a new sign-in');authListener('TOKEN_REFRESHED',{user:{id:'fixture-user'}});assert.equal(el('ask').value,'987654','Normal token refresh does not erase work');authListener('TOKEN_REFRESHED',{user:{id:'unexpected-account'}});
 assert.equal(el('workspace').classList.contains('hidden'),true);assert.equal(el('ask').value,'');assert.match(el('status').textContent,/account session changed/);
 console.log('PASS: provider sign-out and unexpected refreshed-account events clear private workspace and analyzer data');
+
+// Exercise the shipped app's alert adapter, rather than only a stubbed openSource callback.
+membership={plan:'pro',billing_status:'active'};passportAllowed=true;
+financeCapability={read:true,write:true};operationsCapability={read:true,write:true};
+const alertSource={company_id:'a',deal_id:deal.id,source_id:'fixture-source',source_type:'task'};
+for(const role of ['viewer','editor','owner']){
+ companies[0].member_role=role;
+ el('email').value='fixture@example.invalid';el('password').value='fixture-only-password';
+ await el('login').onclick();el('company').value='a';await el('company').onchange();
+ const selectedTabs=[];
+ alertTabs=['Operations','Maintenance','Systems'].map(name=>{const tab=new Element('button');tab.textContent=name;tab.onclick=()=>selectedTabs.push(name);return tab;});
+ for(const [type,section] of [['task','Operations'],['maintenance','Maintenance'],['service','Systems'],['equipment','Systems']]){
+  const before=calls.length;
+  await context.window.JGAPInAppAlertsContext.openSource('a',{...alertSource,source_type:type});
+  assert.equal(el('properties').classList.contains('current'),true,role+'/'+type+' opens properties');
+  assert.deepEqual(calls.filter(call=>call.name==='open-passport').at(-1),{name:'open-passport',companyId:'a',dealId:deal.id},role+'/'+type+' opens exact property');
+  assert.equal(selectedTabs.at(-1),section,role+'/'+type+' selects correct Passport section');
+  assert.ok(alertTabs.find(tab=>tab.textContent===section).focusCount>0,'Selected tab receives focus');
+  assert.ok(!calls.slice(before).some(call=>['table-write','update_company_deal','set_in_app_alert_review','save_property_bookkeeping'].includes(call.name)),'Opening an alert never edits its source or review state');
+ }
+ const card=el('pipeline-deals').children.find(node=>node.dataset.dealId===deal.id);
+ assert.ok(card,'Fictional follow-up property is present');
+ const beforeFocus=card.focusCount||0;
+ await context.window.JGAPInAppAlertsContext.openSource('a',{...alertSource,source_type:'follow_up'});
+ assert.equal(el('pipeline').classList.contains('current'),true);
+ assert.equal(card.focusCount,beforeFocus+1,'Follow-up focuses the exact pipeline property');
+ assert.ok(card.scrollCount>0);
+ await assert.rejects(context.window.JGAPInAppAlertsContext.openSource('a',{...alertSource,company_id:'b'}),/workspace or type did not match/);
+ await assert.rejects(context.window.JGAPInAppAlertsContext.openSource('a',{...alertSource,source_type:'unknown'}),/workspace or type did not match/);
+ await assert.rejects(context.window.JGAPInAppAlertsContext.openSource('a',{...alertSource,deal_id:'removed-property'}),/no longer available/);
+ const priorTabs=selectedTabs.length;
+ el('company').value='b';await el('company').onchange();
+ await assert.rejects(context.window.JGAPInAppAlertsContext.openSource('a',alertSource),/not authorized/);
+ assert.equal(selectedTabs.length,priorTabs,'Old workspace alert cannot select a tab in the new workspace');
+ await el('logout').onclick();
+ await assert.rejects(context.window.JGAPInAppAlertsContext.openSource('a',alertSource),/not authorized/);
+}
+alertTabs=[];
+console.log('PASS: actual alert adapter routes all five sources for viewer/editor/owner without writes and rejects foreign, missing, stale and signed-out targets');

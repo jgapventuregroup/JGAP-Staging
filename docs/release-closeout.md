@@ -1,10 +1,10 @@
 # Version 1 release closeout
 
-Updated October 29, 2026. Owner decision: preserve the current app; no more features. Work is limited to verification, demonstrated bugs and agreed release preparation. This is the current gate list; dated milestone documents retain historical observations only.
+Updated November 2, 2026. Owner decision: preserve the current app; no more features. Work is limited to verification, demonstrated bugs and agreed release preparation. This is the current gate list; dated milestone documents retain historical observations only.
 
 ## Candidate and repeatable checks
 
-- Implementation candidate: `ccbfd7e06609b77b7debbb3f372d202f5c221b4c`, existing `main` in `jgapventuregroup/JGAP-Staging`.
+- Current application implementation: `e0953e6019f0e5eaf512440798c5442d8700f6da`, existing `main` in `jgapventuregroup/JGAP-Staging`; includes the deployed iPhone menu configuration correction. The earlier `ccbfd7` candidate remains historical.
 - All four hosted workflows passed on that implementation candidate. Any later handoff commit must have its own four successful workflows.
 - October 29 local rerun: complete `npm test` exited 0, including clean schema install, security regressions, frontend packaging and UI/module checks. `npm run check:edge` exited 0 for both billing handlers and property geocoding. These are automated checks, not normal-session or physical-device acceptance.
 - No application code, database, customer records, plan entitlements, payments or live ads changed during this closeout documentation pass.
@@ -35,9 +35,24 @@ See `v1-acceptance-status.md`, `dashboard-grid.md`, `financial-charts.md`, `page
 
 ## Handoff boundary
 
-The outside company handles payment/seat billing integration, distribution/install packaging, live ads and production hosting/launch. Its sandbox verification, plan-claim reconciliation and explicit owner production approval are separate from app acceptance. Keep billing and live ads disconnected. Coordinate the deferred website app-access/payment link near launch; do not edit the marketing website under this checklist.
+On November 2 the owner said he may upload/deploy the app himself and is waiting for the app company's pricing. The operator/vendor choice is undecided; do not treat hiring the outside company as mandatory or approved. Continue frozen-app verification and portable release preparation. Payment/seat billing, distribution/install packaging, live ads and production hosting/launch need an explicitly assigned operator and separate approval whichever route is chosen. Keep billing and live ads disconnected. Coordinate the deferred website app-access/payment link near launch; do not edit the marketing website under this checklist.
+
+### Preparation that applies to either operator
+
+- Preserve this static HTML/ES-module app and its existing repository. Marketing Cloud Run hosting does not automatically deploy the app or its backend.
+- Choose the intended delivery first: a browser-accessible web app and app-store/native packaging are different release paths. No store account, wrapper or distribution service is selected by the current instruction.
+- Inventory the approved app origin, Supabase environment, allowed Auth/recovery redirects, Edge function origins, private Storage policies and all pinned external dependencies. Use `developer-handoff.md` and `hosted-recovery-runbook.md`; do not put secret/service-role keys in frontend configuration or reuse staging as production silently.
+- Assign deployment, rollback, monitoring/support and recovery ownership. Resolve the hosted recovery target/capacity and session-control limitations before making corresponding reliability or anti-sharing promises.
+- Require exact-commit checks, supported device acceptance, ordinary-account entitlements and an approved rollback path. Keep fictional staging fixtures and owner-preview behavior away from any future public customer release.
+- Payment activation, paid infrastructure, ads and public production deployment remain separate decisions. Today's instruction authorizes preparation, not a purchase or launch.
 
 A green test suite or this document is not final acceptance. No completion percentage or release date is asserted. Do not label the app handoff-ready until the open gates have passed or the owner has explicitly resolved each blocker with its consequences documented.
+
+## Alert adapter integration follow-up — November 2
+
+`tests/customer-workflow.mjs` now exercises the actual `JGAPInAppAlertsContext.openSource` adapter from shipped `index.html`, supplementing the isolated alerts renderer's stub-callback tests. Fictional Pro viewer/editor/owner cases cover all five sources: follow-up focuses its exact pipeline property; task selects Operations; maintenance selects Maintenance; service/equipment select Systems after opening the exact property Passport. Navigation performs no source mutation or personal-review write. Foreign workspace, unknown type, missing property, old-workspace and signed-out requests are rejected.
+
+This is deterministic in-process application-adapter evidence with mocked Passport/DOM/service responses, not a live Supabase login, rendered source-record inspection, physical phone or assistive-technology test. It does not close the remaining normal-account source/role gate or certify focus on an individual task/table row. No application behavior, database, account, role or fixture data changed. Full local `npm test` and `npm run check:edge` both passed on November 2. The final commit still needs its own hosted checks.
 
 ## October 29 acceptance follow-up
 

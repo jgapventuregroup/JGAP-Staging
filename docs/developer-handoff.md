@@ -1,6 +1,8 @@
 # The Key Ahead Investor App — developer handoff
 
 ## Current owner scope
+November 2 operator update: Sean may deploy/upload the app himself and is comparing the outside company's pricing. Hiring that company is undecided. Prepare the existing app for either operator using `release-closeout.md`; do not activate paid services, production hosting, billing or live ads under this general continuation instruction. Earlier references to tasks assigned exclusively to the company are historical responsibility proposals, not a current hiring decision.
+
 Version 1 is feature-frozen by the owner’s October 28 decision. Market Map, in-app alerts, dashboard customization and advanced team controls are implemented; finish verification and demonstrated bugs only. Use `release-closeout.md` for current acceptance. See `remaining-v1-scope.md`; this supersedes historical full-suite/external-discovery/lead-generation completion requirements below. Preserve all existing completed features. Do not modify the marketing website; its plan claims must be reconciled by the handoff company before paid launch.
 
 Legal owner: JGAP Venture Group LLC. Public brand: The Key Ahead. Tagline: Your Future Has a Front Door.
