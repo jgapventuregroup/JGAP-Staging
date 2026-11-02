@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-02",
+  "source_commit": "ba8586833703fa3544021853b0f7160087d13ef9",
+  "environment": "Normally authenticated existing QA A staging account; retained fictional Pro workspace; desktop Chrome",
+  "scope": "Owner task/maintenance alert destinations, completion persistence and Free workspace clearing",
+  "checks": [
+    {
+      "name": "task_due_source",
+      "result": "passed",
+      "observed": "Saved a clearly labeled fictional open task due November 1. Alerts increased from one existing follow-up to two. Open source loaded the matched property Passport with Operations selected and the task visible."
+    },
+    {
+      "name": "task_completion",
+      "result": "passed",
+      "observed": "Marked only the new QA task done. It disappeared from due alerts. Reopened Passport after a workspace round trip; task retained with done status, open/overdue task counts both zero."
+    },
+    {
+      "name": "maintenance_due_source",
+      "result": "passed",
+      "observed": "Saved clearly labeled fictional maintenance planned and due November 1. Its alert opened the same matched property with Maintenance selected and the correct row visible."
+    },
+    {
+      "name": "maintenance_completion",
+      "result": "passed",
+      "observed": "Marked only the new QA maintenance record completed. It disappeared from due alerts. Reopened Passport after workspace round trip and verified completed row, description, dates and blank cost retained."
+    },
+    {
+      "name": "workspace_access",
+      "result": "passed",
+      "observed": "Switched existing Pro QA workspace to existing Free QA workspace. Previous alerts and badge cleared; Alerts showed active-Pro requirement without old property content. Returned to Pro; original one unreviewed follow-up restored."
+    }
+  ],
+  "retained_fixtures": [
+    {
+      "title": "QA alert routing — November 2, 2026",
+      "type": "task",
+      "status": "done",
+      "due": "2026-11-01",
+      "note": "New fictional staging-only record retained; no deletion."
+    },
+    {
+      "title": "QA maintenance alert — November 2, 2026",
+      "type": "maintenance",
+      "status": "completed",
+      "date": "2026-11-02",
+      "due": "2026-11-01",
+      "cost": null,
+      "note": "New fictional staging-only record retained; no deletion."
+    }
+  ],
+  "unchanged": [
+    "Existing properties and financial amounts",
+    "Existing follow-up and personal review status",
+    "Memberships, roles, subscriptions and access",
+    "Schema, payments, live ads, production and marketing website"
+  ],
+  "limitations": [
+    "Owner desktop only; viewer/editor live alert source cases remain open",
+    "Service/equipment live source cases not exercised",
+    "Selected property/tab verified, not individual-row automatic focus",
+    "No revoked-token/session, hosted recovery, physical phone or screen-reader acceptance",
+    "No application defect reproduced or behavior change required"
+  ],
+  "screenshot": "alerts-maintenance-verified-2026-11-02.jpg"
+}
