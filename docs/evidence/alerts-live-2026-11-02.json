@@ -56,10 +56,55 @@
   ],
   "limitations": [
     "Owner desktop only; viewer/editor live alert source cases remain open",
-    "Service/equipment live source cases not exercised",
     "Selected property/tab verified, not individual-row automatic focus",
     "No revoked-token/session, hosted recovery, physical phone or screen-reader acceptance",
-    "No application defect reproduced or behavior change required"
+    "No application defect reproduced or behavior change required",
+    "Service/equipment owner desktop follow-up below supersedes the earlier untested source-type status; other live roles remain open."
   ],
-  "screenshot": "alerts-maintenance-verified-2026-11-02.jpg"
+  "screenshot": "alerts-maintenance-verified-2026-11-02.jpg",
+  "systems_followup": {
+    "source_commit": "33fdc4d52998d3416b736ff32f267723e8a8fcf4",
+    "environment": "Retained normally authenticated QA A staging session; same fictional matched property",
+    "checks": [
+      {
+        "name": "equipment_source",
+        "result": "passed",
+        "observed": "Created one clearly labeled fictional equipment record with due date November 1 and no service schedule. Due alerts rose from one to two; equipment source opened exact property with Systems selected and correct equipment visible."
+      },
+      {
+        "name": "service_source_and_deduplication",
+        "result": "passed",
+        "observed": "Added one annual fictional service schedule for that equipment with same due date. Alerts remained two: original follow-up plus service schedule; duplicate equipment alert absent. Service source opened exact property/Systems and correct linked schedule."
+      },
+      {
+        "name": "retained_record_cleanup",
+        "result": "passed",
+        "observed": "Cleared only next_service_date on new equipment and schedule. Reopened edit controls show both dates blank; every other displayed input/select value equals pre-cleanup capture. Records retained. Alerts returned to original one unreviewed follow-up."
+      }
+    ],
+    "retained_fixtures": [
+      {
+        "type": "asset",
+        "name": "QA equipment alert — November 2, 2026",
+        "type_label": "Fictional staging test only",
+        "condition": "QA fixture; not actual equipment",
+        "next_service_date": null,
+        "cost": null
+      },
+      {
+        "type": "service",
+        "name": "QA service alert — November 2, 2026",
+        "frequency": "1 year",
+        "next_service_date": null,
+        "note": "Linked only to the new QA equipment; instructions identify fictional staging test. No last-service date fabricated."
+      }
+    ],
+    "interaction_note": "First batched service submit did not visibly start; settled isolated retry saved exactly one schedule. No root cause or application defect inferred.",
+    "screenshot": "alerts-systems-verified-2026-11-02.jpg",
+    "limitations": [
+      "Normal owner desktop only; viewer/editor live source checks remain open",
+      "No actual phone/screen-reader, revoked-session or hosted recovery acceptance",
+      "Selected property/tab verified; no claim of individual-row auto-focus"
+    ]
+  }
 }
