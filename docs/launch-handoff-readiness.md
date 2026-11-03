@@ -197,3 +197,7 @@ Sixteen bounded groups passed on deployed `1b34036`, recorded with retained fixt
 The owner requires a working, verified app before final handoff, with the vendor’s intended remaining implementation limited to payment integration and upload/deployment. A staging review with an open app-defect list is not final acceptance. Close app, phone, team/account-sharing and hosted recovery checks or resolve blockers explicitly with the owner before declaring readiness. No new spending, production launch or marketing-website changes are authorized. Platform configuration and deployment still require vendor coordination; do not claim they are completed by frontend code.
 
 Additional controlled alert regression checks cover exact routing/review for all five due source types and a 121-alert list: 50-item pages, final partial page, previous/next boundaries, filter reset and review reset/count updates. These passed locally; they do not close live source-routing or phone acceptance.
+
+## Staging legal pages
+
+On November 3, 2026, both standalone staging drafts loaded in a browser: [Terms of Service](https://jgapventuregroup.github.io/JGAP-Staging/terms.html) and [Privacy Policy](https://jgapventuregroup.github.io/JGAP-Staging/privacy.html). Both are marked for counsel review. Before public release, confirm the legal operator, effective date, privacy contact, data retention and request handling, refund terms, and account closure rules. Review the live checkout disclosures, consent, and cancellation flow against the final policies before activating payments.
