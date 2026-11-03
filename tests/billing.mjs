@@ -75,3 +75,22 @@ const unrelatedInvoiceDeps = { ...deps, verifyEvent: async () => ({ id: 'evt_inv
 assert.equal((await createBillingWebhookHandler(unrelatedInvoiceDeps, config)(webhookRequest('valid'))).status, 200);
 assert.equal(eventArgs, null, 'One-off invoices cannot activate a subscription');
 console.log('PASS: subscription renewal — paid/failed invoices refresh current state; unrelated invoices cannot grant access');
+
+const annualConfig = { ...config, investorYearPrice: 'price_investor_year', proYearPrice: 'price_pro_year' };
+const annualHandler = createBillingSessionHandler(deps, annualConfig);
+for (const [option, plan, id, amount] of [
+  ['investor_year', 'investor', annualConfig.investorYearPrice, 19000],
+  ['pro_year', 'pro', annualConfig.proYearPrice, 29000]
+]) {
+  const annualPrice = { ...price, id, unit_amount: amount, recurring: { interval: 'year', interval_count: 1 } };
+  const checkout = () => annualHandler(request({ company_id: company, action: 'checkout', plan: option }));
+  priceValue = annualPrice;
+  assert.equal((await checkout()).status, 200);
+  assert.equal(checkoutArgs.line_items[0].price, id);
+  assert.deepEqual(subscriptionState({
+    ...subscription, items: { data: [{ quantity: 1, price: annualPrice }] }
+  }, annualConfig), { plan, billing_status: 'active' });
+  priceValue = { ...annualPrice, recurring: price.recurring };
+  assert.equal((await checkout()).status, 503);
+}
+console.log('PASS: annual checkout and access mapping for Investor and Pro');

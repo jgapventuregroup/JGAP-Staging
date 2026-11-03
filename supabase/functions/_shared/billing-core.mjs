@@ -4,15 +4,15 @@ export class BillingError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const plans = { investor: 1900, pro: 3900 };
+const plans = { investor: 1900, pro: 2900, investor_year: 19000, pro_year: 29000 };
 const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...headers } });
 const identifier = object => typeof object === 'string' ? object : object?.id;
 function configured(config) {
   return config.enabled === true && config.secretKey?.startsWith('sk_test_') && config.webhookSecret?.startsWith('whsec_') && config.investorPrice?.startsWith('price_') && config.proPrice?.startsWith('price_') && config.investorPrice !== config.proPrice;
 }
-function priceFor(plan, config) { return plan === 'investor' ? config.investorPrice : config.proPrice; }
+function priceFor(plan, config) { return { investor: config.investorPrice, pro: config.proPrice, investor_year: config.investorYearPrice, pro_year: config.proYearPrice }[plan]; }
 function validPrice(price, plan, config) {
-  return price && price.id === priceFor(plan, config) && price.active === true && price.livemode === false && price.currency === 'usd' && price.unit_amount === plans[plan] && price.recurring?.interval === 'month' && price.recurring?.interval_count === 1 && price.type === 'recurring';
+  return price && price.id === priceFor(plan, config) && price.active === true && price.livemode === false && price.currency === 'usd' && price.unit_amount === plans[plan] && price.recurring?.interval === (plan.endsWith('_year') ? 'year' : 'month') && price.recurring?.interval_count === 1 && price.type === 'recurring';
 }
 function checkoutUrl(url) {
   try { const parsed = new URL(url); if (parsed.protocol === 'https:' && parsed.hostname === 'checkout.stripe.com') return url; } catch {}
@@ -40,7 +40,7 @@ export function createBillingSessionHandler(deps, config) {
       if (raw.length > 2048) throw new BillingError(413, 'Request is too large.');
       let body; try { body = JSON.parse(raw); } catch { throw new BillingError(400, 'Invalid request.'); }
       if (!body || Array.isArray(body) || Object.keys(body).some(key => !['company_id', 'action', 'plan'].includes(key)) || !UUID.test(body.company_id || '') || !['checkout', 'portal'].includes(body.action)) throw new BillingError(400, 'Invalid billing request.');
-      if (body.action === 'checkout' && !Object.hasOwn(plans, body.plan)) throw new BillingError(400, 'Choose Investor or Pro.');
+      if (body.action === 'checkout' && (typeof body.plan !== 'string' || !Object.hasOwn(plans, body.plan))) throw new BillingError(400, 'Choose Investor or Pro.');
       const role = await deps.getRole(body.company_id, user.id);
       if (!['owner', 'admin'].includes(role)) throw new BillingError(403, 'Only a company owner or administrator can manage billing.');
       if (!configured(config)) throw new BillingError(503, 'Subscription checkout is not connected yet. No payment has been taken.');
@@ -51,7 +51,9 @@ export function createBillingSessionHandler(deps, config) {
         const session = await deps.stripe.billingPortal.sessions.create({ customer: billing.stripe_customer_id, return_url: config.returnUrl });
         return json({ url: portalUrl(session.url), mode: 'test' }, 200, headers);
       }
-      const price = await deps.stripe.prices.retrieve(priceFor(body.plan, config));
+      const priceId = priceFor(body.plan, config);
+      if (!priceId?.startsWith('price_')) throw new BillingError(503, 'Subscription pricing needs configuration.');
+      const price = await deps.stripe.prices.retrieve(priceId);
       if (!validPrice(price, body.plan, config)) throw new BillingError(503, 'Subscription pricing needs configuration. No payment has been taken.');
       let customer = billing.stripe_customer_id;
       if (!customer) {
@@ -75,11 +77,11 @@ export function createBillingSessionHandler(deps, config) {
 
 export function subscriptionState(subscription, config) {
   const item = subscription.items?.data?.length === 1 ? subscription.items.data[0] : null;
-  const plan = item?.price?.id === config.investorPrice ? 'investor' : item?.price?.id === config.proPrice ? 'pro' : null;
-  const recognized = plan && item.quantity === 1 && validPrice(item.price, plan, config) && subscription.livemode === false;
+  const plan = Object.keys(plans).find(option => validPrice(item?.price, option, config));
+  const recognized = plan && item.quantity === 1 && subscription.livemode === false;
   const invoice = subscription.latest_invoice;
   const paid = invoice && typeof invoice === 'object' && invoice.status === 'paid' && invoice.paid === true;
-  return { plan: recognized ? plan : 'free', billing_status: !recognized ? 'not_connected' : subscription.status === 'canceled' ? 'canceled' : subscription.status === 'active' && paid ? 'active' : 'past_due' };
+  return { plan: recognized ? plan.replace(/_year$/, '') : 'free', billing_status: !recognized ? 'not_connected' : subscription.status === 'canceled' ? 'canceled' : subscription.status === 'active' && paid ? 'active' : 'past_due' };
 }
 
 export function createBillingWebhookHandler(deps, config) {

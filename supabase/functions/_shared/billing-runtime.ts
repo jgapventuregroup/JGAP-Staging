@@ -6,6 +6,8 @@ export const config = {
   secretKey: Deno.env.get('STRIPE_SECRET_KEY') || '',
   webhookSecret: Deno.env.get('STRIPE_WEBHOOK_SECRET') || '',
   investorPrice: Deno.env.get('STRIPE_INVESTOR_PRICE_ID') || '',
+  investorYearPrice: Deno.env.get('STRIPE_INVESTOR_YEAR_PRICE_ID') || '',
+  proYearPrice: Deno.env.get('STRIPE_PRO_YEAR_PRICE_ID') || '',
   proPrice: Deno.env.get('STRIPE_PRO_PRICE_ID') || '',
   origin: 'https://jgapventuregroup.github.io',
   returnUrl: 'https://jgapventuregroup.github.io/JGAP-Staging/',

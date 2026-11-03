@@ -37,7 +37,7 @@ const passportUi=fs.readFileSync(new URL('./property-passport-preview.mjs',impor
 assert.match(passportUi,/Financial snapshot updates use a separate, verified save function/, 'Financial save and original record read-only status must be distinguished');
 assert.match(passportUi,/if\(window\.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true\)/, 'Original Passport edit forms must be gated');
 
-assert.match(html,/No advertising network or paid checkout is active today\./, 'Staging must accurately disclose that paid checkout is unavailable');
+assert.match(html,/Live advertising and live checkout are off\./, 'Staging must disclose that live checkout is off');
 assert.match(html,/Planned features cannot be purchased or activated here\./, 'Do not present planned tiers as active paid features');
 assert.match(html,/enabled:passportRecordsAllowed/, 'Passport must require the backend entitlement response');
 assert.match(html,/<h1>The Key Ahead membership plans<\/h1>/, 'Membership page must use the current brand');
@@ -141,7 +141,7 @@ assert.match(html,/@media\(max-width:700px\)\{body\{padding:0 12px 28px\}/,'Mobi
 
 assert.match(html,/<h2>Approved feature allocation<\/h2>/,'Tier feature comparison must be visible');for(const name of ['Deal Analyzer and maximum-offer guidance','Property Passport','Deal Pipeline and Deal Intelligence','Income/expense ledger, repairs and tasks','Money-Making System','Advanced reports, dashboard customization and team controls'])assert.ok(html.includes('<th scope="row">'+name+'</th>'),'Feature row missing: '+name);assert.match(html,/complete Passport planned/,'Feature table must not misrepresent access enforcement');assert.match(html,/\.plan-table-wrap\{overflow-x:auto/,'Comparison table must scroll on narrow screens');console.log('PASS: proposed membership feature table and transparent access disclosures');
 
-assert.match(html,/<th scope="row">Saved properties<\/th><td>5 lifetime<\/td><td>Unlimited while active<\/td><td>Unlimited while active<\/td>/,'Free tier should show five lifetime properties');assert.match(html,/<th scope="row">Sponsored placements<\/th><td>Reserved<\/td><td>Reserved<\/td><td>Ad-free<\/td>/,'Only Pro should be ad-free');assert.match(html,/No advertising network or paid checkout is active today/,'Plans must disclose checkout not active');console.log('PASS: saved-deal limit and advertising tier proposal');
+assert.match(html,/<th scope="row">Saved properties<\/th><td>5 lifetime<\/td><td>Unlimited while active<\/td><td>Unlimited while active<\/td>/,'Free tier should show five lifetime properties');assert.match(html,/<th scope="row">Sponsored placements<\/th><td>Reserved<\/td><td>Reserved<\/td><td>Ad-free<\/td>/,'Only Pro should be ad-free');assert.match(html,/Live advertising and live checkout are off/,'Plans must disclose that live checkout is off');console.log('PASS: saved-deal limit and advertising tier proposal');
 
 assert.match(html,/id="free-deal-progress" max="5" value="0"/,'Free usage progress must have five-property limit');assert.match(html,/get_my_lifetime_deal_usage/,'Free usage must come from database lifetime counter');assert.match(html,/lifetimeUsed>=5/,'Free limit must explain upgrade');console.log('PASS: company-scoped free usage preview and explicit upgrade consent');
 
