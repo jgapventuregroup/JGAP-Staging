@@ -80,7 +80,7 @@ export function subscriptionState(subscription, config) {
   const plan = Object.keys(plans).find(option => validPrice(item?.price, option, config));
   const recognized = plan && item.quantity === 1 && subscription.livemode === false;
   const invoice = subscription.latest_invoice;
-  const paid = invoice && typeof invoice === 'object' && invoice.status === 'paid' && invoice.paid === true;
+  const paid = invoice && typeof invoice === 'object' && invoice.status === 'paid';
   return { plan: recognized ? plan.replace(/_year$/, '') : 'free', billing_status: !recognized ? 'not_connected' : subscription.status === 'canceled' ? 'canceled' : subscription.status === 'active' && paid ? 'active' : 'past_due' };
 }
 
