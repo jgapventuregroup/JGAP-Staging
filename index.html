@@ -602,6 +602,13 @@ document.getElementById('plans')?.addEventListener?.('click', async event => {
       ? { company_id: companyId, action: 'portal' }
       : { company_id: companyId, action: 'checkout', plan: option };
     const { data, error } = await client.functions.invoke('billing-session', { body });
+    if (option !== 'portal' && error?.context?.status === 409) {
+      const failure = await error.context.json();
+      if (failure?.error === 'This company already has a subscription or pending payment. Use the billing portal.') {
+        status.textContent = 'This workspace already has a subscription or a pending payment. Use Manage test subscription below.';
+        return;
+      }
+    }
     if (error || data?.mode !== 'test') throw new Error('Sandbox unavailable');
     const url = new URL(data.url);
     const expectedHost = option === 'portal' ? 'billing.stripe.com' : 'checkout.stripe.com';
