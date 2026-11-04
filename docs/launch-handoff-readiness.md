@@ -4,7 +4,7 @@
 
 The owner is waiting for app-company pricing and may upload/deploy the app himself. The operator choice is undecided; hiring a company is not a prerequisite to continuing frozen-app verification and release preparation. See the current operator-neutral preparation section in `release-closeout.md`. This does not approve public deployment, spending, production data changes, billing or live ads. Historical vendor-only assignments below are superseded by this decision.
 
-Version 1 is feature-frozen. Use [release closeout](release-closeout.md) and [acceptance status](v1-acceptance-status.md) for current completion and blockers. The automatic desktop map and ad/card fix have owner acceptance; selected team mutation tests are complete. Physical-phone, remaining normal-account/session and hosted recovery acceptance remain open. No paid service or production release is authorized.
+Version 1 is feature-frozen. Use [release closeout](release-closeout.md) and [acceptance status](v1-acceptance-status.md) for current completion and blockers. The automatic desktop map and ad/card fix have owner acceptance; selected team mutation tests are complete. On November 4, 2026, Sean reported that the staging app looked good on his iPhone after the menu scrolling fix. This closes the reported phone menu issue. Remaining normal-account/session and hosted recovery acceptance remain open. No paid service or production release is authorized.
 
 The dated milestones below are historical evidence, not an instruction to rebuild completed features or expand scope. In particular, later editor activation, document handling, map, alerts, grid and team implementations supersede older “disabled” or “incomplete” claims.
 
