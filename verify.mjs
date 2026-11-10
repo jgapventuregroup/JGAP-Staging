@@ -22,9 +22,11 @@ console.log('PASS: all advertisement slots belong to actual pages, outside dashb
 for (const page of ['dashboard','properties','pipeline','analyzer','toolbox']) {
   assert.match(html,new RegExp('<section id="'+page+'" class="page(?: current)?"'), 'Navigation destination missing: '+page);
 }
+const quickActions=html.match(/<div class="phase1-actions"[^>]*>([\s\S]*?)<\/div>/)?.[1]??'';
 for (const page of ['analyzer','properties']) {
-  assert.match(html,new RegExp('<div class="grid-stack-item"[^>]*>[\\s\\S]*?<button type="button" data-page="'+page+'"'), 'Dashboard shortcut missing: '+page);
+  assert.match(quickActions,new RegExp('<button type="button" data-page="'+page+'"'), 'Dashboard shortcut missing: '+page);
 }
+assert.doesNotMatch(html,/dashboard-grid-handle|settings-arrange-dashboard|src="dashboard-grid\.mjs"/,'Fixed dashboard must not mount the layout editor');
 assert.match(html,/<button type="button" data-page="properties">View all properties →<\/button>/, 'Recent properties must link to the portfolio');
 assert.match(html,/<button type="button" data-page="pipeline">Open pipeline →<\/button>/, 'Follow-ups must link to the pipeline');
 assert.match(html,/<button type="button" data-page="analyzer" class="pipeline-analyzer-link">/, 'Pipeline must offer direct analyzer navigation');
