@@ -15,6 +15,7 @@ test('actual preview import check traverses modules and rejects a missing transi
  assert.ok(files?.length>10,'Expected explicit frontend asset allowlist');
  assert.deepEqual(files,frontendFiles(read('.github/workflows/pages.yml')),'Staging deployment and preview must ship the same app modules');
  assert.ok(files.every(file=>/^[\w.-]+\.(?:html|js|mjs|css|txt)$/.test(file)),'Only public frontend files may ship');
+ assert.ok(files.every(file=>!/^(?:dashboard-(?:customization|grid)|gridstack)/.test(file)),'Retired dashboard editor must not ship');
  const code=workflow.match(/node --input-type=module <<'NODE'\n([\s\S]*?)\n\s*NODE/)?.[1].replace(/^          /gm,'');
  assert.ok(code,'Preview import-check script missing');
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'tka-frontend-'));
@@ -26,7 +27,7 @@ test('actual preview import check traverses modules and rejects a missing transi
    let result=run();assert.equal(result.status,0,result.stderr);
    const count=Number(result.stdout.match(/Verified (\d+) bundled/)?.[1]);
    assert.ok(count>10,'Import traversal must not silently stop at the entry module');
-   for(const entry of ['page-help.mjs','market-map.mjs','in-app-alerts.mjs','team-controls.mjs','dashboard-grid.mjs','gridstack.js','config.js']){
+   for(const entry of ['page-help.mjs','market-map.mjs','in-app-alerts.mjs','team-controls.mjs','config.js']){
     const filename=path.join(directory,'dist',entry),bytes=fs.readFileSync(filename);fs.unlinkSync(filename);
     result=run();assert.notEqual(result.status,0,'Missing entry script must fail packaging: '+entry);assert.ok(result.stderr.includes('Missing preview module: '+entry));fs.writeFileSync(filename,bytes);
    }
