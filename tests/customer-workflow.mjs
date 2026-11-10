@@ -95,11 +95,14 @@ assert.equal(options.auth.persistSession, false, 'Staging must not retain creden
 assert.equal(el('company').value, '', 'Multiple memberships must require an explicit choice');
 assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'No company may be loaded before selection');
 assert.match(el('workspace-status').textContent, /Choose the company/);
+assert.equal(el('dashboard-workspace-switcher').hidden,false);
+assert.equal(el('account-email').textContent,'fictional@example.com');
 
 el('company').value = ''; await el('company').onchange();
 assert.match(el('workspace-status').textContent, /Choose a company workspace/);
 assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'Blank workspace selection must not load company data');
 el('company').value = 'a'; await el('company').onchange();
+assert.equal(el('workspace-status').textContent,'');
 assert.equal(pageNodes.length,16,'All current workspace pages are included in navigation coverage');
 for(const button of navigationButtons){
  const target=el(button.dataset.page),before=target.focusCount||0;button.onclick();
@@ -113,6 +116,9 @@ const mapOpens=[];context.window.JGAPMarketMap={open:id=>mapOpens.push(id),clear
 const freeMap=el('deals').children[0].children.flatMap(node=>node.children||[]).find(node=>node.textContent==='View on Market Map · Pro');assert.ok(freeMap);freeMap.onclick();assert.equal(el('plans').classList.contains('current'),true);assert.equal(mapOpens.length,0,'Free shortcut opens plan information without loading the map');
 console.log('PASS: every declared navigation button opens and focuses its exact page with one active sidebar destination');
 assert.equal(el('metric-count').textContent, '1');
+assert.equal(el('account-membership').textContent,'Free · Free plan');
+assert.equal(el('account-allowance').textContent,'1 currently saved · 4 of 5 lifetime slots remaining');
+assert.equal(el('dashboard-add-property').disabled,true);
 assert.equal(el('new-deal-form').hidden, true, 'Viewers cannot add properties');
 assert.equal(passportEligibility.canWrite,false,'Viewer cannot receive a Passport notes editor');
 assert.match(el('new-deal-limit-notice').textContent, /read-only/);
@@ -293,6 +299,9 @@ ownerPreviewAllowed=true;passportAllowed=true;
 el('company').value='b';await el('company').onchange();
 assert.equal(passportEligibility.enabled,true,'Verified owner preview works separately from Free subscription');
 assert.match(el('membership-title').textContent,/Verified owner preview/);
+assert.equal(el('account-membership').textContent,'Investor · Active');
+assert.equal(el('account-preview').hidden,false);
+assert.match(el('account-allowance').textContent,/Unlimited in staging owner preview/);
 console.log('PASS: backend Passport denial wins over client plan labels; Pro ad-free; inactive/downgraded access closes; owner preview separate');
 membership={plan:'pro',billing_status:'active'};passportAllowed=true;financeCapability={read:true,write:false};
 el('company').value='b';await el('company').onchange();
