@@ -213,7 +213,8 @@ console.log('PASS: failed company switch clears prior properties, export, member
 for(const [id,value] of Object.entries({...fields,ask:180000,offer:180000,expenses:0,vacancy:0,down:0,rate:0,costs:0}))element(id).value=String(value);
 element('target-flow').value='300';element('target-coc').value='8';element('reserve-cash').value='5000';element('calculate').onclick();
 assert.match(element('deal-assessment').textContent,/PRELIMINARY — VERIFY ASSUMPTIONS/);
-assert.match(element('deal-explanation').children[0].children[1].textContent,/Verify assumptions before judging/);
+assert.match(element('deal-explanation').children[0].children[1].textContent,/Preliminary estimate.*before judging/);
+assert.doesNotMatch(element('deal-explanation').children.map(card=>card.children[1].textContent).join(' '),/meets your goal/i);
 assert.ok(element('deal-explanation').children.every(card=>card.className.includes('assessment-attention')),'Unverified assumptions must not render green approval cards');
 for(const [id,value] of Object.entries({...fields,rent:3000}))element(id).value=String(value);
 element('calculate').onclick();assert.match(element('deal-assessment').textContent,/MEETS BOTH TARGETS/);assert.ok(element('deal-explanation').children[0].className.includes('assessment-pass'));
