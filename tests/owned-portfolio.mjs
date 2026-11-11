@@ -79,3 +79,16 @@ test('dashboard renders metric-specific coverage and routes to the selected prop
   assert.equal(ids.get('portfolio-cashFlow').textContent, 'Not enough data');
   assert.equal(ids.get('portfolio-cashFlow-coverage').textContent, '');
 });
+
+test('saved cards display actual cash flow only for owned properties', async () => {
+  const { savedPropertyFinancials } = await import('../owned-portfolio.mjs');
+  const actuals = { rent: 900, mortgage: 500, expenses: 100, hoa: 50 };
+  assert.deepEqual(savedPropertyFinancials(property({ ...actuals, ownership: 'owned' })),
+    { label: 'Owned', cashFlow: 250 });
+  assert.deepEqual(savedPropertyFinancials(property({ ownership: 'owned', rent: 900 })),
+    { label: 'Owned', cashFlow: null });
+  assert.deepEqual(savedPropertyFinancials(property({ ...actuals, ownership: 'potential' })),
+    { label: 'Potential Purchase', cashFlow: null });
+  assert.deepEqual(savedPropertyFinancials({ status: 'closed', monthly_rent: 900 }),
+    { label: 'Not Classified', cashFlow: null });
+});

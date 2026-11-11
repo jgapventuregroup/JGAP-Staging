@@ -4,10 +4,10 @@ import assert from 'node:assert/strict';
 const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
 assert.match(html,/STAGING ONLY/);
 // Launch regression: the portfolio-first property form must remain accessible and wired.
-assert.match(html,/<details class="property-create-disclosure">[\s\S]*?<summary>[\s\S]*?Add a property[\s\S]*?<\/summary>[\s\S]*?<form id="new-deal-form"[\s\S]*?<\/form><\/details>/, 'Add-property form must remain inside an expandable disclosure');
+assert.match(html,/<details class="property-create-disclosure">[\s\S]*?<summary>[\s\S]*?Add Property[\s\S]*?<\/summary>[\s\S]*?<form id="new-deal-form"[\s\S]*?<\/form><\/details>/, 'Add-property form must remain inside an expandable disclosure');
 assert.match(html,/<input id="new-deal-name"[^>]*required/, 'Expandable property form must retain its required address field');
 assert.match(html,/<button type="submit" id="new-deal-save">/, 'Expandable property form must retain its save action');
-assert.match(html,/<div class="properties-list-heading">[\s\S]*?Saved properties/, 'Saved portfolio section must remain visible outside the creation form');
+assert.match(html,/<div class="properties-list-heading">[\s\S]*?Saved Properties/, 'Saved portfolio section must remain visible outside the creation form');
 
 
 // Match real page IDs, never a widget's gs-id (e.g. analyzer/properties).

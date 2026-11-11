@@ -162,4 +162,15 @@ export function renderPortfolio(document, rows, editProperty, canEdit) {
   }
 }
 
-if (typeof window !== 'undefined') window.JGAPOwnedPortfolio = { actualsEditor, renderPortfolio };
+export function savedPropertyFinancials(property) {
+  const ownership = property.portfolio_actuals?.ownership;
+  if (ownership === 'owned') {
+    const { cashFlow } = summarizeOwnedPortfolio([property]);
+    return { label: 'Owned', cashFlow: cashFlow.value };
+  }
+  return { label: ownership === 'potential' ? 'Potential Purchase' : 'Not Classified', cashFlow: null };
+}
+
+if (typeof window !== 'undefined') window.JGAPOwnedPortfolio = {
+  actualsEditor, renderPortfolio, savedPropertyFinancials,
+};
