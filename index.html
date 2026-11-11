@@ -720,8 +720,15 @@ html[data-theme=dark] #dashboard-grid .metric .phase1-icon,html[data-theme=dark]
  #dashboard .dashboard-hero{min-height:155px}
  #dashboard-grid .phase1-actions button{flex-basis:calc((100% - 10px)/2)}
  #dashboard-grid .phase1-actions button{min-height:68px}
- #dashboard-grid [data-dashboard-card=metrics] .metric{padding:9px;gap:3px 6px}
- #dashboard-grid [data-dashboard-card=metrics] .metric .phase1-icon{width:19px;height:19px}
+ #dashboard-grid [data-dashboard-card=metrics] .metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #dashboard-grid [data-dashboard-card=metrics] .metric{grid-template-columns:minmax(0,1fr);align-content:start;padding:10px;gap:4px}
+ #dashboard-grid [data-dashboard-card=metrics] .metric .phase1-icon{grid-row:auto;width:19px;height:19px}
+ #dashboard-grid [data-dashboard-card=metrics] .metric :is(strong,small,.portfolio-action){grid-column:1}
+ #dashboard-grid [data-dashboard-card=metrics] .metric span{overflow-wrap:normal;word-break:normal}
+ #dashboard-grid [data-dashboard-card=metrics] .metric small{overflow-wrap:break-word}
+ #properties .properties-list-actions{margin:10px 0}
+ #properties .properties-list-actions p{flex:0 0 auto}
+ #properties .properties-list-actions p:empty{display:none}
  #dashboard-grid .dashboard-recent-card{grid-template-columns:minmax(0,1fr)}
  #dashboard-grid .dashboard-recent-card .recent-status,#dashboard-grid .dashboard-recent-card .dashboard-recent-link{grid-column:1;grid-row:auto;justify-self:start;text-align:left}
 }
