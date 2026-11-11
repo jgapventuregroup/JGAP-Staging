@@ -61,8 +61,7 @@ export function mountPageHelp(doc=document){
   headerHelp.setAttribute('aria-haspopup','dialog');
   headerHelp.onclick=()=>{opener=headerHelp;open(currentPage());};
  }
- for(const [key,help] of Object.entries(PAGE_HELP)){
-  if(key==='dashboard'&&headerHelp)continue;
+ for(const [key,help] of headerHelp?[]:Object.entries(PAGE_HELP)){
   const page=key==='sign-in'?doc.querySelector('#login-shell > section'):key==='recovery'?doc.querySelector('#recovery-shell > section'):doc.getElementById(key);if(!page)continue;
   const row=el('div');row.className='page-help-entry';const button=el('button','? Help');button.type='button';button.setAttribute('aria-label','Help with '+help.title);button.setAttribute('aria-haspopup','dialog');
   button.onclick=()=>{opener=button;open(key);};row.append(button);
