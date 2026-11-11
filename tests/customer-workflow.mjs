@@ -31,7 +31,7 @@ const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', proper
 let secondaryDeferred=null;
 let membership={plan:'free',billing_status:'not_connected'}, passportAllowed=false, ownerPreviewAllowed=false, passportEligibility,operationsCapability={read:false,write:false},financeCapability={read:false,write:false};
 const adSlots=[new Element('aside'),new Element('aside')];
-const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = []; let lifetimeB = 0;
+const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = []; const extraCompanyADeals = []; let lifetimeB = 0;
 let authListener=null,unsubscribeCount=0,geocodeBusy=false;
 const fakeClient = {
   auth: { onAuthStateChange:callback=>{authListener=callback;return {data:{subscription:{unsubscribe(){unsubscribeCount++}}}}}, signInWithPassword: async ({ email }) => ({ data: { user: { id:'fixture-user',email, email_confirmed_at: '2026-01-01' } }, error: loginError }), signOut: async () => ({ error: null }) },
@@ -47,7 +47,7 @@ const fakeClient = {
     if (name === 'has_owner_preview_access') return {data:ownerPreviewAllowed,error:null};
     if (name === 'list_my_companies') return { data: onboardingMode ? (onboardingCreated ? [{company_id:'new-company',company_name:'My Investment Company',member_role:'owner'}] : []) : companies, error: null };
     if (name === 'create_my_company') { onboardingCreated = true; return { data: null, error: {message:'Duplicate creation response'} }; }
-    if (name === 'list_company_deals') return failCompanyB && args.p_company_id === 'b' ? { data: null, error: Error('Network unavailable') } : { data: args.p_company_id === 'a' ? [deal] : companyBDeals, error: null };
+    if (name === 'list_company_deals') return failCompanyB && args.p_company_id === 'b' ? { data: null, error: Error('Network unavailable') } : { data: args.p_company_id === 'a' ? [deal, ...extraCompanyADeals] : companyBDeals, error: null };
     if (name === 'create_company_deal') { if(args.p_company_id==='b'&&lifetimeB>=5)return {data:null,error:{message:'FREE_LIFETIME_PROPERTY_LIMIT_REACHED'}}; if(args.p_company_id==='b')lifetimeB++; const created={id:'created-'+(companyBDeals.length+1),company_id:args.p_company_id,name:args.p_name,purchase_price:args.p_purchase_price,monthly_rent:args.p_monthly_rent,status:'lead'};companyBDeals.push(created);return {data:created,error:null}; }
     if (name === 'get_my_lifetime_deal_usage') return { data: args.p_company_id==='b'?lifetimeB:1, error: null };
     if (name === 'get_company_deal') return { data: [deal], error: null };
@@ -62,7 +62,7 @@ const pageNodes=[...html.matchAll(/<section\b([^>]+)>/g)].filter(match=>/class="
 const navStart=html.indexOf('<nav id="workspace-nav"'),navEnd=html.indexOf('</nav>',navStart);
 const navigationButtons=[...html.matchAll(/<button\b[^>]*data-page="([^"]+)"[^>]*>/g)].map(match=>{const node=new Element('button');node.dataset.page=match[1];node.inSidebar=match.index>navStart&&match.index<navEnd;return node;});
 let alertTabs=[];
-const context = { URL, document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: selector => selector==='[data-tka-ad-slot]'?adSlots:selector==='.page'?pageNodes:selector==='[data-page]'?navigationButtons:selector==='#property-passport-panel [role="tab"]'?alertTabs:[], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
+const context = { URL, document: { documentElement: { dataset: {} }, getElementById: el, querySelectorAll: selector => selector==='[data-tka-ad-slot]'?adSlots:selector==='.page'?pageNodes:selector==='[data-page]'?navigationButtons:selector==='#property-passport-panel [role="tab"]'?alertTabs:selector==='#pipeline-deals .deal-card'?el('pipeline-deals').children:[], createElement: tag => new Element(tag), createTextNode: text => ({ textContent: text }) }, window: { JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_test', supabase: { createClient: (url, key, opts) => { options = opts; return fakeClient; } } }, localStorage: { getItem: () => null, setItem() {} }, console, matchMedia: () => ({ matches: false }) };
 context.window.JGAPPassportPreview={clear(){passportEligibility=null},setEligibility(value){passportEligibility=value},addAction(options){if(!passportEligibility?.enabled)return;const button=new Element('button');button.onclick=async()=>{await options.fetchDeal();calls.push({name:'open-passport',companyId:options.companyId,dealId:options.deal.id});};options.line.append(button);return button;}};
 vm.runInNewContext(script, context);
 const signedOutFocus=pageNodes.map(node=>node.focusCount||0);
@@ -197,6 +197,29 @@ const renderedText=node=>[node?.textContent||'',...(node?.children||[]).map(rend
 assert.match(renderedText(el('dashboard-followups')),/2026-11-05/,'Dashboard must display the exact persisted pipeline follow-up date');
 assert.match(renderedText(el('dashboard-followups')),/Fictional Duplex A/,'Dashboard follow-up must identify the saved property');
 console.log('PASS: pipeline stage and follow-up date persist and reopen in correct workspace');
+extraCompanyADeals.push(
+ { ...deal, id:'owned-fixture', name:'Owned fixture', portfolio_actuals:{ownership:'owned'} },
+ { ...deal, id:'potential-fixture', name:'Potential fixture', status:'under_contract', portfolio_actuals:{ownership:'potential'} },
+);
+await el('company').onchange();
+assert.equal(el('pipeline-count').textContent,'2');
+assert.equal(el('deals').children.length,3,'Owned properties remain in My Properties');
+assert.doesNotMatch(renderedText(el('pipeline-deals')),/Owned fixture/);
+assert.doesNotMatch(renderedText(el('dashboard-followups')),/Owned fixture/);
+assert.match(renderedText(el('pipeline-deals')),/Potential fixture .*Under contract Potential Purchase/);
+assert.match(renderedText(el('pipeline-deals')),/Not Classified/);
+el('pipeline-search').value='fixture';
+el('pipeline-search').oninput();
+assert.equal(el('pipeline-visible-count').textContent,'1 matching deal');
+el('pipeline-filter').value='offer';
+el('pipeline-filter').onchange();
+assert.equal(el('pipeline-visible-count').textContent,'0 matching deals');
+el('pipeline-search').value='';
+el('pipeline-filter').value='';
+extraCompanyADeals.length=0;
+await el('company').onchange();
+console.log('PASS: pipeline cards, counts, filters and dashboard follow-ups exclude owned records');
+
 
 companies[0].member_role='viewer';
 console.log('PASS: owner changes offer, saves company-scoped record, and reopens persisted price');
