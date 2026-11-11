@@ -124,6 +124,16 @@ assert.match(impossible,/Error: Targets cannot be met/);assert.equal(element('pr
 const noFinite=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':0});
 assert.match(noFinite,/Error: No finite maximum offer: an all-cash purchase/);
 console.log('PASS: real maximum-offer button, stricter constraint, cash reserves, all-cash, impossible and unbounded cases');
+offerTest({offer:180000, down:0, rate:0, years:30, rent:1500, vacancy:5, expenses:141.67, costs:0},
+  {'target-flow':300, 'target-coc':8, 'reserve-cash':5000});
+element('calculate').onclick();
+assert.equal(element('analyzer-result-return').textContent,'N/A');
+assert.equal(element('analyzer-result-flow').textContent,'$783.33');
+assert.match(element('analyzer-return-note').textContent,/upfront costs total \$0/);
+assert.match(element('deal-assessment').textContent,/at your offer, including reserves: 188.00%/);
+assert.match(element('offer-guidance').textContent,/Maximum offer is blocked/);
+console.log('PASS: zero upfront cash yields N/A and the separate reserves-inclusive verdict yields 188.00%');
+
 
 assert.match(html,/if\(val==null\)\{missing.push\(key\);\$\(key\)\.value='';continue;\}/,'Missing deal values must clear previous estimates');
 console.log('PASS: missing deal fields do not reuse stale analyzer values');
@@ -210,7 +220,7 @@ element('calculate').onclick();assert.match(element('deal-assessment').textConte
 console.log('PASS: preliminary assumptions prevent green approval; complete passing inputs still compare targets');
 
 // Investor usability: both calculation actions must navigate to their results after success.
-assert.match(html,/\$\('calculate'\)\.onclick=[^\n]*calculate\(\);[^\n]*\$\('results'\)\.scrollIntoView\(/,'Analyze offer must scroll to calculated financial results');
+assert.match(html,/\$\('calculate'\)\.onclick=[^\n]*calculate\(\);[^\n]*\$\('analyzer-results'\)\.scrollIntoView\(/,'Analyze offer must scroll to calculated financial results');
 assert.match(html,/\$\('solve-offer'\)\.onclick=[^\n]*solveOffer\(\);[^\n]*\$\('price-comparison'\)\.scrollIntoView\(/,'Maximum offer must scroll to the offer comparison');
 console.log('PASS: analyzer and maximum-offer buttons navigate to their results');
 
