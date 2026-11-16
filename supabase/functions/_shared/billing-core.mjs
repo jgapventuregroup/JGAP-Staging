@@ -66,13 +66,13 @@ export function createBillingSessionHandler(deps, config) {
       const owned = recent.data.filter(session => session.mode === 'subscription' &&
         session.client_reference_id === body.company_id && session.metadata?.jgap_company_id === body.company_id);
       const open = owned.filter(session => session.status === 'open');
-      if (recent.has_more || open.length > 1 || (open.length === 1 && open[0] !== owned[0])) {
+      if (recent.has_more) {
         throw new BillingError(409, 'Checkout needs review before starting another subscription.');
       }
       const previous = owned[0];
-      const reuse = previous?.status === 'open' && previous.metadata.jgap_price_id === price.id;
-      if (previous?.status === 'open' && !reuse) {
-        const expired = await sessions.expire(previous.id, {}, { idempotencyKey: 'jgap-expire-' + previous.id });
+      const reuse = open.length === 1 && open[0] === previous && previous.metadata.jgap_price_id === price.id;
+      for (const pending of reuse ? [] : open) {
+        const expired = await sessions.expire(pending.id, {}, { idempotencyKey: 'jgap-expire-' + pending.id });
         if (expired.status !== 'expired') throw new BillingError(409, 'Checkout changed. Please retry.');
       }
       const subscriptions = await deps.stripe.subscriptions.list({ customer, status: 'all', limit: 100 });

@@ -105,3 +105,10 @@ const beforeRetry = calls;
 assert.equal((await annualHandler(request({ company_id: company, action: 'checkout', plan: 'pro_year' }))).status, 200);
 assert.equal(calls, beforeRetry, 'Retry reuses the open checkout for the same price');
 console.log('PASS: switching annual plans expires the old checkout and retry reuses the new checkout');
+
+const legacy = { ...sessions[0], id: 'cs_test_legacy', metadata: { jgap_company_id: company } };
+sessions.splice(1, 0, legacy);
+assert.equal((await annualHandler(request({ company_id: company, action: 'checkout', plan: 'pro_year' }))).status, 200);
+assert.equal(legacy.status, 'expired');
+assert.equal(sessions.filter(session => session.status === 'open').length, 1);
+console.log('PASS: legacy duplicate open checkouts are expired before creating a replacement');
