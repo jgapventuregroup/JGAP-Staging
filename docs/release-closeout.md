@@ -1,5 +1,15 @@
 # Version 1 release closeout
 
+## November 16, 2026 verification update
+
+- Verified staging implementation: `948a44c`. The full regression suite and four hosted checks passed. Investor Annual opened at $190 and Pro Annual at $290 in the same staging workspace, and Stripe confirmed the abandoned checkout expired.
+- Physical iPhone Safari acceptance passed all six owner checks on November 16. See the [approved project notes](https://app.notion.com/p/4060647d35278165badfdd478453885b). Repeat only after a change affecting those workflows.
+- November 3 sandbox webhook and audit records confirm Investor and Pro activation and cancellation. Current annual checkout through signed webhook processing and entitlement persistence after re-sign-in remains open.
+- Hosted database and private Passport file recovery remains open. Neither existing Supabase project is approved as disposable. Obtain explicit owner approval of a confirmed isolated no-cost target and fictional data scope before exporting or restoring. See [hosted recovery runbook](hosted-recovery-runbook.md).
+- Production activation, live billing, and spending require separate owner approval.
+
+## November 2, 2026 checkpoint
+
 Updated November 2, 2026. Owner decision: preserve the current app; no more features. Work is limited to verification, demonstrated bugs and agreed release preparation. This is the current gate list; dated milestone documents retain historical observations only.
 
 ## Candidate and repeatable checks

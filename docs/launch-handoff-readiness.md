@@ -1,6 +1,10 @@
 # The Key Ahead Investor App — Handoff Readiness
 
-## Current status — November 2, 2026
+## Current status — November 16, 2026
+
+See [release closeout](release-closeout.md) for the current staging evidence, open launch gates, and owner decision. Dated sections below retain historical evidence.
+
+## Historical status — November 2, 2026
 
 The owner is waiting for app-company pricing and may upload/deploy the app himself. The operator choice is undecided; hiring a company is not a prerequisite to continuing frozen-app verification and release preparation. See the current operator-neutral preparation section in `release-closeout.md`. This does not approve public deployment, spending, production data changes, billing or live ads. Historical vendor-only assignments below are superseded by this decision.
 
@@ -34,8 +38,8 @@ The owner will decide between self-deployment and an outside company after prici
 | Plan | Price | Property limit | Ads |
 | --- | --- | --- | --- |
 | Free | $0 | Five lifetime saved properties | Yes |
-| Investor | $19/month | Unlimited | Yes |
-| Pro | $39/month | Unlimited | No |
+| Investor | $19/month or $190/year | Unlimited | Yes |
+| Pro | $29/month or $290/year | Unlimited | No |
 
 The full feature allocation is documented in `docs/membership-feature-matrix.md`. Membership labels and preview access are **not** proof that live payment enforcement is complete. Owner preview is for staging testing only.
 

@@ -4,7 +4,7 @@ Current owner scope (October 26): preserve Free/Investor and completed Pro capab
 
 **Public brand:** The Key Ahead Investor. **Legal business:** JGAP Venture Group LLC.
 
-| Capability | Free | Investor ($19/mo) | Pro ($39/mo) |
+| Capability | Free | Investor ($19/month or $190/year) | Pro ($29/month or $290/year) |
 | --- | --- | --- | --- |
 | Existing Free experience, Deal Analyzer, maximum offer, basic dashboard | Existing behavior unchanged | Included | Included |
 | CELCO / HELOC additional financing | No | Included while active | Included while active |
