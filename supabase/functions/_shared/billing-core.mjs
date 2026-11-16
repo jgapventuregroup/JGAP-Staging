@@ -61,13 +61,38 @@ export function createBillingSessionHandler(deps, config) {
         customer = await deps.linkCustomer(body.company_id, created.id);
         if (customer !== created.id) throw new BillingError(409, 'Billing setup changed. Please retry.');
       }
+      const sessions = deps.stripe.checkout.sessions;
+      const recent = await sessions.list({ customer, limit: 100 });
+      const owned = recent.data.filter(session => session.mode === 'subscription' &&
+        session.client_reference_id === body.company_id && session.metadata?.jgap_company_id === body.company_id);
+      const open = owned.filter(session => session.status === 'open');
+      if (recent.has_more || open.length > 1 || (open.length === 1 && open[0] !== owned[0])) {
+        throw new BillingError(409, 'Checkout needs review before starting another subscription.');
+      }
+      const previous = owned[0];
+      const reuse = previous?.status === 'open' && previous.metadata.jgap_price_id === price.id;
+      if (previous?.status === 'open' && !reuse) {
+        const expired = await sessions.expire(previous.id, {}, { idempotencyKey: 'jgap-expire-' + previous.id });
+        if (expired.status !== 'expired') throw new BillingError(409, 'Checkout changed. Please retry.');
+      }
       const subscriptions = await deps.stripe.subscriptions.list({ customer, status: 'all', limit: 100 });
       if (subscriptions.has_more || subscriptions.data.some(subscription => !['canceled', 'incomplete_expired'].includes(subscription.status))) throw new BillingError(409, 'This company already has a subscription or pending payment. Use the billing portal.');
-      // A single company idempotency bucket is shared across plans, preventing parallel
-      // requests for different plans from creating independent checkout sessions.
-      const bucket = Math.floor(deps.now() / 1800000);
-      const session = await deps.stripe.checkout.sessions.create({ mode: 'subscription', customer, client_reference_id: body.company_id, line_items: [{ price: price.id, quantity: 1 }], success_url: config.returnUrl + '?billing=returned', cancel_url: config.returnUrl + '?billing=canceled', metadata: { jgap_company_id: body.company_id }, subscription_data: { metadata: { jgap_company_id: body.company_id } } }, { idempotencyKey: 'jgap-staging-checkout-' + body.company_id + '-' + bucket });
-      return json({ url: checkoutUrl(session.url), mode: 'test' }, 200, headers);
+      // Requests seeing the same predecessor share a key across plans.
+      const key = 'jgap-staging-checkout-v2-' + body.company_id + '-' + (previous?.id ?? 'first');
+      let session = previous;
+      if (!reuse) {
+        try {
+          session = await sessions.create({ mode: 'subscription', customer, client_reference_id: body.company_id, line_items: [{ price: price.id, quantity: 1 }], success_url: config.returnUrl + '?billing=returned', cancel_url: config.returnUrl + '?billing=canceled', metadata: { jgap_company_id: body.company_id, jgap_price_id: price.id }, subscription_data: { metadata: { jgap_company_id: body.company_id } } }, { idempotencyKey: key });
+        } catch (error) {
+          if (error.type === 'StripeIdempotencyError' || error.code === 'idempotency_key_in_use') {
+            throw new BillingError(409, 'Another checkout request is in progress. Please retry.');
+          }
+          throw error;
+        }
+      }
+      const current = await sessions.retrieve(session.id);
+      if (current.status !== 'open') throw new BillingError(409, 'Checkout changed. Please retry.');
+      return json({ url: checkoutUrl(current.url), mode: 'test' }, 200, headers);
     } catch (error) {
       if (!(error instanceof BillingError)) deps.report('billing-session-failed');
       return json({ error: error instanceof BillingError ? error.message : 'Billing could not be completed. No access change was made.' }, error instanceof BillingError ? error.status : 502, headers);

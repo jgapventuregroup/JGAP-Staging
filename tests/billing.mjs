@@ -6,7 +6,8 @@ const company = '11111111-1111-4111-8111-111111111111';
 const price = { id: config.investorPrice, active: true, livemode: false, type: 'recurring', currency: 'usd', unit_amount: 1900, recurring: { interval: 'month', interval_count: 1 } };
 const subscription = { id: 'sub_fixture', object: 'subscription', customer: 'cus_fixture', livemode: false, status: 'active', items: { data: [{ price, quantity: 1 }] }, latest_invoice: { status: 'paid', paid: true } };
 let role = 'owner', user = { id: 'user-a', email: 'test@example.com', email_confirmed_at: '2026-01-01' }, subs = [], priceValue = price, billing = { stripe_customer_id: null }, checkoutArgs, key, calls = 0, eventArgs;
-const deps = { getUser: async () => user, getRole: async () => role, getBilling: async () => billing, linkCustomer: async (id, customer) => customer, now: () => 1800000, report() {}, stripe: { prices: { retrieve: async () => priceValue }, customers: { create: async () => ({ id: 'cus_fixture' }) }, subscriptions: { list: async () => ({ data: subs, has_more: false }), retrieve: async () => subscription }, checkout: { sessions: { create: async (args, opts) => { calls++; checkoutArgs = args; key = opts.idempotencyKey; return { url: 'https://checkout.stripe.com/c/pay/test-fixture' }; } } }, billingPortal: { sessions: { create: async args => ({ url: 'https://billing.stripe.com/p/session/test-fixture' }) } } }, verifyEvent: async () => ({ id: 'evt_fixture', created: 100, livemode: false, type: 'customer.subscription.updated', data: { object: subscription } }), applyEvent: async args => { eventArgs = args; return 'applied'; } };
+const sessions = [];
+const deps = { getUser: async () => user, getRole: async () => role, getBilling: async () => billing, linkCustomer: async (id, customer) => customer, now: () => 1800000, report() {}, stripe: { prices: { retrieve: async () => priceValue }, customers: { create: async () => ({ id: 'cus_fixture' }) }, subscriptions: { list: async () => ({ data: subs, has_more: false }), retrieve: async () => subscription }, checkout: { sessions: { retrieve: async id => sessions.find(item => item.id === id), list: async () => ({ data: sessions, has_more: false }), expire: async id => { const session = sessions.find(item => item.id === id); session.status = 'expired'; return session; }, create: async (args, opts) => { calls++; checkoutArgs = args; key = opts.idempotencyKey; const session = { ...args, id: 'cs_test_' + calls, status: 'open', url: 'https://checkout.stripe.com/c/pay/test-fixture' }; sessions.unshift(session); return session; } } }, billingPortal: { sessions: { create: async args => ({ url: 'https://billing.stripe.com/p/session/test-fixture' }) } } }, verifyEvent: async () => ({ id: 'evt_fixture', created: 100, livemode: false, type: 'customer.subscription.updated', data: { object: subscription } }), applyEvent: async args => { eventArgs = args; return 'applied'; } };
 const request = (body = { company_id: company, action: 'checkout', plan: 'investor' }, headers = {}) => new Request('https://staging.test/billing-session', { method: 'POST', headers: { origin: config.origin, authorization: 'Bearer fixture', ...headers }, body: JSON.stringify(body) });
 const handler = createBillingSessionHandler(deps, config);
 assert.equal((await handler(request(undefined, { origin: 'https://attacker.test' }))).status, 403);
@@ -94,3 +95,13 @@ for (const [option, plan, id, amount] of [
   assert.equal((await checkout()).status, 503);
 }
 console.log('PASS: annual checkout and access mapping for Investor and Pro');
+
+assert.equal(sessions[0].metadata.jgap_price_id, annualConfig.proYearPrice);
+assert.equal(sessions[1].metadata.jgap_price_id, annualConfig.investorYearPrice);
+assert.equal(sessions[1].status, 'expired');
+assert.equal(sessions.filter(session => session.status === 'open').length, 1);
+priceValue = { ...price, id: annualConfig.proYearPrice, unit_amount: 29000, recurring: { interval: 'year', interval_count: 1 } };
+const beforeRetry = calls;
+assert.equal((await annualHandler(request({ company_id: company, action: 'checkout', plan: 'pro_year' }))).status, 200);
+assert.equal(calls, beforeRetry, 'Retry reuses the open checkout for the same price');
+console.log('PASS: switching annual plans expires the old checkout and retry reuses the new checkout');
