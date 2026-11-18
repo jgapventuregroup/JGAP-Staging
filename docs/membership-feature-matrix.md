@@ -19,7 +19,7 @@ Current owner scope (October 26): preserve Free/Investor and completed Pro capab
 | In-app alerts | No change to Free | — | Existing-record follow-up/task/maintenance alerts in remaining scope |
 | External Deal Radar / Lead Generation | No change to Free | — | Excluded from further V1 build by owner; existing saved-deal review retained |
 | Laundromat Division | Out of scope for current release | Out of scope for current release | Deferred for possible future release |
-| Dashboard customization and team permissions | No change to Free | — | Full, with secure company roles |
+| Dashboard customization | No change to Free | — | See current approved dashboard scope |
 | Ads | Planned; not yet active | Planned; not yet active | No ads |
 
 ## Implementation guardrails
@@ -37,9 +37,11 @@ Current owner scope (October 26): preserve Free/Investor and completed Pro capab
 CELoC / HELOC secondary financing is a paid Investor/Pro feature. This explicitly replaces the prior Free availability of the separate secondary-loan estimator. Other existing Free Deal Analyzer, maximum-offer, Pipeline and Intelligence behavior stays unchanged. Verified staging owner preview remains a separate authorized exception. Secondary financing is now calculated through a backend entitlement check, not merely hidden controls.
 
 
-## Named seats and advertising — approved October 26; implemented October 27, 2026
+## Historical named-seat implementation and current advertising
 
-Each workspace subscription includes one named user. Pro collaboration requires paid additional seats for every additional owner/admin/editor/viewer. Pending invitations reserve capacity. Seat quantities and expiry are trusted-backend controlled; customers cannot grant themselves seats. No additional-seat price, live billing, checkout, live advertising, email delivery, or external tracking is activated. Free and Investor retain reserved ad placements throughout the app; Pro stays ad-free. Invite a friend remains available in all three tiers and grants no workspace access.
+November 10 approved individual accounts for V1. Workspace invitations and paid seats are excluded from the customer-facing V1. Invite a Friend remains a referral available in every tier. The earlier named-seat behavior below describes historical backend implementation pending a safe access transition.
+
+Historically, each workspace subscription included one named user. Pro collaboration requires paid additional seats for every additional owner/admin/editor/viewer. Pending invitations reserve capacity. Seat quantities and expiry are trusted-backend controlled; customers cannot grant themselves seats. No additional-seat price, live billing, checkout, live advertising, email delivery, or external tracking is activated. Free and Investor retain reserved ad placements throughout the app; Pro stays ad-free. Invite a friend remains available in all three tiers and grants no workspace access.
 
 Included-seat allocation prioritizes the earliest owner, then stable membership order. Expired/reduced additional-seat capacity denies unlicensed record access without deleting memberships or shared records; renewal restores access. The existing verified staging-founder preview remains unchanged, is not customer team licensing, and is disabled in a fresh baseline. Seat-sharing controls do not yet prevent multiple people using the same credentials; provider session controls remain a handoff/acceptance item.
 

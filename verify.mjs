@@ -11,7 +11,9 @@ assert.match(html,/<div class="properties-list-heading">[\s\S]*?Saved Properties
 
 
 // Match real page IDs, never a widget's gs-id (e.g. analyzer/properties).
-const adPageIds=['dashboard','properties','pipeline','intelligence','lenders','alerts','money','map','radar','finance','team','invite','plans','analyzer'];
+assert.doesNotMatch(html,/data-page="team"|id="team-view"|manage_workspace_team|paid seats|workspace team management/i,'Individual-account frontend must not offer workspace collaboration');
+assert.match(html,/data-page="invite"/,'Individual-account frontend must retain public referral');
+const adPageIds=['dashboard','properties','pipeline','intelligence','lenders','alerts','money','map','radar','finance','invite','plans','analyzer'];
 for(const page of adPageIds){
  assert.match(html,new RegExp('<section id="'+page+'" class="page(?: current)?"[^>]*>\\s*<aside[^>]*data-tka-ad-slot="'+page+'"'), 'Advertisement must be the first child of its actual page: '+page);
  assert.equal([...html.matchAll(new RegExp('data-tka-ad-slot="'+page+'"','g'))].length,1,'Each page has one ad slot: '+page);
@@ -151,7 +153,7 @@ assert.match(html,/<button data-page="plans">Plans \(preview\)<\/button>/,'Plans
 
 assert.match(html,/@media\(max-width:700px\)\{body\{padding:0 12px 28px\}/,'Mobile layout rules must exist');assert.match(html,/#workspace #workspace-nav\.sidebar\{[^}]*position:static;[^}]*overflow-y:auto;[^}]*max-height:min\(65svh,32rem\)/,'Mobile menu must have a stable bounded native vertical scroller');assert.match(html,/#workspace #workspace-nav\.sidebar button\{[^}]*flex:0 0 auto;scroll-snap-align:none/,'Mobile menu items must not shrink or snap');assert.match(html,/\.sidebar button\{padding:12px 14px;min-height:44px/,'Mobile navigation buttons must have touch targets');assert.match(html,/\.assessment-grid\{grid-template-columns:1fr\}/,'Assessment cards must stack on phones');console.log('PASS: mobile touch targets, bounded menu scrolling, and single-column assessment');
 
-assert.match(html,/<h2>Compare plans<\/h2>/,'Tier feature comparison must be visible');for(const name of ['Deal Analyzer and maximum-offer guidance','Property Passport','Deal Pipeline and Deal Intelligence','Income, expenses, repairs and tasks','Money-Making Overview','Team permissions'])assert.ok(html.includes('<th scope="row">'+name+'</th>'),'Feature row missing: '+name);assert.match(html,/Property details and financial snapshot/,'Feature table must not misrepresent access enforcement');assert.match(html,/\.plan-table-wrap\{overflow-x:auto/,'Comparison table must scroll on narrow screens');console.log('PASS: proposed membership feature table and transparent access disclosures');
+assert.match(html,/<h2>Compare plans<\/h2>/,'Tier feature comparison must be visible');for(const name of ['Deal Analyzer and maximum-offer guidance','Property Passport','Deal Pipeline and Deal Intelligence','Income, expenses, repairs and tasks','Money-Making Overview'])assert.ok(html.includes('<th scope="row">'+name+'</th>'),'Feature row missing: '+name);assert.match(html,/Property details and financial snapshot/,'Feature table must not misrepresent access enforcement');assert.match(html,/\.plan-table-wrap\{overflow-x:auto/,'Comparison table must scroll on narrow screens');console.log('PASS: proposed membership feature table and transparent access disclosures');
 
 assert.match(html,/<th scope="row">Saved properties<\/th><td>5 lifetime<\/td><td>Unlimited while active<\/td><td>Unlimited while active<\/td>/,'Free tier should show five lifetime properties');assert.match(html,/<th scope="row">Advertisements<\/th><td>May show ads<\/td><td>May show ads<\/td><td>Ad-free<\/td>/,'Only Pro should be ad-free');assert.match(html,/Live advertising and live checkout are off/,'Plans must disclose that live checkout is off');console.log('PASS: saved-deal limit and advertising tier proposal');
 
