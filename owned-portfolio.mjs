@@ -81,7 +81,7 @@ export function actualsEditor(initial = {}, editable = true) {
   const financials = make('fieldset', root);
   make('legend', financials, 'My Property Financials');
   make('p', financials, "Enter what you actually receive and pay each month. We'll do the math.");
-  make('p', financials, 'Enter 0 for costs you do not have. If you enter a cost in More Details, leave it out of Other Monthly Expenses.');
+  make('p', financials, 'Enter 0 for costs you do not have. Blank optional costs in More Details are omitted from cash flow. Enter each cost once, either here or in More Details.');
   const primary = make('div', financials);
   primary.className = 'grid';
   const details = make('details', financials);

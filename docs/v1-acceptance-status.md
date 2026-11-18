@@ -1,5 +1,7 @@
 # Version 1 acceptance status — updated October 29, 2026
 
+**November 18, 2026:** Use [Release closeout](release-closeout.md) and the [signed-in audit](https://app.notion.com/p/4060647d35278165badfdd478453885b) for current launch gates. Dated results below describe the specific builds and accounts tested.
+
 Version 1 is feature-frozen. [Release closeout](release-closeout.md) is the current gate list. Recent implemented UI: User settings entry to arrangement, simple drag handles with Done/Undo/Reset, expandable record rows, wider workspace, recorded financial charts, clearer workspace role labels, and contextual Help on 16 workspace pages plus sign-in/recovery. No new feature development is authorized.
 
 Owner accepted automatic address lookup/street rendering and confirmed the ad-behind-card defect resolved October 28. Fictional full-app tests verified the ad-parent correction and Help focus/navigation cleanup; chart previews verified positive/negative/empty states. These do not establish real-account persistence, physical-phone or screen-reader acceptance. Latest implementation: `ccbfd7e06609b77b7debbb3f372d202f5c221b4c`, all four hosted workflows passed.

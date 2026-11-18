@@ -100,7 +100,7 @@ element('rate').value='7';element('rent').value='0';element('other').value='0';e
 element('down').value='100';
 element('calculate').onclick();
 assert.match(element('results').textContent,/Monthly payment: \$0\.00/);
-element('offer').value='';element('calculate').onclick();assert.match(element('results').textContent,/Check these fields: Your offer/,'Missing offer should be named');assert.equal(element('analyze-feedback').textContent,'Please correct the highlighted fields');element('offer').value='180000';element('other').value='';element('solve-offer').onclick();assert.match(element('offer-guidance').textContent,/Check these fields: Other monthly income/,'Maximum offer should identify missing income field');assert.equal(element('other')['aria-invalid'],'true','Missing income should be highlighted');assert.equal(element('maximum-feedback').textContent,'Please review the inputs');assert.equal(element('price-comparison').children.length,0,'Failed offer calculation must clear old comparison');element('other').value='0';
+element('offer').value='';element('calculate').onclick();assert.match(element('results').textContent,/Check these fields: Your offer/,'Missing offer should be named');assert.equal(element('analyze-feedback').textContent,'Please correct the highlighted fields');element('offer').value='180000';element('other').value='';element('costs').value='';element('calculate').onclick();assert.equal(element('analyze-feedback').textContent,'Analysis complete','Blank optional amounts must not block analysis');element('solve-offer').onclick();const blankOptionalOffer=element('offer-guidance').textContent;assert.match(blankOptionalOffer,/Primary mortgage only.*maximum offer/);element('other').value='0';element('costs').value='0';element('solve-offer').onclick();assert.equal(element('offer-guidance').textContent,blankOptionalOffer,'Blank optional amounts and explicit zeros must calculate identically');element('rent').value='';element('solve-offer').onclick();assert.match(element('offer-guidance').textContent,/Check these fields: Monthly rent/);assert.equal(element('price-comparison').children.length,0,'Failed offer calculation must clear old comparison');element('rent').value='1800';
 console.log('PASS: real application calculation handlers, invalid input, all-cash scenario');
 function offerTest(values,targets){for(const [id,value] of Object.entries({...fields,...values}))element(id).value=String(value);for(const [id,value] of Object.entries({'target-flow':300,'target-coc':8,'reserve-cash':5000,...targets}))element(id).value=String(value);element('solve-offer').onclick();return element('offer-guidance').textContent;}
 // A missing proposed offer is not a $0 offer in the comparison.
@@ -109,16 +109,16 @@ element('offer').value='';
 element('solve-offer').onclick();
 assert.equal(element('price-comparison').children[1].children[1].textContent,'Not entered','Blank proposed offer must not display $0');
 const standard=offerTest({down:20,rate:7,years:30,rent:1800,expenses:600,vacancy:5,costs:5000},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
-assert.match(standard,/Maximum offer meeting both targets:/);assert.ok(standard.includes('\nLimiting requirement:'),'Maximum offer must render real line breaks');assert.ok(!standard.includes('\\\\n'),'Maximum offer must not display literal backslash-n');assert.equal(element('maximum-feedback').textContent,'Maximum offer calculated','Maximum offer button must confirm click');assert.equal(element('price-comparison').children.length,4,'Comparison must show three prices and offer guidance');assert.match(element('price-comparison').children[0].children[1].textContent,/\$200,000/,'Asking price must match current input');assert.match(element('price-comparison').children[1].children[1].textContent,/\$180,000/,'Proposed offer must match current input');
-const standardPrice=Number(standard.match(/Maximum offer meeting both targets: \$([\d,]+\.\d{2})/)[1].replaceAll(',',''));
+assert.match(standard,/maximum offer meeting both targets:/);assert.ok(standard.includes('\nLimiting requirement:'),'Maximum offer must render real line breaks');assert.ok(!standard.includes('\\\\n'),'Maximum offer must not display literal backslash-n');assert.equal(element('maximum-feedback').textContent,'Maximum offer calculated','Maximum offer button must confirm click');assert.equal(element('price-comparison').children.length,4,'Comparison must show three prices and offer guidance');assert.match(element('price-comparison').children[0].children[1].textContent,/\$200,000/,'Asking price must match current input');assert.match(element('price-comparison').children[1].children[1].textContent,/\$180,000/,'Proposed offer must match current input');
+const standardPrice=Number(standard.match(/maximum offer meeting both targets: \$([\d,]+\.\d{2})/)[1].replaceAll(',',''));
 const monthlyNoi=1800*.95-600,interest=7/1200,factor=interest/(1-Math.pow(1+interest,-360));
 const debtFactor=.8*factor;
 const cashLimit=(monthlyNoi-300)/debtFactor;
 const returnLimit=(12*monthlyNoi-.08*10000)/(12*debtFactor+.08*.2);
 assert.ok(Math.abs(standardPrice-Math.min(cashLimit,returnLimit))<.02,'Offer must satisfy stricter constraint');
 assert.match(standard,/Estimated cash needed including reserves:/);
-const revised=offerTest({ask:225000,offer:150000,down:20,rate:7},{'target-flow':300,'target-coc':8});assert.match(revised,/Maximum offer meeting both targets/);assert.equal(element('price-comparison').children.length,4,'New deal comparison must replace old cards');assert.match(element('price-comparison').children[0].children[1].textContent,/\$225,000/,'Comparison must use new seller asking price');assert.match(element('price-comparison').children[1].children[1].textContent,/\$150,000/,'Comparison must use new offer');const cash=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
-assert.match(cash,/Maximum offer meeting both targets:/,'All-cash deal with positive return target must be supported');
+const revised=offerTest({ask:225000,offer:150000,down:20,rate:7},{'target-flow':300,'target-coc':8});assert.match(revised,/maximum offer meeting both targets/);assert.equal(element('price-comparison').children.length,4,'New deal comparison must replace old cards');assert.match(element('price-comparison').children[0].children[1].textContent,/\$225,000/,'Comparison must use new seller asking price');assert.match(element('price-comparison').children[1].children[1].textContent,/\$150,000/,'Comparison must use new offer');const cash=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
+assert.match(cash,/maximum offer meeting both targets:/,'All-cash deal with positive return target must be supported');
 const impossible=offerTest({rent:100,expenses:600},{'target-flow':300,'target-coc':8});
 assert.match(impossible,/Error: Targets cannot be met/);assert.equal(element('price-comparison').children.length,0,'Impossible deal must not retain old price cards');
 const noFinite=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':0});
@@ -135,7 +135,7 @@ assert.match(element('offer-guidance').textContent,/Maximum offer is blocked/);
 console.log('PASS: zero upfront cash yields N/A and the separate reserves-inclusive verdict yields 188.00%');
 
 
-assert.match(html,/if\(val==null\)\{missing.push\(key\);\$\(key\)\.value='';continue;\}/,'Missing deal values must clear previous estimates');
+assert.match(html,/if\(val==null\)\{if\(key!=='other'&&key!=='costs'\)missing.push\(fieldNames\[key\]\);\$\(key\)\.value='';continue;\}/,'Missing deal values must clear previous estimates');
 console.log('PASS: missing deal fields do not reuse stale analyzer values');
 
 assert.match(html,/\$\('selected'\)\.textContent='Manual calculation — not saved'/,'Sign out must clear selected deal');
@@ -196,7 +196,7 @@ assert.match(html,/Estimated monthly cash flow after the primary mortgage and ad
 
 assert.match(html,/id="export-properties"/,'Property export button must exist');assert.match(html,/rows\.some\(d=>d\.company_id!==companyId\)/,'Export data must pass company isolation validation');assert.match(html,/if\(client!==activeClient\|\|companyId!==activeCompany\)return;const columns=/,'Export must refuse stale company sessions');console.log('PASS: company-scoped property summary export');
 
-assert.match(html,/<details class="offer-helper" id="secondary-financing" hidden>/,'Secondary financing must start hidden until paid authorization');assert.match(html,/CELCO \/ HELOC financing/,'Secondary financing must name CELCO and HELOC clearly');console.log('PASS: financing optional for investors using their own cash');
+assert.match(html,/<details class="offer-helper" id="secondary-financing" hidden>/,'Secondary financing must start hidden until paid authorization');assert.match(html,/CELoC \/ HELOC financing/,'Secondary financing must name CELoC and HELOC clearly');console.log('PASS: financing optional for investors using their own cash');
 
 // Exercise clearing immediately, including a failed company refresh.
 for(const id of ['deals','pipeline-deals','dashboard-followups'])element(id).children=[{textContent:'Previous company'}];
@@ -230,7 +230,7 @@ console.log('PASS: analyzer and maximum-offer buttons navigate to their results'
 for(const [id,value] of Object.entries({ask:150000,offer:140000,rent:1500,other:0,vacancy:5,expenses:450,down:20,rate:7,years:30,costs:5000}))element(id).value=String(value);
 element('target-flow').value='300';element('target-coc').value='8';element('reserve-cash').value='5000';
 element('solve-offer').onclick();
-assert.match(element('offer-guidance').textContent,/Maximum offer meeting both targets: \$126,822\.01/,'Maximum offer must match live customer test fixture');
+assert.match(element('offer-guidance').textContent,/maximum offer meeting both targets: \$126,822\.01/,'Maximum offer must match live customer test fixture');
 assert.match(element('offer-guidance').textContent,/Limiting requirement: monthly cash flow/,'Monthly cash-flow target should bind');
 assert.match(element('offer-guidance').textContent,/Estimated monthly cash flow: \$300\.00/,'Maximum offer must meet cash-flow target');
 console.log('PASS: live investor fixture yields $126,822 maximum offer and $300 monthly cash flow');

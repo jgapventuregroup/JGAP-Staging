@@ -1,5 +1,13 @@
 # Version 1 release closeout
 
+## November 18, 2026 audit closeout
+
+Use the latest deployed Pages commit and its own four workflow results for release acceptance. The November 17 Toolbox-removal deployment is baseline evidence. The signed-in November 18 audit verified the Analyzer financing-scope defect, optional input validation, legacy lender copy, inconsistent CELoC wording and draft launch disclosures. The correction candidate labels primary mortgage results and the maximum offer, compares combined monthly cash flow against the selected target, and accepts blank optional inputs. It leaves the underwriting formulas and membership prices intact.
+
+**Paid launch remains open.** Confirm monthly and annual sandbox mappings and record current checkout-to-webhook-to-entitlement evidence after sign-out and sign-in, including unsuccessful checkout and canceled or expired access. The legal pages and subscription disclosure are staging drafts. Confirm the operator, support and recovery contacts, renewal, cancellation, refunds and privacy language with the owner and qualified reviewer before publishing. Reconcile the membership matrix against actual launch entitlements, including the individual-account direction, and use the existing isolated-target approval requirement for hosted recovery.
+
+[Authenticated audit and acceptance notes](https://app.notion.com/p/4060647d35278165badfdd478453885b).
+
 ## November 16, 2026 verification update
 
 - Verified staging implementation: `948a44c`. The full regression suite and four hosted checks passed. Investor Annual opened at $190 and Pro Annual at $290 in the same staging workspace, and Stripe confirmed the abandoned checkout expired.
@@ -14,7 +22,7 @@ Updated November 2, 2026. Owner decision: preserve the current app; no more feat
 
 ## Candidate and repeatable checks
 
-- Current application implementation: `e0953e6019f0e5eaf512440798c5442d8700f6da`, existing `main` in `jgapventuregroup/JGAP-Staging`; includes the deployed iPhone menu configuration correction. The earlier `ccbfd7` candidate remains historical.
+- Historical November 2 implementation: `e0953e6019f0e5eaf512440798c5442d8700f6da`, existing `main` in `jgapventuregroup/JGAP-Staging`; includes the deployed iPhone menu configuration correction. The earlier `ccbfd7` candidate remains historical.
 - All four hosted workflows passed on that implementation candidate. Any later handoff commit must have its own four successful workflows.
 - October 29 local rerun: complete `npm test` exited 0, including clean schema install, security regressions, frontend packaging and UI/module checks. `npm run check:edge` exited 0 for both billing handlers and property geocoding. These are automated checks, not normal-session or physical-device acceptance.
 - No application code, database, customer records, plan entitlements, payments or live ads changed during this closeout documentation pass.

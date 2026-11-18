@@ -7,7 +7,7 @@ Current owner scope (October 26): preserve Free/Investor and completed Pro capab
 | Capability | Free | Investor ($19/month or $190/year) | Pro ($29/month or $290/year) |
 | --- | --- | --- | --- |
 | Existing Free experience, Deal Analyzer, maximum offer, basic dashboard | Existing behavior unchanged | Included | Included |
-| CELCO / HELOC additional financing | No | Included while active | Included while active |
+| CELoC / HELOC additional financing | No | Included while active | Included while active |
 | Saved property creation | Existing 5 lifetime slots unchanged | Unlimited while subscribed | Unlimited while subscribed |
 | Deal Pipeline / Deal Intelligence | Keep current Free access unchanged pending explicit gating decision | Included | Included |
 | Property Passport | No change to Free | Basic property profile and history | Complete passport and documents |
@@ -34,7 +34,7 @@ Current owner scope (October 26): preserve Free/Investor and completed Pro capab
 8. Recheck original module dependencies, tables, migrations, permissions, and browser workflows before declaring any migration complete.
 
 ## October 24 owner clarification
-CELCO / HELOC secondary financing is a paid Investor/Pro feature. This explicitly replaces the prior Free availability of the separate secondary-loan estimator. Other existing Free Deal Analyzer, maximum-offer, Pipeline and Intelligence behavior stays unchanged. Verified staging owner preview remains a separate authorized exception. Secondary financing is now calculated through a backend entitlement check, not merely hidden controls.
+CELoC / HELOC secondary financing is a paid Investor/Pro feature. This explicitly replaces the prior Free availability of the separate secondary-loan estimator. Other existing Free Deal Analyzer, maximum-offer, Pipeline and Intelligence behavior stays unchanged. Verified staging owner preview remains a separate authorized exception. Secondary financing is now calculated through a backend entitlement check, not merely hidden controls.
 
 
 ## Named seats and advertising — approved October 26; implemented October 27, 2026

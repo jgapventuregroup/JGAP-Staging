@@ -29,6 +29,7 @@ const el = id => { if (!elements.has(id)) elements.set(id, new Element()); retur
 const companies = [{ company_id: 'a', company_name: 'Company A', member_role: 'viewer' }, { company_id: 'b', company_name: 'Company B', member_role: 'owner' }];
 const deal = { id: 'deal-a', company_id: 'a', name: 'Fictional Duplex A', property_address:'1 Fictional Lane #2, Test City, TN', status: 'lead', purchase_price: 180000, asking_price: 200000, target_offer_price: 180000, monthly_rent: 1800, other_monthly_income: 0, vacancy_rate: 5, monthly_operating_expenses: 600, down_payment: 20, interest_rate: 7, loan_term_years: 30, closing_costs: 5000, rehab_cost: 0 };
 let secondaryDeferred=null;
+let combinedFlow='-148.04';
 let membership={plan:'free',billing_status:'not_connected'}, passportAllowed=false, ownerPreviewAllowed=false, passportEligibility,operationsCapability={read:false,write:false},financeCapability={read:false,write:false};
 const adSlots=[new Element('aside'),new Element('aside')];
 const calls = []; let options; let failCompanyB = false; let loginError = null; let onboardingMode = false; let onboardingCreated = false; let companyBDeals = []; const extraCompanyADeals = []; let lifetimeB = 0;
@@ -38,7 +39,7 @@ const fakeClient = {
   functions:{invoke:async(name,{body})=>{calls.push({name,body});return geocodeBusy?{data:null,error:{context:{status:429}}}:{data:{company_id:body.companyId,deal_id:body.dealId,status:'matched'},error:null};}},
   rpc: async (name, args) => {
     calls.push({ name, args });
-    if (name === 'calculate_secondary_financing') {if(secondaryDeferred)return await new Promise(resolve=>{secondaryDeferred.resolve=resolve});return {data:{company_id:args.p_company_id,monthly_interest:'300',annual_interest:'3600',monthly_cash_flow:'-148.04'},error:null};}
+    if (name === 'calculate_secondary_financing') {if(secondaryDeferred)return await new Promise(resolve=>{secondaryDeferred.resolve=resolve});return {data:{company_id:args.p_company_id,monthly_interest:'300',annual_interest:'3600',monthly_cash_flow:combinedFlow},error:null};}
     if (name === 'advanced_finance_access') return {data:financeCapability,error:null};
     if (name === 'get_advanced_finance_report') return {data:{company_id:args.p_company_id},error:null};
     if (name === 'save_property_bookkeeping') return {data:{company_id:args.p_company_id,deal_id:args.p_deal_id,ledger_entry_id:args.p_entry_id},error:null};
@@ -363,11 +364,33 @@ el('celoc-rate').value='9';el('celoc-use-down').onclick();assert.equal(el('celoc
 el('celoc-amount').value='40000';await el('celoc-calculate').onclick();
 const secondaryCall=calls.filter(call=>call.name==='calculate_secondary_financing').at(-1);assert.equal(secondaryCall.args.p_amount,40000);assert.equal(secondaryCall.args.p_rate,9);assert.equal(secondaryCall.args.p_company_id,'b');assert.equal(secondaryCall.args.p_primary.down,20);
 assert.match(el('celoc-results').textContent,/\$300\.00/);assert.match(el('celoc-results').textContent,/-\$148\.04/);
+// Reproduce the authenticated audit scenario through both decision displays.
+for (const [key, value] of Object.entries({ask:200000, offer:200000, rent:2000,
+  other:'', vacancy:5, expenses:400, down:25, rate:6, years:30, costs:'',
+  'target-flow':300, 'target-coc':8, 'reserve-cash':5000, 'celoc-amount':50000})) {
+  el(key).value=String(value);
+}
+el('celoc-amount').listeners.input();
+assert.match(el('combined-financing-verdict').textContent,/calculate the additional loan cost/);
+el('calculate').onclick();
+assert.match(el('deal-assessment').textContent,/MEETS BOTH TARGETS.*\$600\.67/);
+el('solve-offer').onclick();
+assert.match(el('offer-guidance').textContent,/Primary mortgage only.*\$237,967\.93/);
+combinedFlow='225.67';
+await el('celoc-calculate').onclick();
+assert.equal(calls.filter(call=>call.name==='calculate_secondary_financing').at(-1).args.p_primary.other,0);
+assert.match(el('combined-financing-verdict').textContent,/\$225\.67.*Below your \$300\.00/);
+el('target-flow').value='200';
+el('target-flow').listeners.input();
+assert.doesNotMatch(el('combined-financing-verdict').textContent,/\$225\.67/);
+await el('celoc-calculate').onclick();
+assert.match(el('combined-financing-verdict').textContent,/\$225\.67.*Meets your \$200\.00/);
 secondaryDeferred={};const pendingSecondary=el('celoc-calculate').onclick();el('company').value='a';await el('company').onchange();secondaryDeferred.resolve({data:{company_id:'b',monthly_interest:'300',annual_interest:'3600',monthly_cash_flow:'-148.04'},error:null});await pendingSecondary;secondaryDeferred=null;
+assert.equal(el('combined-financing-verdict').textContent,'');
 assert.equal(el('celoc-results').textContent,'','Late secondary-loan results must not enter another workspace');
 membership={plan:'free',billing_status:'not_connected'};passportAllowed=false;el('company').value='b';await el('company').onchange();
 const secondaryCount=calls.filter(call=>call.name==='calculate_secondary_financing').length;await el('celoc-calculate').onclick();assert.equal(calls.filter(call=>call.name==='calculate_secondary_financing').length,secondaryCount,'Free UI must never invoke paid calculator');assert.equal(el('secondary-financing').hidden,true);
-console.log('PASS: paid CELCO/HELOC controls, backend calculation, Free denial and stale-response protection');
+console.log('PASS: paid CELoC/HELOC controls, backend calculation, Free denial and stale-response protection');
 await el('logout').onclick();
 assert.equal(el('deals').children.length, 0);
 assert.equal(context.window.JGAP_OPERATIONS_WRITES_READY,false,'Sign-out revokes activity editors');
