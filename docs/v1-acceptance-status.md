@@ -1,5 +1,13 @@
 # Version 1 acceptance status — updated October 29, 2026
 
+## November 18, 2026 — final-gate verification
+
+- Application candidate: `a76353e9718dc619eef427f9cfc8def6c38e094f`, Pages build `c4cc47fd3e3a63ca03ae`. The signed-in owner-preview Chrome session opened Properties, Pipeline, Reports, Market Map, Saved Deal Radar, Alerts and My Account. The Owned example stayed out of Pipeline. This pass performed no record writes. Fictional ordinary-account persistence, private files, mobile and assistive-technology acceptance remain open.
+- Staging security preflight recorded 10 properties, 7 owner memberships, zero multi-member workspaces, zero active pending invitations and the existing function grants as a rollback checkpoint. The isolated regression passed. Automatic review refused migration `20261118140000_v1_individual_accounts.sql` pending explicit approval for revoking authenticated execution on both legacy functions. No migration was applied.
+- Stripe sandbox catalog prices match the four approved prices. The enabled webhook points to staging and subscribes to subscription create, update and delete, invoice paid and invoice payment failed. Local billing and Stripe SDK signature regressions passed. Hosted checkout and entitlement lifecycle remains open pending a disposable ordinary staging account linked to a fictional Stripe sandbox customer.
+- No staging Supabase branches or approved isolated recovery target were identified. The connector did not expose a backup inventory or retention setting, so the actual backup inventory is unverified. Start an approved isolated rehearsal with fictional data and private files, using separate checksummed database and file copies. No restore or purchase was performed.
+- **Launch status: blocked.** Before production deploy, record exact candidate workflow and acceptance results, approved legal and operator decisions, billing and recovery evidence, the prior frontend build and an authorization rollback plan. Keep production billing off pending commercial approval.
+
 **November 18, 2026:** Use [Release closeout](release-closeout.md) and the [signed-in audit](https://app.notion.com/p/4060647d35278165badfdd478453885b) for current launch gates. Dated results below describe the specific builds and accounts tested.
 
 Version 1 is feature-frozen. [Release closeout](release-closeout.md) is the current gate list. Recent implemented UI: User settings entry to arrangement, simple drag handles with Done/Undo/Reset, expandable record rows, wider workspace, recorded financial charts, clearer workspace role labels, and contextual Help on 16 workspace pages plus sign-in/recovery. No new feature development is authorized.
