@@ -91,3 +91,30 @@ test('removed editor keeps the same identity but loses property, document and Pr
   assert.equal((await query('select count(*)::int n from public.dashboard_preferences where company_id=$1',[company])).rows[0].n,0,'Membership removal cascades only the removed member’s personal preferences');
  }finally{await db.close();}
 });
+
+test('individual-account V1 disables team mutations and preserves owner records', async () => {
+  const db = new PGlite();
+  const owner = '84000000-0000-4000-8000-000000000001';
+  const company = '84000000-0000-4000-8000-000000000011';
+  const migration = read('supabase/migrations/20261118140000_v1_individual_accounts.sql');
+  try {
+    await installStack(db);
+    await db.exec(`
+      insert into auth.users values ('${owner}', 'owner@example.invalid', now());
+      insert into public.companies (id, name) values ('${company}', 'Individual fixture');
+      insert into public.company_members (company_id, user_id, role) values ('${company}', '${owner}', 'owner');
+      insert into public.deals (company_id, name) values ('${company}', 'Retained fictional property');
+    `);
+    await db.exec(migration);
+    await db.exec(`select set_config('request.jwt.claim.sub', '${owner}', false); set role authenticated;`);
+    const { rows: [permissions] } = await db.query(`
+      select has_function_privilege('public.manage_workspace_team(text,uuid,uuid,text,text)', 'EXECUTE') as public_team,
+             has_function_privilege('jgap_private.manage_team(text,uuid,uuid,text,text)', 'EXECUTE') as private_team,
+             public.is_company_member($1) as owner_access
+    `, [company]);
+    assert.deepEqual(permissions, { public_team: false, private_team: false, owner_access: true });
+    assert.equal((await db.query('select name from public.deals where company_id=$1', [company])).rows[0].name, 'Retained fictional property');
+  } finally {
+    await db.close();
+  }
+});

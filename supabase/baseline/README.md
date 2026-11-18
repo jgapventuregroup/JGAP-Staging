@@ -73,3 +73,7 @@ Apply `supabase/features/property-geocoding.sql` once after the baseline in an a
 
 ## Individual dashboard grid add-on
 Apply `supabase/features/dashboard-grid.sql` after the dashboard-customization add-on in an approved empty environment. The additive grid_layout JSON field and version-2 invoker APIs retain legacy preferences/APIs and use the existing Pro/seat RLS. Layout stores only five approved widget IDs, coordinates, dimensions and visibility, never customer content/HTML. Save uses the expected updated_at value to reject stale concurrent writes. No preference row or property is deleted. Staging has this installed as individual_dashboard_grid; do not replay there. GridStack 14.0.0 assets/license are locally bundled. See `docs/dashboard-grid.md` for behavior and acceptance.
+
+## Individual-account V1 access
+
+After the canonical team and named-seat add-ons, apply `supabase/migrations/20261118140000_v1_individual_accounts.sql` before admitting V1 users. This closes both team-mutation entry points for client roles and leaves the existing membership/owner access checks in place. The migration stops if any workspace has multiple members or any pending invitation is still active. Resolve those records with an approved access transition before retrying. The migration does not remove rows.
