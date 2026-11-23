@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: v1-isolated-qa
     steps:
+      - name: Verify isolated secret is configured
+        env:
+          QA_SUPABASE_ADMIN_KEY: ${{ secrets.QA_SUPABASE_ADMIN_KEY }}
+        run: 'test -n "$QA_SUPABASE_ADMIN_KEY" || { echo "Missing v1-isolated-qa environment secret QA_SUPABASE_ADMIN_KEY"; exit 1; }'
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -25,4 +29,4 @@ jobs:
         run: node scripts/v1-isolated-browser-qa.mjs
         env:
           QA_SUPABASE_ADMIN_KEY: ${{ secrets.QA_SUPABASE_ADMIN_KEY }}
-          QA_SUPABASE_PUBLISHABLE_KEY: ${{ vars.QA_SUPABASE_PUBLISHABLE_KEY }}
+          QA_SUPABASE_PUBLISHABLE_KEY: sb_publishable_e_HrV8G2s2nW5Q7Gy51a0g__eo_AapO
