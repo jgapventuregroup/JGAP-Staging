@@ -16,6 +16,12 @@ Use the existing staging application and the [release closeout](release-closeout
 
 On November 23, 2026, the Supabase staging function inventory identified two historical eligibility handlers alongside the current app's billing and geocoding functions. Their deployed source is preserved in `supabase/functions/request-free-eligibility/index.ts` (hosted version 6) and `supabase/functions/signup-eligibility-status/index.ts` (hosted version 7). Both use gateway JWT verification and validate the caller in the handler. The current customer sign-up flow does not call either function. This source reconciliation performed no function redeployment and made no decision to enable or retire the historical eligibility workflow.
 
+## Production candidate configuration
+
+Use `config.js` as the release-specific public browser config. Set `supabaseUrl`, `appUrl` (the complete HTTPS app URL, including any base path and trailing slash), and `publishableKey` for the same approved production environment. The checked-in values are staging values. Package an environment-specific copy and verify the artifact's Auth return and invitation URLs, then validate the exact redirect allowlist with the provider. Keep the history handling and ordinary-account acceptance checks in the release checklist.
+
+The billing server defaults to Stripe test mode. An approved later candidate can set `JGAP_BILLING_MODE=live` only alongside the exact HTTPS `JGAP_APP_ORIGIN`, `JGAP_APP_RETURN_URL` on that origin, the four distinct live Price IDs, the live server key, and the matching webhook signing secret. Keep `JGAP_BILLING_ENABLED` disabled until owner authorization. The browser still presents and accepts sandbox checkout; final approved disclosures and live front-end checkout wiring remain release work. Use `PROPERTY_MAP_ORIGINS` for the Edge geocode origin allowlist. Keep the historical eligibility functions out of the production deployment set unless explicitly selected.
+
 ## Current owner scope
 November 2 operator update: Sean may deploy/upload the app himself and is comparing the outside company's pricing. Hiring that company is undecided. Prepare the existing app for either operator using `release-closeout.md`; do not activate paid services, production hosting, billing or live ads under this general continuation instruction. Earlier references to tasks assigned exclusively to the company are historical responsibility proposals, not a current hiring decision.
 

@@ -59,6 +59,18 @@ Stop on any missing file, integrity mismatch, failed isolation check or unexpect
 
 Record date, source/target identifiers, backup timestamp and method, exact app commit, configuration checklist, aggregate row checks, file checksums, individual acceptance results, measured recovery duration, discrepancies and reviewer decision. Keep secrets and customer files out of public Git evidence. A completed runbook is not a passed rehearsal.
 
+## Owner-operated backup procedure
+
+The November 23 hosted drill in the separate recovery project restored fictional property notes and the complete linked task from a logical checkpoint. It also restored a backed-up PNG at a fresh private object path and verified exact bytes and account isolation. A full provider backup restore and a restore at the original file path remain open. The recovery project is a destination for drills or incidents.
+
+Proposed starting schedule for owner approval:
+
+- Capture a daily database backup and a daily independent private-file copy. Capture both again before a schema migration, credential cutover, or bulk data operation. Record the UTC capture time, application release, project identity and completion status of each copy.
+- Use the approved PostgreSQL backup procedure for application data and schema, including the supported Auth export path where identity continuity is required. Export actual Storage object bytes through the supported Storage API, with an inventory of bucket, exact object key, size and SHA-256. Keep encrypted copies in an access-controlled destination separate from the running project. Verify the backup can be read and that the object count and checksums match before recording a successful job.
+- Propose seven daily recovery points and a monthly isolated restore drill. Confirm retention, allowable data loss, recovery time, backup destination, cost and the operator before scheduling anything.
+- During recovery, select a consistent checkpoint, create or use an authorized empty restore target, restore database state, and separately upload files at their recorded keys. Verify database relationships, Auth identity mapping, bucket privacy, owner access, anonymous and other-account denial, and file checksums. Record actual recovery time before proposing a cutover.
+- Cancel the separate $25/month Pro rehearsal organization before renewal if there is no scheduled drill or standby requirement. Retaining it requires an assigned operator and a reason for keeping a warm restore destination. Independent backup copies remain necessary in either case. No backup schedule or cancellation is configured by this procedure.
+
 ## Provider references
 
 Reviewed October 27, 2026: [database backups](https://supabase.com/docs/guides/platform/backups), [backup/restore using CLI](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore), and [changelog](https://supabase.com/changelog). Recheck applicable provider changes and installed CLI help before executing commands.

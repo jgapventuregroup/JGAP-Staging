@@ -1,14 +1,13 @@
 (() => {
   'use strict';
   const el = id => document.getElementById(id);
-  const endpoint = 'https://qfszapteuxuogoselprp.supabase.co';
-  const returnUrl = 'https://jgapventuregroup.github.io/JGAP-Staging/';
+  const { supabaseUrl: endpoint, appUrl: returnUrl, publishableKey } = window.JGAP_APP_CONFIG || {};
   const authOptions = { persistSession: false, autoRefreshToken: true, detectSessionInUrl: false };
   let recoveryClient = null, verifiedRecovery = false, updating = false;
-  const getKey = () => window.JGAP_STAGING_PUBLISHABLE_KEY || el('key').value.trim();
+  const getKey = () => publishableKey || el('key').value.trim();
   function createAuth(detectSessionInUrl = false) {
     const key = getKey();
-    if (!window.supabase || !key.startsWith('sb_publishable_')) throw Error('Account service is unavailable. Try again shortly.');
+    if (!window.supabase || !endpoint || !returnUrl || !key.startsWith('sb_publishable_')) throw Error('Account service is unavailable. Try again shortly.');
     return window.supabase.createClient(endpoint, key, { auth: { ...authOptions, detectSessionInUrl } });
   }
   const showRecovery = () => { el('login-shell').classList.add('hidden'); el('workspace').classList.add('hidden'); el('recovery-shell').classList.remove('hidden'); };

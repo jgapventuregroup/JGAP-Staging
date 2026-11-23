@@ -7,7 +7,7 @@ function fixture(hash = '', invalid = false, mismatch = false, failures = {}) {
   const elements = new Map(), calls = [], timers = [];
   const el = id => { if (!elements.has(id)) elements.set(id, { value: '', textContent: '', disabled: false, classList: { add() {}, remove() {} }, focus() {} }); return elements.get(id); };
   const auth = { resetPasswordForEmail: async (email, options) => { calls.push({ action: 'request', email, options }); return { error: failures.reset || null }; }, getSession: async () => ({ data: { session: invalid ? null : { user: { id: 'verified-user' } } }, error: null }), getUser: async () => ({ data: { user: { id: mismatch ? 'different-user' : 'verified-user' } }, error: null }), updateUser: async body => { calls.push({ action: 'update', body }); return { error: failures.update || null }; }, signOut: async options => { calls.push({ action: 'signout', options }); return { error: null }; } };
-  const context = { document: { getElementById: el }, URLSearchParams, setTimeout: (fn, ms) => timers.push({ fn, ms }), window: { location: { hash, pathname: '/JGAP-Staging/', search: '' }, history: { replaceState: (state, title, url) => calls.push({ action: 'clear-url', url }) }, JGAP_STAGING_PUBLISHABLE_KEY: 'sb_publishable_fixture', supabase: { createClient: (url, key, options) => { calls.push({ action: 'client', options }); return { auth }; } } } };
+  const context = { document: { getElementById: el }, URLSearchParams, setTimeout: (fn, ms) => timers.push({ fn, ms }), window: { location: { hash, pathname: '/JGAP-Staging/', search: '' }, history: { replaceState: (state, title, url) => calls.push({ action: 'clear-url', url }) }, JGAP_APP_CONFIG: { supabaseUrl: 'https://fixture.supabase.co', appUrl: 'https://app.example.com/investor/', publishableKey: 'sb_publishable_fixture' }, supabase: { createClient: (url, key, options) => { calls.push({ action: 'client', url, options }); return { auth }; } } } };
   vm.runInNewContext(script, context);
   return { el, calls, timers };
 }
@@ -15,8 +15,9 @@ const normal = fixture();
 normal.el('email').value = 'invalid'; await normal.el('forgot-password').onclick();
 assert.equal(normal.calls.length, 0, 'Invalid email must not trigger a request');
 normal.el('email').value = 'PERSON@example.com'; await normal.el('forgot-password').onclick();
+assert.equal(normal.calls.find(x => x.action === 'client').url, 'https://fixture.supabase.co');
 assert.equal(normal.calls.find(x => x.action === 'request').email, 'person@example.com');
-assert.equal(normal.calls.find(x => x.action === 'request').options.redirectTo, 'https://jgapventuregroup.github.io/JGAP-Staging/');
+assert.equal(normal.calls.find(x => x.action === 'request').options.redirectTo, 'https://app.example.com/investor/');
 assert.match(normal.el('status').textContent, /Reset request accepted/);
 assert.match(normal.el('status').textContent, /does not confirm.*email was delivered/);
 assert.equal(normal.el('forgot-password').disabled, true);

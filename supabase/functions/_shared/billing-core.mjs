@@ -1,5 +1,5 @@
 // Pure request handlers; the runtime adapter supplies authenticated database and Stripe access.
-// Staging is test-mode only. Enabling live billing is a separate release decision.
+// Test mode is the default. Production requires explicit server-side configuration.
 export class BillingError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
@@ -7,12 +7,26 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const plans = { investor: 1900, pro: 2900, investor_year: 19000, pro_year: 29000 };
 const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...headers } });
 const identifier = object => typeof object === 'string' ? object : object?.id;
+const billingMode = config => config.mode ?? 'test';
+const liveMode = config => billingMode(config) === 'live';
 function configured(config) {
-  return config.enabled === true && config.secretKey?.startsWith('sk_test_') && config.webhookSecret?.startsWith('whsec_') && config.investorPrice?.startsWith('price_') && config.proPrice?.startsWith('price_') && config.investorPrice !== config.proPrice;
+  const mode = billingMode(config);
+  if (config.enabled !== true || !['test', 'live'].includes(mode) ||
+      !config.secretKey?.startsWith('sk_' + mode + '_') || !config.webhookSecret?.startsWith('whsec_')) return false;
+  const prices = Object.keys(plans).map(plan => priceFor(plan, config)).filter(Boolean);
+  const required = mode === 'live' ? Object.keys(plans) : ['investor', 'pro'];
+  if (!required.every(plan => priceFor(plan, config)?.startsWith('price_')) ||
+      prices.some(id => !id.startsWith('price_')) || new Set(prices).size !== prices.length) return false;
+  try {
+    const target = new URL(config.returnUrl);
+    return target.protocol === 'https:' && target.origin === config.origin &&
+      !target.username && !target.password && !target.search && !target.hash &&
+      (mode !== 'live' || target.origin !== 'https://jgapventuregroup.github.io');
+  } catch { return false; }
 }
 function priceFor(plan, config) { return { investor: config.investorPrice, pro: config.proPrice, investor_year: config.investorYearPrice, pro_year: config.proYearPrice }[plan]; }
 function validPrice(price, plan, config) {
-  return price && price.id === priceFor(plan, config) && price.active === true && price.livemode === false && price.currency === 'usd' && price.unit_amount === plans[plan] && price.recurring?.interval === (plan.endsWith('_year') ? 'year' : 'month') && price.recurring?.interval_count === 1 && price.type === 'recurring';
+  return price && price.id === priceFor(plan, config) && price.active === true && price.livemode === liveMode(config) && price.currency === 'usd' && price.unit_amount === plans[plan] && price.recurring?.interval === (plan.endsWith('_year') ? 'year' : 'month') && price.recurring?.interval_count === 1 && price.type === 'recurring';
 }
 function checkoutUrl(url) {
   try { const parsed = new URL(url); if (parsed.protocol === 'https:' && parsed.hostname === 'checkout.stripe.com') return url; } catch {}
@@ -49,7 +63,7 @@ export function createBillingSessionHandler(deps, config) {
       if (body.action === 'portal') {
         if (!billing.stripe_customer_id) throw new BillingError(409, 'This company has no billing account yet.');
         const session = await deps.stripe.billingPortal.sessions.create({ customer: billing.stripe_customer_id, return_url: config.returnUrl });
-        return json({ url: portalUrl(session.url), mode: 'test' }, 200, headers);
+        return json({ url: portalUrl(session.url), mode: billingMode(config) }, 200, headers);
       }
       const priceId = priceFor(body.plan, config);
       if (!priceId?.startsWith('price_')) throw new BillingError(503, 'Subscription pricing needs configuration.');
@@ -57,7 +71,7 @@ export function createBillingSessionHandler(deps, config) {
       if (!validPrice(price, body.plan, config)) throw new BillingError(503, 'Subscription pricing needs configuration. No payment has been taken.');
       let customer = billing.stripe_customer_id;
       if (!customer) {
-        const created = await deps.stripe.customers.create({ email: user.email, metadata: { jgap_company_id: body.company_id } }, { idempotencyKey: 'jgap-staging-customer-' + body.company_id });
+        const created = await deps.stripe.customers.create({ email: user.email, metadata: { jgap_company_id: body.company_id } }, { idempotencyKey: (liveMode(config) ? 'jgap-live-customer-' : 'jgap-staging-customer-') + body.company_id });
         customer = await deps.linkCustomer(body.company_id, created.id);
         if (customer !== created.id) throw new BillingError(409, 'Billing setup changed. Please retry.');
       }
@@ -78,7 +92,7 @@ export function createBillingSessionHandler(deps, config) {
       const subscriptions = await deps.stripe.subscriptions.list({ customer, status: 'all', limit: 100 });
       if (subscriptions.has_more || subscriptions.data.some(subscription => !['canceled', 'incomplete_expired'].includes(subscription.status))) throw new BillingError(409, 'This company already has a subscription or pending payment. Use the billing portal.');
       // Requests seeing the same predecessor share a key across plans.
-      const key = 'jgap-staging-checkout-v2-' + body.company_id + '-' + (previous?.id ?? 'first');
+      const key = (liveMode(config) ? 'jgap-live-checkout-v2-' : 'jgap-staging-checkout-v2-') + body.company_id + '-' + (previous?.id ?? 'first');
       let session = previous;
       if (!reuse) {
         try {
@@ -92,7 +106,7 @@ export function createBillingSessionHandler(deps, config) {
       }
       const current = await sessions.retrieve(session.id);
       if (current.status !== 'open') throw new BillingError(409, 'Checkout changed. Please retry.');
-      return json({ url: checkoutUrl(current.url), mode: 'test' }, 200, headers);
+      return json({ url: checkoutUrl(current.url), mode: billingMode(config) }, 200, headers);
     } catch (error) {
       if (!(error instanceof BillingError)) deps.report('billing-session-failed');
       return json({ error: error instanceof BillingError ? error.message : 'Billing could not be completed. No access change was made.' }, error instanceof BillingError ? error.status : 502, headers);
@@ -103,7 +117,7 @@ export function createBillingSessionHandler(deps, config) {
 export function subscriptionState(subscription, config) {
   const item = subscription.items?.data?.length === 1 ? subscription.items.data[0] : null;
   const plan = Object.keys(plans).find(option => validPrice(item?.price, option, config));
-  const recognized = plan && item.quantity === 1 && subscription.livemode === false;
+  const recognized = plan && item.quantity === 1 && subscription.livemode === liveMode(config);
   const invoice = subscription.latest_invoice;
   const paid = invoice && typeof invoice === 'object' && invoice.status === 'paid';
   return { plan: recognized ? plan.replace(/_year$/, '') : 'free', billing_status: !recognized ? 'not_connected' : subscription.status === 'canceled' ? 'canceled' : subscription.status === 'active' && paid ? 'active' : 'past_due' };
@@ -119,7 +133,7 @@ export function createBillingWebhookHandler(deps, config) {
     let event;
     try { event = await deps.verifyEvent(raw, request.headers.get('stripe-signature'), config.webhookSecret); }
     catch { return json({ error: 'Invalid signature.' }, 400); }
-    if (event.livemode !== false) return json({ error: 'Staging accepts test events only.' }, 400);
+    if (event.livemode !== liveMode(config)) return json({ error: 'Event does not match the configured billing mode.' }, 400);
     const subscriptionEvent = ['customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted'].includes(event.type);
     const invoiceEvent = ['invoice.paid', 'invoice.payment_failed'].includes(event.type);
     if (!subscriptionEvent && !invoiceEvent) return json({ received: true, ignored: true });
@@ -142,7 +156,7 @@ export function createBillingWebhookHandler(deps, config) {
       // or browser/user-controlled metadata. The database maps the customer to a company.
       const subscription = await deps.stripe.subscriptions.retrieve(subscriptionId, { expand: ['items.data.price', 'latest_invoice'] });
       const customer = identifier(subscription.customer);
-      if (subscription.id !== subscriptionId || !/^cus_[A-Za-z0-9]+$/.test(customer || '') || identifier(source.customer) !== customer) throw new Error('Subscription mismatch');
+      if (subscription.livemode !== liveMode(config) || subscription.id !== subscriptionId || !/^cus_[A-Za-z0-9]+$/.test(customer || '') || identifier(source.customer) !== customer) throw new Error('Subscription mismatch');
       const result = await deps.applyEvent({ event_id: event.id, event_created: event.created, customer_id: customer, subscription_id: subscription.id, ...subscriptionState(subscription, config) });
       return json({ received: true, result });
     } catch { deps.report('billing-webhook-failed'); return json({ error: 'Unable to apply verified billing event. Retry required.' }, 500); }
