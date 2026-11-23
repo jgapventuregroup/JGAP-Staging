@@ -1,63 +1,28 @@
-name: Build Investor preview artifact
-on:
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
+name: Isolated Investor V1 browser QA
+on: workflow_dispatch
 permissions:
   contents: read
+concurrency:
+  group: investor-v1-isolated-browser
+  cancel-in-progress: false
 jobs:
-  preview:
+  browser:
+    if: github.ref == 'refs/heads/v1-isolated-browser-qa'
+    timeout-minutes: 20
     runs-on: ubuntu-latest
+    environment: v1-isolated-qa
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
       - run: npm ci
-      - run: npm test
-      - name: Verify required preview assets
-        run: |
-          test -f previews/index.html
-          test -f previews/property-operations-demo.html
-          test -f previews/investor-ledger-demo.html
-          test -f original-passport-loader.mjs
-          test -f original-passport-display.mjs
-          test -f original-passport-forms.mjs
-          test -f original-passport-writer.mjs
-          test -f original-passport-recovery.mjs
-      - name: Package Investor preview
-        run: |
-          mkdir -p dist/previews
-          cp index.html terms.html privacy.html owned-portfolio.mjs page-help.mjs page-help.css market-map.mjs leaflet.js leaflet.css leaflet-LICENSE.txt in-app-alerts.mjs money-making-overview.mjs saved-deal-radar.mjs passport-document-live-gate.mjs passport-documents.mjs passport-live-isolation-core.mjs passport-security-gate.mjs finance-cpa.mjs finance-charts-demo.html config.js account-recovery.js deal-intelligence-adapter.js deal-intelligence.js lenders.js property-passport.mjs property-passport-preview.mjs property-ledger.mjs property-work.mjs property-operations.mjs property-operations-loader.mjs property-activity-writer.mjs property-activity-forms.mjs original-passport-loader.mjs original-passport-display.mjs original-passport-forms.mjs original-passport-writer.mjs original-passport-recovery.mjs dist/
-          cp previews/index.html previews/property-operations-demo.html previews/investor-ledger-demo.html previews/passport-security-gate.html dist/previews/
-          node scripts/version-frontend.mjs dist
-      - name: Verify all bundled app imports resolve
-        run: |
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          import path from 'node:path';
-          const root='dist';
-          const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-          const queue=[...html.matchAll(/<script\b[^>]*\bsrc=['"]([^'"]+)['"]/g)].map(match=>match[1].split('?')[0]).filter(source=>! /^(?:https?:|\/\/)/.test(source));
-          queue.push('passport-security-gate.mjs');
-          const visited=new Set();
-          while(queue.length){
-            const relative=queue.shift();
-            if(visited.has(relative))continue;
-            visited.add(relative);
-            const file=path.join(root,relative);
-            if(!fs.existsSync(file))throw Error('Missing preview module: '+relative);
-            const source=fs.readFileSync(file,'utf8');
-            for(const match of source.matchAll(/(?:import|export)\s+(?:[^'\";]*?\s+from\s+)?['\"](\.[^'\"]+)['\"]|import\s*\(\s*['\"](\.[^'\"]+)['\"]/g)){
-              const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(relative),(match[1]||match[2]).split('?')[0]));
-              if(!dependency.startsWith('../'))queue.push(dependency);
-            }
-          }
-          console.log('Verified '+visited.size+' bundled app scripts and modules');
-          NODE
-      - uses: actions/upload-artifact@v4
-        with:
-          name: investor-preview-site
-          path: dist/
-          retention-days: 7
+      - run: npm install --no-save --package-lock=false playwright@1.56.1
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Run isolated acceptance
+        run: node scripts/v1-isolated-browser-qa.mjs
+        env:
+          QA_SUPABASE_ADMIN_KEY: ${{ secrets.QA_SUPABASE_ADMIN_KEY }}
+          QA_SUPABASE_PUBLISHABLE_KEY: ${{ vars.QA_SUPABASE_PUBLISHABLE_KEY }}
