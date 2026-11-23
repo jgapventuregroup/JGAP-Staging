@@ -1,7 +1,10 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.117.3';
 import Stripe from 'npm:stripe@23.0.0';
 
+const mode = Deno.env.get('JGAP_BILLING_MODE') ?? 'test';
+const testOrigin = 'https://jgapventuregroup.github.io';
 export const config = {
+  mode,
   enabled: Deno.env.get('JGAP_BILLING_ENABLED') === 'true',
   secretKey: Deno.env.get('STRIPE_SECRET_KEY') || '',
   webhookSecret: Deno.env.get('STRIPE_WEBHOOK_SECRET') || '',
@@ -9,8 +12,8 @@ export const config = {
   investorYearPrice: Deno.env.get('STRIPE_INVESTOR_YEAR_PRICE_ID') || '',
   proYearPrice: Deno.env.get('STRIPE_PRO_YEAR_PRICE_ID') || '',
   proPrice: Deno.env.get('STRIPE_PRO_PRICE_ID') || '',
-  origin: 'https://jgapventuregroup.github.io',
-  returnUrl: 'https://jgapventuregroup.github.io/JGAP-Staging/',
+  origin: Deno.env.get('JGAP_APP_ORIGIN') ?? (mode === 'test' ? testOrigin : ''),
+  returnUrl: Deno.env.get('JGAP_APP_RETURN_URL') ?? (mode === 'test' ? testOrigin + '/JGAP-Staging/' : ''),
 };
 // Secrets stay in the function runtime. A placeholder lets disabled deployments
 // boot without a configured Stripe account; handlers never use it while disabled.

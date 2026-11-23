@@ -112,3 +112,30 @@ assert.equal((await annualHandler(request({ company_id: company, action: 'checko
 assert.equal(legacy.status, 'expired');
 assert.equal(sessions.filter(session => session.status === 'open').length, 1);
 console.log('PASS: legacy duplicate open checkouts are expired before creating a replacement');
+
+const releaseOrigin = 'https://app.example.com';
+const releaseConfig = {
+  ...annualConfig, mode: 'live', secretKey: 'sk_live_fixture',
+  origin: releaseOrigin, returnUrl: releaseOrigin + '/',
+};
+const releaseSubscription = {
+  ...subscription, livemode: true,
+  items: { data: [{ price: { ...price, livemode: true }, quantity: 1 }] },
+};
+const releaseDeps = {
+  ...liveDeps,
+  stripe: { ...deps.stripe, subscriptions: { ...deps.stripe.subscriptions, retrieve: async () => releaseSubscription } },
+};
+assert.equal((await createBillingWebhookHandler(releaseDeps, releaseConfig)(webhookRequest('valid'))).status, 200);
+assert.equal(eventArgs.billing_status, 'active');
+assert.equal((await createBillingWebhookHandler(deps, releaseConfig)(webhookRequest('valid'))).status, 400);
+assert.equal((await createBillingWebhookHandler(liveDeps, releaseConfig)(webhookRequest('valid'))).status, 500);
+for (const invalid of [
+  { enabled: false }, { secretKey: 'sk_test_fixture' }, { mode: 'invalid' },
+  { origin: config.origin, returnUrl: config.returnUrl },
+  { returnUrl: 'https://other.example.com/' }, { returnUrl: releaseOrigin + '/?unsafe=1' },
+  { investorYearPrice: '' }, { proYearPrice: annualConfig.investorYearPrice },
+]) {
+  assert.equal((await createBillingWebhookHandler(releaseDeps, { ...releaseConfig, ...invalid })(webhookRequest('valid'))).status, 503);
+}
+console.log('PASS: explicit live billing configuration, mode isolation and verified entitlement');

@@ -46,7 +46,10 @@ assert.match(html,/Stripe sandbox only\. Use test card details\./, 'Do not prese
 assert.match(html,/enabled:passportRecordsAllowed/, 'Passport must require the backend entitlement response');
 assert.match(html,/<h1>The Key Ahead membership plans<\/h1>/, 'Membership page must use the current brand');
 assert.match(html,/Checkout on this site is for testing only/, 'Membership must not imply unverified client-side upgrades');assert.match(html,/html\[data-theme="dark"\] input\[aria-invalid="true"\]/,'Dark mode must have distinct invalid-field styling');
-assert.match(html,/qfszapteuxuogoselprp\.supabase\.co/);
+const browserConfig=fs.readFileSync(new URL('./config.js',import.meta.url),'utf8');
+assert.match(browserConfig,/qfszapteuxuogoselprp\.supabase\.co/);
+assert.doesNotMatch(browserConfig,/service_role|sb_secret_/i);
+assert.doesNotMatch(html,/qfszapteuxuogoselprp\.supabase\.co/);
 assert.match(html,/list_my_companies/);
 assert.match(html,/!rawPrice\|\|!rawRent/, 'Blank property price and rent must not silently become zero');
 assert.match(html,/id="new-deal-price"[^>]*placeholder="Enter purchase price"/, 'Purchase price must begin blank');

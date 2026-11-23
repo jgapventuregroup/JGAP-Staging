@@ -7,7 +7,7 @@ const crypto = Stripe.createSubtleCryptoProvider();
 const secret = 'whsec_synthetic_signature_fixture';
 const payload = JSON.stringify({ id: 'evt_signaturefixture', livemode: false, created: Math.floor(Date.now() / 1000), type: 'customer.subscription.updated', data: { object: { id: 'sub_signaturefixture', object: 'subscription', customer: 'cus_signaturefixture' } } });
 let applied = 0;
-const config = { enabled: true, secretKey: 'sk_test_fixture', webhookSecret: secret, investorPrice: 'price_investor', proPrice: 'price_pro' };
+const config = { enabled: true, secretKey: 'sk_test_fixture', webhookSecret: secret, investorPrice: 'price_investor', proPrice: 'price_pro', origin: 'https://fixture.example.com', returnUrl: 'https://fixture.example.com/' };
 const handler = createBillingWebhookHandler({ report() {}, verifyEvent: (body, signature, signingSecret) => stripe.webhooks.constructEventAsync(body, signature, signingSecret, undefined, crypto), stripe: { subscriptions: { retrieve: async () => ({ id: 'sub_signaturefixture', customer: 'cus_signaturefixture', livemode: false, status: 'canceled', items: { data: [] } }) } }, applyEvent: async () => { applied++; return 'applied'; } }, config);
 const header = await stripe.webhooks.generateTestHeaderStringAsync({ payload, secret, cryptoProvider: crypto });
 const request = (body, signature) => new Request('https://test.invalid/webhook', { method: 'POST', headers: { 'stripe-signature': signature }, body });
