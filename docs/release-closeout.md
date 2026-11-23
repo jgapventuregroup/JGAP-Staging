@@ -1,5 +1,13 @@
 # Version 1 release closeout
 
+## November 23, 2026 — audit of the corrected candidate
+
+- The Deal Analyzer rejects all-cash maximum offers when monthly cash flow falls short at every price. Its offer verdict and maximum-offer form now use the same input validation for targets and reserves. The verdict summary and detailed explanations use the same comparison thresholds.
+- Local application and isolated database regressions completed with zero failures. Coverage includes owned-only portfolio metrics, property classification and editing, Pipeline, saved analysis, Passport, map, account state, tier rules and ad eligibility. Edge type checks passed for billing and geocoding. These results establish local behavior.
+- The hosted Pages site served build `c4cc47fd3e3a63ca03ae`. A signed-out Chrome check confirmed the sign-in page, theme toggle and contextual Help, including Escape dismissal and focus return. No corrected deployment or matching hosted workflow was verified.
+- The hosted Supabase migration inventory still omits `20261118140000_v1_individual_accounts.sql`. The existing individual-account interface has deployed, while the documented backend migration remains open.
+- End-to-end acceptance still requires an ordinary staging fixture for account email flows, property and private-file persistence, and a signed-in mobile pass of the corrected Pages build. Hosted database and private-file recovery requires an approved isolated target. The vendor owns sandbox payment-to-entitlement verification and production configuration. Staging sign-in still marks the terms and privacy pages as drafts.
+
 ## November 18, 2026 — final-gate verification
 
 - Application candidate: `a76353e9718dc619eef427f9cfc8def6c38e094f`, Pages build `c4cc47fd3e3a63ca03ae`. The signed-in owner-preview Chrome session opened Properties, Pipeline, Reports, Market Map, Saved Deal Radar, Alerts and My Account. The Owned example stayed out of Pipeline. This pass performed no record writes. Fictional ordinary-account persistence, private files, mobile and assistive-technology acceptance remain open.

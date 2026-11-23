@@ -119,10 +119,23 @@ const cashLimit=(monthlyNoi-300)/debtFactor;
 const returnLimit=(12*monthlyNoi-.08*10000)/(12*debtFactor+.08*.2);
 assert.ok(Math.abs(standardPrice-Math.min(cashLimit,returnLimit))<.02,'Offer must satisfy stricter constraint');
 assert.match(standard,/Estimated cash needed including reserves:/);
+for (const [field, invalid] of [['target-flow',''],['target-coc','101'],['reserve-cash','-1']]) {
+  element(field).value=invalid;
+  element('calculate').onclick();
+  assert.match(element('deal-assessment').textContent,/Enter valid investment targets and cash reserves/);
+  assert.doesNotMatch(element('deal-explanation').children[0].children[1].textContent,/^Meets your targets/);
+  element(field).value=String({'target-flow':300,'target-coc':8,'reserve-cash':5000}[field]);
+}
+
 const revised=offerTest({ask:225000,offer:150000,down:20,rate:7},{'target-flow':300,'target-coc':8});assert.match(revised,/maximum offer meeting both targets/);assert.equal(element('price-comparison').children.length,4,'New deal comparison must replace old cards');assert.match(element('price-comparison').children[0].children[1].textContent,/\$225,000/,'Comparison must use new seller asking price');assert.match(element('price-comparison').children[1].children[1].textContent,/\$150,000/,'Comparison must use new offer');const cash=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':8,'reserve-cash':5000});
 assert.match(cash,/maximum offer meeting both targets:/,'All-cash deal with positive return target must be supported');
 const impossible=offerTest({rent:100,expenses:600},{'target-flow':300,'target-coc':8});
 assert.match(impossible,/Error: Targets cannot be met/);assert.equal(element('price-comparison').children.length,0,'Impossible deal must not retain old price cards');
+const cashBelowTarget = offerTest({down:100,rate:0,rent:1000,vacancy:5,expenses:600}, {'target-flow':400,'target-coc':8});
+assert.match(cashBelowTarget, /Error: Monthly income after operating expenses is below your monthly cash-flow target/);
+assert.equal(element('price-comparison').children.length, 0);
+const cashAtTarget = offerTest({down:100,rate:0,rent:1000,vacancy:5,expenses:600}, {'target-flow':350,'target-coc':8});
+assert.match(cashAtTarget, /maximum offer meeting both targets:/);
 const noFinite=offerTest({down:100,rate:0},{'target-flow':300,'target-coc':0});
 assert.match(noFinite,/Error: No finite maximum offer: an all-cash purchase/);
 console.log('PASS: real maximum-offer button, stricter constraint, cash reserves, all-cash, impossible and unbounded cases');

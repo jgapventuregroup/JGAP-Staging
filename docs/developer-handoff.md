@@ -1,5 +1,17 @@
 # The Key Ahead Investor App — developer handoff
 
+## November 23, 2026 handoff checkpoint
+
+Use the existing staging application and the [release closeout](release-closeout.md) as the deployment checklist. The all-cash maximum-offer calculation now rejects scenarios whose operating income cannot reach the monthly cash-flow target at any price. The Deal Analyzer regression covers both a missed target and an exact match.
+
+| Responsibility | Completion evidence |
+| --- | --- |
+| Application candidate | Run the locked application and database regressions with `npm ci` and `npm test`. Type-check the Edge handlers with `npm run check:edge`. Match the exact candidate to the GitHub Actions runs and deployed Pages build. |
+| Staging account acceptance | Use disposable ordinary Free, Investor and Pro test accounts for property and Passport saves, private files, plan changes and account email/recovery. Confirm the active hosted migration inventory, including the individual-account migration whose November 18 staging application was blocked. |
+| Vendor payment integration | Retain the existing server-side Stripe adapters. Verify current monthly and annual sandbox checkout, webhook delivery, sign-out/sign-in entitlement persistence, failed payment, cancellation and expiry. Follow the approved prices in the [membership feature matrix](membership-feature-matrix.md). |
+| Vendor production configuration | Configure the approved app origin, Supabase Auth redirect and recovery URLs, private Storage policies, Edge origins, monitoring and rollback. Rehearse database and private-file recovery in an approved isolated target with fictional fixtures. |
+| Launch authorization | Obtain approved legal and subscription disclosures and an assigned operator. Confirm the rollback build and recovery evidence before enabling live billing or publishing the production release. |
+
 ## Current owner scope
 November 2 operator update: Sean may deploy/upload the app himself and is comparing the outside company's pricing. Hiring that company is undecided. Prepare the existing app for either operator using `release-closeout.md`; do not activate paid services, production hosting, billing or live ads under this general continuation instruction. Earlier references to tasks assigned exclusively to the company are historical responsibility proposals, not a current hiring decision.
 
