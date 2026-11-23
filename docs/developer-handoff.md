@@ -12,6 +12,10 @@ Use the existing staging application and the [release closeout](release-closeout
 | Vendor production configuration | Configure the approved app origin, Supabase Auth redirect and recovery URLs, private Storage policies, Edge origins, monitoring and rollback. Rehearse database and private-file recovery in an approved isolated target with fictional fixtures. |
 | Launch authorization | Obtain approved legal and subscription disclosures and an assigned operator. Confirm the rollback build and recovery evidence before enabling live billing or publishing the production release. |
 
+## Hosted signup function source reconciliation
+
+On November 23, 2026, the Supabase staging function inventory identified two historical eligibility handlers alongside the current app's billing and geocoding functions. Their deployed source is preserved in `supabase/functions/request-free-eligibility/index.ts` (hosted version 6) and `supabase/functions/signup-eligibility-status/index.ts` (hosted version 7). Both use gateway JWT verification and validate the caller in the handler. The current customer sign-up flow does not call either function. This source reconciliation performed no function redeployment and made no decision to enable or retire the historical eligibility workflow.
+
 ## Current owner scope
 November 2 operator update: Sean may deploy/upload the app himself and is comparing the outside company's pricing. Hiring that company is undecided. Prepare the existing app for either operator using `release-closeout.md`; do not activate paid services, production hosting, billing or live ads under this general continuation instruction. Earlier references to tasks assigned exclusively to the company are historical responsibility proposals, not a current hiring decision.
 

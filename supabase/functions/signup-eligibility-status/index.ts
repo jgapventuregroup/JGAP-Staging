@@ -1,0 +1,21 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
+Deno.serve(async (request: Request) => {
+ const origin=request.headers.get("Origin");
+ const cors=origin==="https://jgapventuregroup.github.io"?{"Access-Control-Allow-Origin":origin,"Vary":"Origin","Access-Control-Allow-Headers":"authorization, apikey, x-client-info, content-type","Access-Control-Allow-Methods":"GET, OPTIONS"}:{};
+ const headers={"Content-Type":"application/json","Cache-Control":"no-store",...cors};
+ if(request.method==="OPTIONS")return new Response(null,{status:204,headers});
+ if(request.method!=="GET")return new Response(JSON.stringify({error:"Method not allowed"}),{status:405,headers});
+ const token=request.headers.get("Authorization")?.match(/^Bearer (.+)$/i)?.[1];
+ if(!token)return new Response(JSON.stringify({error:"Authentication required"}),{status:401,headers});
+ const url=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_ANON_KEY"),secret=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+ if(!url||!key||!secret)return new Response(JSON.stringify({error:"Service unavailable"}),{status:503,headers});
+ const auth=createClient(url,key,{auth:{persistSession:false}});
+ const {data:{user},error}=await auth.auth.getUser(token);
+ if(error||!user)return new Response(JSON.stringify({error:"Invalid session"}),{status:401,headers});
+ if(!user.email_confirmed_at)return new Response(JSON.stringify({email_verified:false,eligibility:"unavailable"}),{status:403,headers});
+ const admin=createClient(url,secret,{auth:{persistSession:false}});
+ const result=await admin.from("free_membership_eligibility").select("status,company_id").eq("user_id",user.id).maybeSingle();
+ if(result.error)return new Response(JSON.stringify({error:"Eligibility lookup unavailable"}),{status:503,headers});
+ return new Response(JSON.stringify({email_verified:true,eligibility:result.data?.status??"not_requested",has_workspace:!!result.data?.company_id}),{status:200,headers});
+});
