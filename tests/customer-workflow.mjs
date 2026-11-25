@@ -471,3 +471,37 @@ for(const role of ['viewer','editor','owner']){
 }
 alertTabs=[];
 console.log('PASS: actual alert adapter routes all five sources for viewer/editor/owner without writes and rejects foreign, missing, stale and signed-out targets');
+
+context.window.JGAP_APP_CONFIG.environment = 'production';
+companyBDeals = [];
+const removedControls = new Set(['company', 'dashboard-workspace-switcher', 'metric-role']);
+context.document.getElementById = id => removedControls.has(id) ? null : el(id);
+vm.runInNewContext(script, context);
+companies.splice(0, companies.length,
+ { company_id:'a', company_name:'Legacy shared portfolio', member_role:'viewer' },
+ { company_id:'b', company_name:'First owned portfolio', member_role:'owner' },
+ { company_id:'c', company_name:'Second owned portfolio', member_role:'owner' });
+calls.length = 0;
+el('email').value = 'fictional@example.com';
+el('password').value = 'synthetic-password';
+await el('login').onclick();
+assert.equal(el('dashboard').classList.contains('current'), true);
+assert.deepEqual([...new Set(calls.filter(call=>call.name==='list_company_deals').map(call=>call.args.p_company_id))], ['b']);
+assert.equal(context.window.JGAPFinanceContext.scope().companyId, 'b');
+assert.equal(calls.filter(call=>call.name==='create_my_company').length, 0);
+assert.equal(calls.filter(call=>call.name==='has_owner_preview_access').length, 0);
+await el('logout').onclick();
+assert.equal(el('workspace').classList.contains('hidden'), true);
+
+onboardingMode = true;
+onboardingCreated = false;
+calls.length = 0;
+el('email').value = 'new-user@example.com';
+el('password').value = 'synthetic-password';
+await el('login').onclick();
+assert.equal(el('dashboard').classList.contains('current'), true);
+assert.equal(calls.filter(call=>call.name==='create_my_company').length, 1);
+assert.equal(calls.find(call=>call.name==='create_my_company').args.p_company_name, 'My Investments');
+assert.equal(context.window.JGAPFinanceContext.scope()?.companyId, 'new-company', el('status').textContent);
+await el('logout').onclick();
+console.log('PASS: production portfolio opens directly for legacy and new accounts without selector, additional creation or owner preview');

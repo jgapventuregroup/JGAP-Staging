@@ -97,6 +97,6 @@ test('private release ships static-host headers and keeps billing disabled',()=>
     assert.equal(fs.existsSync(path.join(output,name)), false, 'Unapproved legal draft is excluded');
     assert.ok(!html.includes('href="'+name+'"'));
   }
-  assert.doesNotMatch(html,/data-test-billing=/);
+  assert.doesNotMatch(html,/data-test-billing=|id="dashboard-workspace-switcher"|id="metric-role"/);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
