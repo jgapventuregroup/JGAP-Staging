@@ -50,7 +50,7 @@ export function createPropertyAddressEditor({record,client,companyId,isCurrent,o
  const title=document.createElement('h3');title.textContent='Update property name and address';
  const nameLabel=document.createElement('label');nameLabel.textContent='Property name';const name=document.createElement('input');name.type='text';name.required=true;name.maxLength=150;name.value=record.name||'';nameLabel.append(name);
  const addressLabel=document.createElement('label');addressLabel.textContent='Street address';const address=document.createElement('input');address.type='text';address.required=true;address.maxLength=150;address.value=record.property_address||'';addressLabel.append(address);
- const hint=document.createElement('p');hint.textContent='Active Investor, Pro or verified owner-preview access is required to change the saved property identity. Existing records stay attached. Review any saved map pin after changing the address.';
+ const hint=document.createElement('p');hint.textContent='Editing property details requires the appropriate membership and permissions. Existing records stay attached. Review any saved map pin after changing the address.';
  const button=document.createElement('button');button.type='submit';button.textContent='Save name and address';const status=document.createElement('p');status.setAttribute('role','status');
  form.append(title,nameLabel,addressLabel,hint,button,status);let pending=false;
  form.onsubmit=async event=>{
@@ -189,7 +189,7 @@ function addAction({line,deal,openMap,mapHref,onPropertyUpdated,companyId,compan
       heading.textContent=p.name+' — Property Passport';
       panel.append(heading);
       const close=document.createElement('button');
-      close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close property passport preview');
+      close.type='button';close.textContent='Close Passport';close.setAttribute('aria-label','Close Property Passport');
       close.onclick=()=>{if(panel===activePanel){requestId++;panel.remove();panel=null;button.disabled=false;markPassportButton(button,false);if(expandedButton===button)expandedButton=null;}};
       panel.append(close);
       if(typeof openMap==='function'){const mapButton=document.createElement(mapHref?'a':'button');if(mapHref){mapButton.href=mapHref;mapButton.target='_blank';mapButton.rel='noopener noreferrer';mapButton.className='property-google-link';}else mapButton.type='button';mapButton.textContent='View on Market Map · Pro';mapButton.onclick=event=>{if(current===requestId&&panel===activePanel&&getCurrentCompany()===companyId&&getCurrentClient()===client)openMap(event);else event?.preventDefault?.();};panel.append(mapButton);}
@@ -311,7 +311,7 @@ function addAction({line,deal,openMap,mapHref,onPropertyUpdated,companyId,compan
             const row=Array.from(section?.querySelectorAll('p')||[]).find(el=>el.querySelector('strong')?.textContent===label+': ');
             if(row)row.replaceChildren(Object.assign(document.createElement('strong'),{textContent:label+': '}),document.createTextNode(formatPassportValue(label,value)));
           }
-          financeStatus.textContent='Financial details saved and verified from staging.';
+          financeStatus.textContent='Financial details saved.';
         }catch(error){if(isCurrent())financeStatus.textContent='Could not save financial details: '+(error?.message||'Unknown error');}
         finally{financeSaveInFlight=false;if(isCurrent())financeSave.disabled=false;}
       };
@@ -336,7 +336,7 @@ function addAction({line,deal,openMap,mapHref,onPropertyUpdated,companyId,compan
       }
       const accessNote=document.createElement('p');
       accessNote.setAttribute('role','status');
-      accessNote.textContent=window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true ? (window.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true ? 'Property records: viewing and editing enabled.' : 'Property records: read-only. Editing requires active Pro access and an owner, admin or editor role.') : 'Property records: preview only until secure database access is activated.';
+      accessNote.textContent=window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true ? (window.JGAP_ORIGINAL_PASSPORT_WRITES_READY===true ? 'Property records: viewing and editing enabled.' : 'Property records: read-only. Editing requires active Pro access and an owner, admin or editor role.') : 'Property records are temporarily unavailable.';
       accessNote.className='passport-access-status';
       panel.append(accessNote);
       if(window.JGAP_ORIGINAL_PASSPORT_TABLES_READY===true){
@@ -532,7 +532,7 @@ function addAction({line,deal,openMap,mapHref,onPropertyUpdated,companyId,compan
       }
       const note=document.createElement('small');
       note.setAttribute('role','status');
-      note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Property activity entries save to the connected staging database.':'Operations data is read-only until secure write access is enabled.'):'Property activity is unavailable. Saved property details and authorized Passport edits remain separate.';
+      note.textContent=operations?(window.JGAP_OPERATIONS_WRITES_READY===true?'Changes are saved to this property’s activity history.':'You can view this activity history.'):'Property activity is unavailable. Saved property details and authorized Passport edits remain separate.';
       panel.append(note);
       const documentsSection=await createPassportDocumentsSection({client,companyId,dealId:record.id,getCurrentCompany,getCurrentClient});
       if(current!==requestId||panel!==activePanel||getCurrentCompany()!==companyId||getCurrentClient()!==client||!eligibility.enabled||eligibility.companyId!==companyId)return;

@@ -1,5 +1,6 @@
 // Public staging browser configuration. Contains browser-safe keys only; never service-role or server secrets.
 window.JGAP_APP_CONFIG = Object.freeze({
+  environment: 'staging',
   supabaseUrl: 'https://qfszapteuxuogoselprp.supabase.co',
   appUrl: 'https://jgapventuregroup.github.io/JGAP-Staging/',
   publishableKey: 'sb_publishable_ylx_UhU16Ka5eZbZraKM0w_QYNHysQV',

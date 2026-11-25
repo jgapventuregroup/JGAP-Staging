@@ -3,7 +3,7 @@ export async function saveOriginalPassportEntry({kind,values,client,companyId,de
  const table=tables[kind];if(!table)throw Error('Unknown Passport entry');
  if(entryId!==null&&(typeof entryId!=='string'||!entryId.trim()))throw Error('Invalid Passport record ID');
  // Defense in depth: UI flags supplement independently enforced Pro/company RLS.
- if(globalThis.JGAP_ORIGINAL_PASSPORT_WRITES_READY!==true)throw Error('Passport record editing is not enabled for this staging workspace');
+ if(globalThis.JGAP_ORIGINAL_PASSPORT_WRITES_READY!==true)throw Error('Editing is not enabled for these property records');
  if(!client||!companyId||!dealId||typeof getCurrentCompany!=='function'||typeof getCurrentClient!=='function')throw Error('Missing Passport context');
  if(getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Company session changed');
  if(!values||typeof values!=='object'||Array.isArray(values))throw Error('Invalid Passport entry');

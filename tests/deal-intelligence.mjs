@@ -62,5 +62,5 @@ console.log('PASS: plain property review keeps unknowns separate from zero, requ
 
 el('intelligence-status').focused=false;el('intelligence-status').scrolled=false;scope={companyId:'a',role:'owner'};review([record]);assert.equal(el('intelligence-status').focused,true);assert.equal(el('intelligence-status').scrolled,true);assert.equal(el('intelligence-status').tabindex,'-1');
 el('intelligence-status').focused=false;el('intelligence-status').scrolled=false;el('intelligence-address').value='';manualSubmit();assert.equal(el('intelligence-address').focused,true);assert.equal(el('intelligence-address')['aria-invalid'],'true');assert.equal(el('intelligence-advanced').open,false);assert.equal(el('intelligence-status').scrolled,false);assert.match(el('intelligence-status').textContent,/full property address/);
-el('intelligence-status').focused=false;scope=null;el('review-intelligence').onclick();assert.equal(el('intelligence-status').focused,true);assert.match(el('intelligence-status').textContent,/Choose a company workspace/);
+el('intelligence-status').focused=false;scope=null;el('review-intelligence').onclick();assert.equal(el('intelligence-status').focused,true);assert.match(el('intelligence-status').textContent,/Choose a workspace/);
 console.log('PASS: review success, invalid manual entries and missing workspace bring keyboard focus to visible feedback');

@@ -5,7 +5,7 @@ const types={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image
 const objectName=/^[0-9a-f-]{36}--[A-Za-z0-9][A-Za-z0-9._ -]{0,119}\.(pdf|jpg|jpeg|png)$/;
 function scope(context){
  const {client,companyId,dealId,getCurrentCompany,getCurrentClient}=context;
- if(globalThis.JGAP_PASSPORT_DOCUMENTS_READY!==true)throw Error('Documents are not available in this staging release yet.');
+ if(globalThis.JGAP_PASSPORT_DOCUMENTS_READY!==true)throw Error('Documents are not available right now.');
  if(!client||!uuid.test(companyId)||!uuid.test(dealId)||typeof getCurrentCompany!=='function'||typeof getCurrentClient!=='function')throw Error('Invalid document context');
  if(getCurrentCompany()!==companyId||getCurrentClient()!==client)throw Error('Document workspace changed');
  return companyId+'/'+dealId;
@@ -47,7 +47,7 @@ export async function uploadPassportDocument(context,file){
  const prefix=scope(context);const name=crypto.randomUUID()+'--'+validated.filename;const path=prefix+'/'+name;
  const storage=context.client.storage.from(DOCUMENT_BUCKET);
  const {data,error}=await storage.upload(path,file,{upsert:false,contentType:validated.contentType,cacheControl:'0'});
- scope(context);if(error)throw Error('Document upload failed: '+error.message);
+ scope(context);if(error)throw Error('Could not upload the document. Please try again.');
  try{
   if(data?.path!==path)throw Error('Uploaded path did not match selected property');
   const result=await storage.list(prefix,{limit:2,search:name});scope(context);
@@ -69,7 +69,7 @@ export async function createPassportDocumentsSection(context){
  const section=document.createElement('section');section.dataset.passportDocuments='true';
  const heading=document.createElement('h3');heading.textContent='Documents';section.append(heading);
  const message=document.createElement('p');message.setAttribute('role','status');section.append(message);
- if(globalThis.JGAP_PASSPORT_DOCUMENTS_READY!==true){message.textContent='Documents are not available in this staging release yet.';return section;}
+ if(globalThis.JGAP_PASSPORT_DOCUMENTS_READY!==true){message.textContent='Documents are not available right now.';return section;}
  try{
   await authorize(context);scope(context);
   const description=document.createElement('p');description.textContent='Private property files · PDF, JPEG or PNG · Up to 10 MB each. Files download without an inline preview. Automated malware scanning is not connected.';section.append(description);

@@ -185,7 +185,7 @@ export function mountFinance({root,getContext,loadReport,saveDetails,download,ca
  const open=async()=>{
   clear();const scope=getContext();
   if(!scope?.companyId){root.append(el('p','Select a workspace to view financial reports.'));return;}
-  if(!scope.canRead){root.append(el('p','Financial Reports requires active Pro access. Billing is not connected; this page cannot activate a subscription.'));return;}
+  if(!scope.canRead){root.append(el('p','Financial Reports requires active Pro membership.'));return;}
   activeCompany=scope.companyId;
   if(typeof calculateSeller==='function')mountSellerPlaybook({root,getContext,calculate:calculateSeller});
   const controls=el('form');controls.setAttribute('aria-label','Financial report filters');controls.className='grid';

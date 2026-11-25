@@ -36,7 +36,7 @@
     const version = ++reviewVersion;
     el('intelligence-results').replaceChildren();
     const scope = window.JGAPIntelligenceContext?.scope();
-    if (!scope) { el('intelligence-status').textContent = 'Choose a company workspace before reviewing listings.'; showReview(); return; }
+    if (!scope) { el('intelligence-status').textContent = 'Choose a workspace before reviewing listings.'; showReview(); return; }
     previewCompany = scope.companyId;
     try {
       const raw = el('intelligence-json').value.trim();
@@ -119,7 +119,7 @@
         el('intelligence-results').append(card);
       }
       el('intelligence-status').textContent = manualRow ? (incomplete ? 'Review ready. Complete the missing financial fields before saving.' : 'Review ready.') : rows.length + ' listings reviewed. ' + incomplete + ' need more information before saving.';
-    } catch (error) { el('intelligence-results').replaceChildren(); el('intelligence-status').textContent = 'Unable to review listings: ' + error.message; }
+    } catch (error) { el('intelligence-results').replaceChildren(); el('intelligence-status').textContent = 'Could not review the listing. Check the information and try again.'; }
     showReview();
   }
   el('review-intelligence').onclick=()=>review();

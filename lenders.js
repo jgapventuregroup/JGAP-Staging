@@ -53,10 +53,10 @@
     el('lenderList').replaceChildren();
     rows = []; for (const id of ['l_count', 'l_active', 'l_due']) el(id).textContent = '';
     el('l_toggle_form').hidden = !canEdit(); showForm(false);
-    if (!active) { el('l_msg').textContent = 'Choose a company workspace to view its lenders.'; return; }
+    if (!active) { el('l_msg').textContent = 'Choose a workspace to view its lenders.'; return; }
     el('lenderList').textContent = 'Loading lender directory…';
     try { const result = await window.JGAPLenderContext.load(active.companyId); if (generation !== loading || result.stale || scope()?.companyId !== active.companyId) return; if (!Array.isArray(result.rows) || result.rows.some(row => row.company_id !== active.companyId)) throw Error('Lender records could not be verified for this company.'); rows = result.rows; render(); }
-    catch (error) { if (generation !== loading || scope()?.companyId !== active.companyId) return; rows = []; el('lenderList').textContent = 'Unable to load lenders: ' + error.message; }
+    catch (error) { if (generation !== loading || scope()?.companyId !== active.companyId) return; rows = []; el('lenderList').textContent = 'Could not load lenders. Please try again.'; }
   }
   el('lender-form').onsubmit = async event => {
     event.preventDefault(); const active = scope();
@@ -65,7 +65,7 @@
     saving = true; el('l_save_btn').disabled = true;
     for (const id of Object.keys(mapping)) el(id).disabled = true; el('l_cancel_btn').disabled = true;
     try { const result = await window.JGAPLenderContext.save(fields, editing, active.companyId); if (result.stale || scope()?.companyId !== active.companyId) return; clearForm(); el('l_msg').textContent = 'Lender saved.'; await load(); }
-    catch (error) { if (scope()?.companyId !== active.companyId) return; el('l_msg').textContent = 'Could not save lender: ' + error.message; }
+    catch (error) { if (scope()?.companyId !== active.companyId) return; el('l_msg').textContent = 'Could not save the lender. Please try again.'; }
     finally { saving = false; el('l_save_btn').disabled = !canEdit(); for (const id of Object.keys(mapping)) el(id).disabled = !canEdit(); el('l_cancel_btn').disabled = false; }
   };
   el('l_cancel_btn').onclick = () => { clearForm(); showForm(false); }; el('l_search').oninput = render; el('l_show_archived').onchange = render;

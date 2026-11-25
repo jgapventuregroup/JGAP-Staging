@@ -86,7 +86,17 @@ test('private release ships static-host headers and keeps billing disabled',()=>
   assert.match(headers,/frame-ancestors 'none'/);
   assert.match(headers,/X-Content-Type-Options: nosniff/);
   const html=fs.readFileSync(path.join(output,'index.html'),'utf8');
-  assert.equal((html.match(/disabled data-disabled-billing=/g)||[]).length,5);
+  assert.match(html, /<title>The Key Ahead Investor App<\/title>/);
+  assert.doesNotMatch(html, /staging-only|STAGING ONLY|Stripe sandbox only|staging drafts|Test Investor|Test Pro|Manage test subscription<\/button>/);
+  assert.match(fs.readFileSync(path.join(output,'config.js'),'utf8'), /"environment":"production"/);
+  assert.match(read('config.js'), /environment: 'staging'/);
+  assert.match(read('index.html'), /STAGING ONLY/);
+  assert.match(read('index.html'), /Stripe sandbox only/);
+  assert.match(read('index.html'), /data-test-billing="portal"/);
+  for (const name of ['terms.html','privacy.html']) {
+    assert.equal(fs.existsSync(path.join(output,name)), false, 'Unapproved legal draft is excluded');
+    assert.ok(!html.includes('href="'+name+'"'));
+  }
   assert.doesNotMatch(html,/data-test-billing=/);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });

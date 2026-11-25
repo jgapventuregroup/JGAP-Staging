@@ -77,6 +77,7 @@ await el('login').onclick();
 assert.equal(calls.filter(x => x.name === 'create_my_company').length, 1, 'New user attempts workspace creation once');
 assert.equal(el('workspace').classList.contains('hidden'), false, 'Workspace opens after creation succeeded despite an error response');
 assert.equal(el('company').options[0].value, 'new-company', 'New company is available in the workspace selector');
+assert.equal(el('dashboard-workspace-switcher').hidden, true, 'A single authorized workspace opens without a chooser');
 await el('logout').onclick();
 onboardingMode = false;
 calls.length = 0;
@@ -96,13 +97,13 @@ assert.equal(options.auth.autoRefreshToken, true, 'Sessions must refresh during 
 assert.equal(options.auth.persistSession, false, 'Staging must not retain credentials after reload');
 assert.equal(el('company').value, '', 'Multiple memberships must require an explicit choice');
 assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'No company may be loaded before selection');
-assert.match(el('workspace-status').textContent, /Choose the company/);
+assert.match(el('workspace-status').textContent, /Choose a workspace/);
 assert.match(el('new-deal-limit-notice').textContent,/choose a workspace/);
 assert.equal(el('dashboard-workspace-switcher').hidden,false);
 assert.equal(el('account-email').textContent,'fictional@example.com');
 
 el('company').value = ''; await el('company').onchange();
-assert.match(el('workspace-status').textContent, /Choose a company workspace/);
+assert.match(el('workspace-status').textContent, /Choose a workspace/);
 assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'Blank workspace selection must not load company data');
 el('company').value = 'a'; await el('company').onchange();
 assert.equal(el('workspace-status').textContent,'');
@@ -338,7 +339,7 @@ assert.equal(passportEligibility.enabled,true,'Verified owner preview works sepa
 assert.match(el('membership-title').textContent,/Verified owner preview/);
 assert.equal(el('account-membership').textContent,'Investor · Active');
 assert.equal(el('account-preview').hidden,false);
-assert.match(el('account-allowance').textContent,/Unlimited in staging owner preview/);
+assert.match(el('account-allowance').textContent,/Unlimited for owner access/);
 console.log('PASS: backend Passport denial wins over client plan labels; Pro ad-free; inactive/downgraded access closes; owner preview separate');
 membership={plan:'pro',billing_status:'active'};passportAllowed=true;financeCapability={read:true,write:false};
 el('company').value='b';await el('company').onchange();
