@@ -63,7 +63,15 @@ export function createBillingSessionHandler(deps, config) {
       if (!billing) throw new BillingError(409, 'Company membership must be initialized before billing.');
       if (body.action === 'portal') {
         if (!billing.stripe_customer_id) throw new BillingError(409, 'This company has no billing account yet.');
-        const session = await deps.stripe.billingPortal.sessions.create({ customer: billing.stripe_customer_id, return_url: config.returnUrl });
+        const configuration = config.portalConfiguration;
+        if (configuration && !/^bpc_[A-Za-z0-9]+$/.test(configuration)) {
+          throw new BillingError(503, 'The billing portal needs configuration.');
+        }
+        const session = await deps.stripe.billingPortal.sessions.create({
+          customer: billing.stripe_customer_id,
+          return_url: config.returnUrl,
+          ...(configuration ? { configuration } : {})
+        });
         return json({ url: portalUrl(session.url), mode: billingMode(config) }, 200, headers);
       }
       const priceId = priceFor(body.plan, config);

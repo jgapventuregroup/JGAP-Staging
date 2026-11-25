@@ -7,6 +7,7 @@ export const config = {
   mode,
   enabled: Deno.env.get('JGAP_BILLING_ENABLED') === 'true',
   secretKey: Deno.env.get('STRIPE_SECRET_KEY') || '',
+  portalConfiguration: Deno.env.get('STRIPE_PORTAL_CONFIGURATION_ID') || '',
   webhookSecret: Deno.env.get('STRIPE_WEBHOOK_SECRET') || '',
   investorPrice: Deno.env.get('STRIPE_INVESTOR_PRICE_ID') || '',
   investorYearPrice: Deno.env.get('STRIPE_INVESTOR_YEAR_PRICE_ID') || '',
