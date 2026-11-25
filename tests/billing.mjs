@@ -126,6 +126,16 @@ const releaseDeps = {
   ...liveDeps,
   stripe: { ...deps.stripe, subscriptions: { ...deps.stripe.subscriptions, retrieve: async () => releaseSubscription } },
 };
+const guardedRelease = createBillingSessionHandler({
+  ...releaseDeps,
+  getBilling: async () => { throw new Error('Mode mismatch must stop before reading billing state'); },
+}, releaseConfig);
+for (const action of ['checkout', 'portal']) {
+  const body = {company_id:company, action, ...(action === 'checkout' ? {plan:'investor'} : {})};
+  for (const expectation of [{}, {expected_mode:'test'}]) {
+    assert.equal((await guardedRelease(request({...body,...expectation},{origin:releaseOrigin}))).status,409);
+  }
+}
 assert.equal((await createBillingWebhookHandler(releaseDeps, releaseConfig)(webhookRequest('valid'))).status, 200);
 assert.equal(eventArgs.billing_status, 'active');
 assert.equal((await createBillingWebhookHandler(deps, releaseConfig)(webhookRequest('valid'))).status, 400);

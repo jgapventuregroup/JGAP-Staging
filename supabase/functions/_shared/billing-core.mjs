@@ -53,11 +53,12 @@ export function createBillingSessionHandler(deps, config) {
       const raw = await request.text();
       if (raw.length > 2048) throw new BillingError(413, 'Request is too large.');
       let body; try { body = JSON.parse(raw); } catch { throw new BillingError(400, 'Invalid request.'); }
-      if (!body || Array.isArray(body) || Object.keys(body).some(key => !['company_id', 'action', 'plan'].includes(key)) || !UUID.test(body.company_id || '') || !['checkout', 'portal'].includes(body.action)) throw new BillingError(400, 'Invalid billing request.');
+      if (!body || Array.isArray(body) || Object.keys(body).some(key => !['company_id', 'action', 'plan', 'expected_mode'].includes(key)) || !UUID.test(body.company_id || '') || !['checkout', 'portal'].includes(body.action)) throw new BillingError(400, 'Invalid billing request.');
       if (body.action === 'checkout' && (typeof body.plan !== 'string' || !Object.hasOwn(plans, body.plan))) throw new BillingError(400, 'Choose Investor or Pro.');
       const role = await deps.getRole(body.company_id, user.id);
       if (!['owner', 'admin'].includes(role)) throw new BillingError(403, 'Only a company owner or administrator can manage billing.');
       if (!configured(config)) throw new BillingError(503, 'Subscription checkout is not connected yet. No payment has been taken.');
+      if ((body.expected_mode ?? 'test') !== billingMode(config)) throw new BillingError(409, 'Billing mode does not match the app. No payment has been taken.');
       const billing = await deps.getBilling(body.company_id);
       if (!billing) throw new BillingError(409, 'Company membership must be initialized before billing.');
       if (body.action === 'portal') {

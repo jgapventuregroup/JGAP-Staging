@@ -10,7 +10,7 @@ export function versionFrontend(directory){
   for(const entry of fs.readdirSync(path.join(directory,relative),{withFileTypes:true}).sort((a,b)=>a.name.localeCompare(b.name))){
    const name=path.posix.join(relative,entry.name);
    if(entry.isDirectory())walk(name);
-   else if(/\.(?:html|mjs|js|css)$/.test(name))files.push(name);
+   else if(name==='_headers'||/\.(?:html|mjs|js|css)$/.test(name))files.push(name);
   }
  };
  walk('');

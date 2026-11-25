@@ -17,10 +17,11 @@ class Element {
   prepend(...children) { this.children.unshift(...children); }
   replaceChildren(...children) { this.children = children; this.textContent = ''; }
   setAttribute(k, v) { this[k] = v; }
+  getAttribute(k) { return this[k] ?? null; }
   removeAttribute(k) { delete this[k]; }
   addEventListener(k, fn) { this.listeners[k] = fn; }
   focus(options) { this.focusCount=(this.focusCount||0)+1; this.focusOptions=options; }
-  closest(selector) { return selector==='#workspace-nav'&&this.inSidebar?el('workspace-nav'):null; }
+  closest(selector) { if(selector==='details')return this.disclosure??null; return selector==='#workspace-nav'&&this.inSidebar?el('workspace-nav'):null; }
   scrollIntoView() { this.scrollCount=(this.scrollCount||0)+1; }
   click() { return this.onclick?.(); }
 }
@@ -96,6 +97,7 @@ assert.equal(options.auth.persistSession, false, 'Staging must not retain creden
 assert.equal(el('company').value, '', 'Multiple memberships must require an explicit choice');
 assert.equal(calls.filter(x => x.name === 'list_company_deals').length, 0, 'No company may be loaded before selection');
 assert.match(el('workspace-status').textContent, /Choose the company/);
+assert.match(el('new-deal-limit-notice').textContent,/choose a workspace/);
 assert.equal(el('dashboard-workspace-switcher').hidden,false);
 assert.equal(el('account-email').textContent,'fictional@example.com');
 
@@ -135,7 +137,17 @@ passportAllowed=true;membership={plan:'investor',billing_status:'active'};
 el('company').value='a';await el('company').onchange();
 const recentPaid=el('dashboard-recent-properties').children[0];
 assert.match(recentPaid['aria-label'],/Open Property Passport for Fictional Duplex A/);
+const paidDisclosure=el('deals').children[0];
+const paidPassport=paidDisclosure.children.flatMap(node=>node.children).find(node=>typeof node.onclick==='function'&&node.tagName==='button'&&!node.textContent);
+assert.ok(paidPassport);
+paidPassport.disclosure=paidDisclosure;
+paidDisclosure.open=false;
 await recentPaid.onclick();
+assert.equal(paidDisclosure.open,true,'Dashboard Passport opens the containing property disclosure');
+const paidOpenCount=calls.filter(x=>x.name==='open-passport').length;
+paidPassport.setAttribute('aria-expanded','true');
+await recentPaid.onclick();
+assert.equal(calls.filter(x=>x.name==='open-passport').length,paidOpenCount,'Dashboard Passport does not toggle a visible panel closed');
 assert.deepEqual(calls.filter(x=>x.name==='open-passport').at(-1),{name:'open-passport',companyId:'a',dealId:deal.id});
 passportAllowed=false;membership={plan:'free',billing_status:'not_connected'};
 el('company').value='a';await el('company').onchange();
@@ -233,6 +245,7 @@ assert.equal(el('pipeline-deals').children.length, 0);
 assert.equal(el('export-properties').disabled, true);
 assert.equal(el('selected').textContent, 'Manual calculation — not saved');
 assert.match(el('workspace-status').textContent, /Unable to load company: Network unavailable/);
+assert.match(el('new-deal-limit-notice').textContent,/Could not load this workspace/);
 failCompanyB = false; await el('company').onchange();
 assert.equal(el('new-deal-form').hidden, false, 'Owner with available Free slots can add a property');
 assert.equal(el('pipeline-count').textContent, '0');
@@ -360,6 +373,13 @@ await assert.rejects(context.window.JGAPFinanceContext.load('b',financeFilters),
 console.log('PASS: advanced finance context honors server capability, editing role and exact transaction/company scope');
 membership={plan:'investor',billing_status:'active'};passportAllowed=true;el('company').value='b';await el('company').onchange();
 for(const [key,value] of Object.entries({offer:180000,rent:1800,other:0,vacancy:5,expenses:600,down:20,rate:7,years:30}))el(key).value=String(value);
+el('ask').value='200000';
+el('costs').value='5000';
+el('calculate').onclick();
+// Expected mortgage calculated independently by discounting and summing all 360 payment periods.
+for(const expected of ['Loan: $144,000.00','Monthly payment: $958.04','Annual NOI: $13,320.00','Monthly cash flow: $151.96','Cap rate: 7.40%','Cash-on-cash: 4.45%','DSCR: 1.16']){
+  assert.ok(el('results').textContent.split('\n').includes(expected),expected);
+}
 el('celoc-rate').value='9';el('celoc-use-down').onclick();assert.equal(el('celoc-amount').value,'36000.00');
 el('celoc-amount').value='40000';await el('celoc-calculate').onclick();
 const secondaryCall=calls.filter(call=>call.name==='calculate_secondary_financing').at(-1);assert.equal(secondaryCall.args.p_amount,40000);assert.equal(secondaryCall.args.p_rate,9);assert.equal(secondaryCall.args.p_company_id,'b');assert.equal(secondaryCall.args.p_primary.down,20);

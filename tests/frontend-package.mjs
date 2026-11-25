@@ -68,3 +68,25 @@ test('local map styles are versioned and bundled vendor files match the pinned p
   for(const [bundled,source] of [['leaflet.js','dist/leaflet.js'],['leaflet.css','dist/leaflet.css'],['leaflet-LICENSE.txt','LICENSE']])assert.ok(read(bundled)===read('node_modules/leaflet/'+source),'Bundled Leaflet file differs from pinned package: '+bundled);
  }finally{fs.rmSync(directory,{recursive:true,force:true})}
 });
+
+test('private release ships static-host headers and keeps billing disabled',()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'tka-pages-'));
+ try{
+  const config=path.join(directory,'fixture.json');
+  const output=path.join(directory,'release');
+  fs.writeFileSync(config,JSON.stringify({
+   appUrl:'https://investor.example.test',
+   supabaseUrl:'https://backend.example.test',
+   publishableKey:'sb_publishable_fixture'
+  }));
+  const result=spawnSync(process.execPath,['scripts/build-private-release.mjs',config,output],{cwd:root,encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);
+  const headers=fs.readFileSync(path.join(output,'_headers'),'utf8');
+  assert.equal(headers,read('hosting/cloudflare-pages/_headers'));
+  assert.match(headers,/frame-ancestors 'none'/);
+  assert.match(headers,/X-Content-Type-Options: nosniff/);
+  const html=fs.readFileSync(path.join(output,'index.html'),'utf8');
+  assert.equal((html.match(/disabled data-disabled-billing=/g)||[]).length,5);
+  assert.doesNotMatch(html,/data-test-billing=/);
+ }finally{fs.rmSync(directory,{recursive:true,force:true})}
+});
