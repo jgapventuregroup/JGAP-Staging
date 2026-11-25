@@ -46,5 +46,36 @@ test('clean app baseline restores with RLS/grants and passes SQL security regres
    console.log(file+': '+checks.length+' grouped SQL checks passed on restored local schema');
   }
   assert.equal((await db.query('select count(*)::int as count from public.companies')).rows[0].count,2,'Rollback tests leave only local seed companies');
+  // Reuse isolated seed identities to test the operator procedure without hosted writes.
+  await db.exec(`update auth.users set email='sean@thekeyahead.com' where email='schema-a@example.invalid';
+   update auth.users set email='lesleigh@thekeyahead.com', email_confirmed_at=null where email='schema-b@example.invalid';`);
+  const grant=read('scripts/grant-founder-pro.sql');
+  const proCount=async()=> (await db.query("select count(*)::int as count from public.company_subscriptions where plan='pro'")).rows[0].count;
+  await assert.rejects(db.exec(grant),/Expected one verified founder/);
+  await db.exec('rollback');
+  assert.equal(await proCount(),0,'Partial provisioning rolls back when one founder is missing or unverified');
+
+  await db.exec(`update auth.users set email_confirmed_at=now() where email='lesleigh@thekeyahead.com';
+   update public.company_subscriptions set stripe_customer_id='cus_fixture' where company_id='20000000-0000-4000-8000-000000000002';`);
+  await assert.rejects(db.exec(grant),/has billing history/);
+  await db.exec('rollback');
+  assert.equal(await proCount(),0,'Existing Stripe link prevents both grants');
+  await db.exec("update public.company_subscriptions set stripe_customer_id=null");
+  await db.exec(grant);
+  await db.exec(grant);
+  assert.equal(await proCount(),2,'Both grants are durable and safe to repeat');
+  for (const [owner,other] of [[1,2],[2,1]]) {
+   const identity='10000000-0000-4000-8000-00000000000'+owner;
+   const ownPortfolio='20000000-0000-4000-8000-00000000000'+owner;
+   const otherPortfolio='20000000-0000-4000-8000-00000000000'+other;
+   await db.query("select set_config('request.jwt.claim.sub',$1,false)",[identity]);
+   await db.exec('set role authenticated');
+   const access=(await db.query(`select public.can_access_passport($1) as own_passport,
+    public.can_access_passport($2) as other_passport, public.advanced_finance_access($1) as own_finance,
+    public.has_owner_preview_access($1) as preview`,[ownPortfolio,otherPortfolio])).rows[0];
+   assert.deepEqual(access,{own_passport:true,other_passport:false,own_finance:{read:true,write:true},preview:false});
+   await db.exec('reset role');
+  }
+
  }catch(error){throw new Error(error.message+(error.detail?' · '+error.detail:''));}finally{await db.close();}
 });

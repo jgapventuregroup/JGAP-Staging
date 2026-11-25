@@ -26,9 +26,9 @@ export const dependencies = {
   report: (code: string) => console.error(code),
   getUser: async (token: string) => { const { data, error } = await database.auth.getUser(token); return error ? null : data.user; },
   getRole: async (company: string, user: string) => { const { data, error } = await database.from('company_members').select('role').eq('company_id', company).eq('user_id', user).maybeSingle(); if (error) throw error; return data?.role; },
-  getBilling: async (company: string) => { const { data, error } = await database.from('company_subscriptions').select('stripe_customer_id,stripe_subscription_id,billing_status').eq('company_id', company).maybeSingle(); if (error) throw error; return data; },
+  getBilling: async (company: string) => { const { data, error } = await database.from('company_subscriptions').select('plan,stripe_customer_id,stripe_subscription_id,billing_status').eq('company_id', company).maybeSingle(); if (error) throw error; return data; },
   linkCustomer: async (company: string, customer: string) => {
-    const { error } = await database.from('company_subscriptions').update({ stripe_customer_id: customer }).eq('company_id', company).is('stripe_customer_id', null);
+    const { error } = await database.from('company_subscriptions').update({ stripe_customer_id: customer }).eq('company_id', company).is('stripe_customer_id', null).or('plan.neq.pro,billing_status.neq.active');
     if (error) throw error;
     const { data, error: readError } = await database.from('company_subscriptions').select('stripe_customer_id').eq('company_id', company).single();
     if (readError) throw readError;

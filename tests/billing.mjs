@@ -24,6 +24,17 @@ assert.equal((await handler(request({ company_id: company, action: 'checkout', p
 assert.equal((await createBillingSessionHandler(deps, { ...config, enabled: false })(request())).status, 503);
 assert.equal((await createBillingSessionHandler(deps, { ...config, secretKey: 'sk_live_fixture' })(request())).status, 503);
 assert.equal(calls, 0, 'Denied requests cannot create checkout sessions');
+const complimentaryBilling = createBillingSessionHandler({
+  ...deps,
+  getBilling: async () => ({ plan: 'pro', billing_status: 'active' }),
+  stripe: new Proxy({}, { get() { assert.fail('Complimentary Pro must never call Stripe'); } })
+}, config);
+for (const action of ['checkout', 'portal']) {
+  const result = await complimentaryBilling(request({ company_id: company, action, plan: 'investor' }));
+  assert.equal(result.status, 409);
+  assert.match((await result.json()).error, /complimentary Pro/);
+}
+
 priceValue = { ...price, unit_amount: 1 }; assert.equal((await handler(request())).status, 503);
 priceValue = { ...price, livemode: true }; assert.equal((await handler(request())).status, 503);
 priceValue = price;

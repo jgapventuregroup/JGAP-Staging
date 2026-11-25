@@ -61,6 +61,10 @@ export function createBillingSessionHandler(deps, config) {
       if ((body.expected_mode ?? 'test') !== billingMode(config)) throw new BillingError(409, 'Billing mode does not match the app. No payment has been taken.');
       const billing = await deps.getBilling(body.company_id);
       if (!billing) throw new BillingError(409, 'Company membership must be initialized before billing.');
+      if (billing.plan === 'pro' && billing.billing_status === 'active' &&
+          !billing.stripe_customer_id && !billing.stripe_subscription_id) {
+        throw new BillingError(409, 'Your complimentary Pro membership does not require billing.');
+      }
       if (body.action === 'portal') {
         if (!billing.stripe_customer_id) throw new BillingError(409, 'This company has no billing account yet.');
         const configuration = config.portalConfiguration;
